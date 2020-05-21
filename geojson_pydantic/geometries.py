@@ -31,7 +31,7 @@ class Point(_GeometryBase):
     type: str = Field("Point", const=True)
     coordinates: Coordinate
 
-class Multipoint(_GeometryBase):
+class MultiPoint(_GeometryBase):
     type: str = Field("MultiPoint", const=True)
     coordinates: List[Coordinate]
 
