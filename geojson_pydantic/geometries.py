@@ -1,10 +1,11 @@
+import abc
 import geojson
 from typing import Any, List, Tuple, Union
 from pydantic import BaseModel, Field, validator
 
 from .utils import NumType
 
-class _GeometryBase(BaseModel):
+class _GeometryBase(BaseModel, abc.ABC):
     coordinates: Any  # will be constrained in child classes
 
     @validator("coordinates")
@@ -53,4 +54,4 @@ class MultiPolygon(_GeometryBase):
 
 class GeometryCollection(BaseModel):
     type: str = Field("GeometryCollection", const=True)
-    geometries: List[_GeometryBase]
+    geometries: List[Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]]
