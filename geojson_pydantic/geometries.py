@@ -9,8 +9,8 @@ class _GeometryBase(BaseModel, abc.ABC):
     coordinates: Any  # will be constrained in child classes
 
     @validator("coordinates")
-    def check_coordinates(self, coords):
-        geojson_instance = getattr(geojson, self.__name__)(coordinates=coords)
+    def check_coordinates(cls, coords):
+        geojson_instance = getattr(geojson, cls.__name__)(coordinates=coords)
 
         if geojson_instance.is_valid:
             return coords

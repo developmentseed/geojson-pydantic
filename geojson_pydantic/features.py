@@ -16,7 +16,7 @@ class Feature(BaseModel):
         use_enum_values = True
 
     @validator("geometry", pre=True, always=True)
-    def set_geometry(self, v):
+    def set_geometry(cls, v):
         if hasattr(v, "__geo_interface__"):
             return v.__geo_interface__
         return v
