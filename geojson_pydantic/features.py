@@ -7,7 +7,7 @@ from .geometries import Point, MultiPoint, LineString, MultiLineString, \
 
 class Feature(BaseModel):
     type: str = Field("Feature", const=True)
-    geometry: Union[Point, MultiPolygon, LineString,  MultiLineString, Polygon, MultiPolygon]
+    geometry: Union[Point, MultiPoint, LineString,  MultiLineString, Polygon, MultiPolygon]
     properties: Optional[Dict[Any, Any]]
     id: Optional[str]
     bbox: Optional[BBox]
