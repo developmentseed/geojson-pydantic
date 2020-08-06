@@ -6,7 +6,7 @@ with open("README.md") as f:
     readme = f.read()
 
 # Runtime requirements.
-inst_reqs = ["pydantic", "geojson"]
+inst_reqs = ["pydantic"]
 
 extra_reqs = {
     "test": ["pytest", "pytest-cov"],

@@ -1,5 +1,4 @@
 import abc
-import geojson
 from typing import Any, List, Tuple, Union
 from pydantic import BaseModel, Field, validator
 
@@ -7,15 +6,6 @@ from .utils import NumType
 
 class _GeometryBase(BaseModel, abc.ABC):
     coordinates: Any  # will be constrained in child classes
-
-    @validator("coordinates")
-    def check_coordinates(cls, coords):
-        geojson_instance = getattr(geojson, cls.__name__)(coordinates=coords)
-
-        if geojson_instance.is_valid:
-            return coords
-        else:
-            raise ValueError(geojson_instance.errors())
 
     @property
     def __geo_interface__(self):
@@ -38,7 +28,8 @@ class MultiPoint(_GeometryBase):
 
 class LineString(_GeometryBase):
     type: str = Field("LineString", const=True)
-    coordinates: List[Coordinate]
+    coordinates: List[Coordinate] = Field(..., min_items=2)
+
 
 class MultiLineString(_GeometryBase):
     type: str = Field("MultiLineString", const=True)
@@ -47,6 +38,15 @@ class MultiLineString(_GeometryBase):
 class Polygon(_GeometryBase):
     type: str = Field("Polygon", const=True)
     coordinates: List[List[Coordinate]]
+
+    @validator("coordinates")
+    def check_coordinates(cls, coords):
+        if any([len(c) < 4 for c in coords]):
+            raise ValueError("All linear rings must have four or more coordinates")
+        if any([c[-1] != c[0] for c in coords]):
+            raise ValueError("All linear rings have the same start and end coordinates")
+        return coords
+
 
 class MultiPolygon(_GeometryBase):
     type: str = Field("MultiPolygon", const=True)
