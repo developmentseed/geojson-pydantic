@@ -13,6 +13,8 @@ extra_reqs = {
     "dev": ["pytest", "pytest-cov", "pre-commit"],
 }
 
+package_data = {"": ["*"]}
+
 setup(
     name="geojson-pydantic",
     version="0.2.0",
@@ -37,4 +39,5 @@ setup(
     include_package_data=True,
     install_requires=inst_reqs,
     extras_require=extra_reqs,
+    package_data=package_data,
 )
