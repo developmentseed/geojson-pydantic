@@ -15,7 +15,7 @@ extra_reqs = {
 
 setup(
     name="geojson-pydantic",
-    version="0.2.0",
+    version="0.2.1",
     python_requires=">=3.6",
     description=u"""Pydantic data models for the GeoJSON spec""",
     long_description=readme,
@@ -34,7 +34,7 @@ setup(
     url="https://github.com/developmentseed/geojson-pydantic",
     license="MIT",
     packages=find_packages(exclude=["ez_setup", "examples", "tests"]),
-    include_package_data=True,
     install_requires=inst_reqs,
     extras_require=extra_reqs,
+    package_data={"geojson_pydantic": ["*.typed"]},
 )
