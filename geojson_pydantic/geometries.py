@@ -2,8 +2,8 @@
 
 import abc
 from typing import Any, List, Tuple, Union
-
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, validator, ValidationError
+from pydantic.error_wrappers import ErrorWrapper
 
 from .utils import NumType
 
@@ -74,10 +74,41 @@ class MultiPolygon(_GeometryBase):
     coordinates: List[List[List[Coordinate]]]
 
 
+
+Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
+
+
 class GeometryCollection(BaseModel):
     """GeometryCollection Model"""
 
     type: str = Field("GeometryCollection", const=True)
-    geometries: List[
-        Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
-    ]
+    geometries: List[Geometry]
+
+
+def parse_geometry_obj(obj) -> Geometry:
+    """
+    `obj` is an object that is supposed to represent a GeoJSON geometry. This method returns the
+    reads the `"type"` field and returns the correct pydantic Geometry model.
+    """
+    if "type" not in obj:
+        raise ValidationError(
+            [
+                ErrorWrapper(ValueError("Missing 'type' field in geometry"), "type"),
+                "Geometry",
+            ]
+        )
+    if obj["type"] == "Point":
+        return Point.parse_obj(obj)
+    elif obj["type"] == "MultiPoint":
+        return MultiPoint.parse_obj(obj)
+    elif obj["type"] == "LineString":
+        return LineString.parse_obj(obj)
+    elif obj["type"] == "MultiLineString":
+        return MultiLineString.parse_obj(obj)
+    elif obj["type"] == "Polygon":
+        return Polygon.parse_obj(obj)
+    elif obj["type"] == "MultiPolygon":
+        return MultiPolygon.parse_obj(obj)
+    raise ValidationError(
+        [ErrorWrapper(ValueError("Unknown type"), "type")], "Geometry"
+    )

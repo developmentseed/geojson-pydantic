@@ -1,27 +1,17 @@
 """pydantic models for GeoJSON Feature objects."""
 
 from typing import Any, Dict, List, Optional, Union
-
 from pydantic import BaseModel, Field, validator
 
-from .geometries import (
-    LineString,
-    MultiLineString,
-    MultiPoint,
-    MultiPolygon,
-    Point,
-    Polygon,
-)
 from .utils import BBox
+from .geometries import Geometry
 
 
 class Feature(BaseModel):
     """Feature Model"""
 
     type: str = Field("Feature", const=True)
-    geometry: Union[
-        Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon
-    ]
+    geometry: Geometry
     properties: Optional[Dict[Any, Any]]
     id: Optional[str]
     bbox: Optional[BBox]

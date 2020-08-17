@@ -1,7 +1,15 @@
 import pytest
 from pydantic import ValidationError
 
-from geojson_pydantic.geometries import LineString, Point, Polygon
+from geojson_pydantic.geometries import (
+    Point,
+    MultiPoint,
+    LineString,
+    MultiLineString,
+    Polygon,
+    MultiPolygon,
+    parse_geometry_obj,
+)
 
 
 @pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])
@@ -78,3 +86,110 @@ def test_polygon_invalid_coordinates(coordinates):
     """
     with pytest.raises(ValidationError):
         Polygon(coordinates=coordinates)
+
+
+def test_parse_geometry_obj_point():
+    assert parse_geometry_obj({"type": "Point", "coordinates": [102.0, 0.5]}) == Point(
+        coordinates=(102.0, 0.5)
+    )
+
+
+def test_parse_geometry_obj_multi_point():
+    assert parse_geometry_obj(
+        {"type": "MultiPoint", "coordinates": [[100.0, 0.0], [101.0, 1.0]]}
+    ) == MultiPoint(coordinates=[(100.0, 0.0), (101.0, 1.0)])
+
+
+def test_parse_geometry_obj_line_striing():
+    assert parse_geometry_obj(
+        {
+            "type": "LineString",
+            "coordinates": [[102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]],
+        }
+    ) == LineString(
+        coordinates=[(102.0, 0.0), (103.0, 1.0), (104.0, 0.0), (105.0, 1.0)]
+    )
+
+
+def test_parse_geometry_obj_multi_line_string():
+    assert parse_geometry_obj(
+        {
+            "type": "MultiLineString",
+            "coordinates": [[[100.0, 0.0], [101.0, 1.0]], [[102.0, 2.0], [103.0, 3.0]]],
+        }
+    ) == MultiLineString(
+        coordinates=[[(100.0, 0.0), (101.0, 1.0)], [(102.0, 2.0), (103.0, 3.0)]]
+    )
+
+
+def test_parse_geometry_obj_polygon():
+    assert parse_geometry_obj(
+        {
+            "type": "Polygon",
+            "coordinates": [
+                [[100.0, 0.0], [101.0, 0.0], [101.0, 1.0], [100.0, 1.0], [100.0, 0.0]]
+            ],
+        }
+    ) == Polygon(
+        coordinates=[
+            [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0),]
+        ]
+    )
+
+
+def test_parse_geometry_obj_multi_polygon():
+    assert parse_geometry_obj(
+        {
+            "type": "MultiPolygon",
+            "coordinates": [
+                [
+                    [
+                        [102.0, 2.0],
+                        [103.0, 2.0],
+                        [103.0, 3.0],
+                        [102.0, 3.0],
+                        [102.0, 2.0],
+                    ]
+                ],
+                [
+                    [
+                        [100.0, 0.0],
+                        [101.0, 0.0],
+                        [101.0, 1.0],
+                        [100.0, 1.0],
+                        [100.0, 0.0],
+                    ],
+                    [
+                        [100.2, 0.2],
+                        [100.8, 0.2],
+                        [100.8, 0.8],
+                        [100.2, 0.8],
+                        [100.2, 0.2],
+                    ],
+                ],
+            ],
+        }
+    ) == MultiPolygon(
+        coordinates=[
+            [[(102.0, 2.0), (103.0, 2.0), (103.0, 3.0), (102.0, 3.0), (102.0, 2.0),]],
+            [
+                [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0),],
+                [(100.2, 0.2), (100.8, 0.2), (100.8, 0.8), (100.2, 0.8), (100.2, 0.2),],
+            ],
+        ],
+    )
+
+
+def test_parse_geometry_obj_invalid_type():
+    with pytest.raises(ValidationError):
+        parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
+
+
+def test_parse_geometry_obj_invalid_point():
+    """
+    litmus test that invalid geometries don't get parsed
+    """
+    with pytest.raises(ValidationError):
+        parse_geometry_obj(
+            {"type": "Point", "coordinates": ["not", "valid", "coordinates"]}
+        )
