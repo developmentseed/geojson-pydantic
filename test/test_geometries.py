@@ -2,12 +2,12 @@ import pytest
 from pydantic import ValidationError
 
 from geojson_pydantic.geometries import (
-    Point,
-    MultiPoint,
     LineString,
     MultiLineString,
-    Polygon,
+    MultiPoint,
     MultiPolygon,
+    Point,
+    Polygon,
     parse_geometry_obj,
 )
 
@@ -132,7 +132,7 @@ def test_parse_geometry_obj_polygon():
         }
     ) == Polygon(
         coordinates=[
-            [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0),]
+            [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0)]
         ]
     )
 
@@ -171,10 +171,10 @@ def test_parse_geometry_obj_multi_polygon():
         }
     ) == MultiPolygon(
         coordinates=[
-            [[(102.0, 2.0), (103.0, 2.0), (103.0, 3.0), (102.0, 3.0), (102.0, 2.0),]],
+            [[(102.0, 2.0), (103.0, 2.0), (103.0, 3.0), (102.0, 3.0), (102.0, 2.0)]],
             [
-                [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0),],
-                [(100.2, 0.2), (100.8, 0.2), (100.8, 0.8), (100.2, 0.8), (100.2, 0.2),],
+                [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0)],
+                [(100.2, 0.2), (100.8, 0.2), (100.8, 0.8), (100.2, 0.8), (100.2, 0.2)],
             ],
         ],
     )

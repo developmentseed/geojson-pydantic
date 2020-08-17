@@ -1,10 +1,11 @@
 """pydantic models for GeoJSON Feature objects."""
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional
+
 from pydantic import BaseModel, Field, validator
 
-from .utils import BBox
 from .geometries import Geometry
+from .utils import BBox
 
 
 class Feature(BaseModel):

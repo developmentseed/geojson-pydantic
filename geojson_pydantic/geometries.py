@@ -2,7 +2,8 @@
 
 import abc
 from typing import Any, List, Tuple, Union
-from pydantic import BaseModel, Field, validator, ValidationError
+
+from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
 from .utils import NumType
@@ -72,7 +73,6 @@ class MultiPolygon(_GeometryBase):
 
     type: str = Field("MultiPolygon", const=True)
     coordinates: List[List[List[Coordinate]]]
-
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
