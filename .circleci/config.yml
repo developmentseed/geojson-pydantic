@@ -5,10 +5,16 @@ common: &common
     - checkout
     - run:
         name: install dependencies
-        command: pip install tox codecov --user
+        command: pip install tox codecov pre-commit --user
     - run:
         name: run tox
         command: ~/.local/bin/tox
+    - run:
+        name: run pre-commit
+        command: |
+          if [[ "$CIRCLE_JOB" == "python-3.7" ]]; then
+             ~/.local/bin/pre-commit run --all-files
+          fi
 jobs:
   "python-3.6":
     <<: *common
