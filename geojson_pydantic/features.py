@@ -1,13 +1,13 @@
-from typing import Union, Dict, List,  Optional, Any
+from typing import Union, Dict, List, Optional, Any
 from pydantic import BaseModel, Field, validator
 
 from .utils import BBox
-from .geometries import Point, MultiPoint, LineString, MultiLineString, \
-    Polygon, MultiPolygon
+from .geometries import Geometry
+
 
 class Feature(BaseModel):
     type: str = Field("Feature", const=True)
-    geometry: Union[Point, MultiPoint, LineString,  MultiLineString, Polygon, MultiPolygon]
+    geometry: Geometry
     properties: Optional[Dict[Any, Any]]
     id: Optional[str]
     bbox: Optional[BBox]
