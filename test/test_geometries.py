@@ -1,7 +1,7 @@
 import pytest
 from pydantic import ValidationError
 
-from geojson_pydantic.geometries import Point, LineString, Polygon
+from geojson_pydantic.geometries import LineString, Point, Polygon
 
 
 @pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])

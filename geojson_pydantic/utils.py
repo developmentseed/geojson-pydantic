@@ -1,3 +1,4 @@
+"""utility types for pydantic models"""
 from typing import Tuple, Union
 
 NumType = Union[float, int]
