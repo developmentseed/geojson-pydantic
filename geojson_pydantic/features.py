@@ -36,3 +36,15 @@ class FeatureCollection(BaseModel):
     type: str = Field("FeatureCollection", const=True)
     features: List[Feature]
     bbox: Optional[BBox]
+
+    def __iter__(self):
+        """iterate over features"""
+        return iter(self.features)
+
+    def __len__(self):
+        """return features length"""
+        return len(self.features)
+
+    def __getitem__(self, index):
+        """get feature at a given index"""
+        return self.features[index]

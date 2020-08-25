@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from geojson_pydantic.geometries import (
+    GeometryCollection,
     LineString,
     MultiLineString,
     MultiPoint,
@@ -193,3 +194,11 @@ def test_parse_geometry_obj_invalid_point():
         parse_geometry_obj(
             {"type": "Point", "coordinates": ["not", "valid", "coordinates"]}
         )
+
+
+@pytest.mark.parametrize("coordinates", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+def test_geometry_collection_iteration(coordinates):
+    """test if geometry collection is iterable"""
+    polygon = Polygon(coordinates=coordinates)
+    gc = GeometryCollection(geometries=[polygon, polygon])
+    iter(gc)
