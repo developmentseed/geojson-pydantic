@@ -84,6 +84,18 @@ class GeometryCollection(BaseModel):
     type: str = Field("GeometryCollection", const=True)
     geometries: List[Geometry]
 
+    def __iter__(self):
+        """iterate over geometries"""
+        return iter(self.geometries)
+
+    def __len__(self):
+        """return geometries length"""
+        return len(self.geometries)
+
+    def __getitem__(self, index):
+        """get geometry at a given index"""
+        return self.geometries[index]
+
 
 def parse_geometry_obj(obj) -> Geometry:
     """
