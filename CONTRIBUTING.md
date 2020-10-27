@@ -19,3 +19,20 @@ This repo is set to use pre-commit to run `isort`, `flake8`, `pydocstring`, `bla
 ``` sh
 pre-commit install
 ```
+
+
+## Release
+
+we use https://github.com/c4urself/bump2version to update the package version.
+
+```
+# Install bump2version
+$ pip install --upgrade bump2version
+
+# Update version (edit files, commit and create tag)
+# this will do `0.2.1 -> 0.2.2` because we use the `patch` tag
+$ bump2version patch
+
+# Push change and tag to github
+$ git push origin master --tags
+```
