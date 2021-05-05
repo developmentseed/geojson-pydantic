@@ -15,7 +15,7 @@ extra_reqs = {
 
 setup(
     name="geojson-pydantic",
-    version="0.2.2",
+    version="0.2.2.post1",
     python_requires=">=3.6",
     description=u"""Pydantic data models for the GeoJSON spec""",
     long_description=readme,
@@ -24,6 +24,7 @@ setup(
         "Intended Audience :: Information Technology",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.7",
         "Programming Language :: Python :: 3.6",

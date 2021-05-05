@@ -1,9 +1,14 @@
 
 # Change Log
 All notable changes to this project will be documented in this file.
- 
+
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
+
+## [0.2.2.post1] - 2021-05-05
+
+## Fixed
+- incorrect version number set in `__init__.py`
 
 ## [0.2.2] - 2020-12-29
 
@@ -17,7 +22,7 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 
 ## Fixed
 - Correct package type information files
- 
+
 ## [0.2.0] - 2020-08-06
 
 ### Added
@@ -26,11 +31,11 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 
 ### Changed
 - Removed geojson dependency (#4)
- 
+
 ### Fixed
 - Include MultiPoint as a valid geometry for a Feature (#1)
- 
+
 ## [0.1.0] - 2020-05-21
- 
+
 ### Added
 - Initial Release
