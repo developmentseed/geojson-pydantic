@@ -1,6 +1,6 @@
 """pydantic models for GeoJSON Feature objects."""
 
-from typing import List, Optional, Generic, TypeVar
+from typing import Dict, Generic, List, Optional, TypeVar
 
 from pydantic import Field, validator
 from pydantic.generics import GenericModel
@@ -8,7 +8,7 @@ from pydantic.generics import GenericModel
 from .geometries import Geometry
 from .utils import BBox
 
-T = TypeVar("T")
+T = TypeVar("T", bound=Dict)
 
 
 class Feature(GenericModel, Generic[T]):

@@ -1,7 +1,8 @@
-import pytest
-from pydantic import BaseModel
-from uuid import uuid4
 from random import randint
+from uuid import uuid4
+
+import pytest
+from pydantic import BaseModel, ValidationError
 
 from geojson_pydantic.features import Feature, FeatureCollection
 
@@ -57,3 +58,10 @@ def test_generic_properties_is_object():
     assert feature.properties.id == test_feature["properties"]["id"]
     assert type(feature.properties) == GenericProperties
     assert hasattr(feature.properties, "id")
+
+
+def test_generic_properties_should_raise_for_string():
+    with pytest.raises(ValidationError):
+        Feature(
+            **({"type": "Feature", "geometry": polygon, "properties": "should raise"})
+        )
