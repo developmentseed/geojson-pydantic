@@ -5,9 +5,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.0] - TBD
+
+### Removed
+- Drop python 3.6 support
+
 ## [0.2.3] - 2021-05-05
 
-## Fixed
+### Fixed
 - incorrect version number set in `__init__.py`
 
 ## [0.2.2] - 2020-12-29
@@ -20,7 +25,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 Although the type file was added in `0.2.0` it wasn't included in the distributed package. Use this version `0.2.1` for type annotations.
 
-## Fixed
+### Fixed
 - Correct package type information files
 
 ## [0.2.0] - 2020-08-06
