@@ -1,10 +1,12 @@
 from random import randint
+from typing import Dict
 from uuid import uuid4
 
 import pytest
 from pydantic import BaseModel, ValidationError
 
 from geojson_pydantic.features import Feature, FeatureCollection
+from geojson_pydantic.geometries import Geometry, MultiPolygon, Polygon
 
 
 class GenericProperties(BaseModel):
@@ -53,11 +55,27 @@ def test_generic_properties_is_dict():
 
 
 def test_generic_properties_is_object():
-    feature = Feature[GenericProperties](**test_feature)
-
+    feature = Feature[Geometry, GenericProperties](**test_feature)
     assert feature.properties.id == test_feature["properties"]["id"]
     assert type(feature.properties) == GenericProperties
     assert hasattr(feature.properties, "id")
+
+
+def test_generic_geometry():
+    feature = Feature[Polygon, GenericProperties](**test_feature)
+    assert feature.properties.id == test_feature["properties"]["id"]
+    assert type(feature.geometry) == Polygon
+    assert type(feature.properties) == GenericProperties
+    assert hasattr(feature.properties, "id")
+
+    feature = Feature[Polygon, Dict](**test_feature)
+    assert type(feature.geometry) == Polygon
+    assert feature.properties["id"] == test_feature["properties"]["id"]
+    assert type(feature.properties) == dict
+    assert not hasattr(feature.properties, "id")
+
+    with pytest.raises(ValidationError):
+        Feature[MultiPolygon, Dict](**({"type": "Feature", "geometry": polygon}))
 
 
 def test_generic_properties_should_raise_for_string():
@@ -65,3 +83,12 @@ def test_generic_properties_should_raise_for_string():
         Feature(
             **({"type": "Feature", "geometry": polygon, "properties": "should raise"})
         )
+
+
+def test_feature_collection_generic():
+    fc = FeatureCollection[Polygon, GenericProperties](
+        features=[test_feature, test_feature]
+    )
+    assert len(fc) == 2
+    assert type(fc[0].properties) == GenericProperties
+    assert type(fc[0].geometry) == Polygon
