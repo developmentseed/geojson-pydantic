@@ -72,13 +72,17 @@ assert fc.features[0].properties["name"] == "jeff"
 
 In `geojson_pydantic` we've implemented pydantic's [Generic Models](https://pydantic-docs.helpmanual.io/usage/models/#generic-models) which allow the creation of more advanced models to validate either the geometry type or the properties.
 
-In order to make use of this generic typing, there are two steps: first create a new model, then use that model to validate your data. To create a model using a `Generic` type, you can pass two variables to the `Feature` model in form of `Feature[Geometry Type, Properties Type]`. Then pass your data to this constructor.
+In order to make use of this generic typing, there are two steps: first create a new model, then use that model to validate your data. To create a model using a `Generic` type, you **HAVE TO** pass `Type definitions` to the `Feature` model in form of `Feature[Geometry Type, Properties Type]`. Then pass your data to this constructor.
+
+By default `Feature` and `FeatureCollections` are defined using `geojson_pydantic.geometries.Geometry` for the geometry and `typing.Dict` for the properties.
+
+Here's an example where we want to validate that GeoJSON features have Polygon types, but don't do any specific property validation.
 
 ```python
 from typing import Dict
 
-from geojson_pydantic import Feature, Polygon, Point
-from pydantic import BaseModel, constr
+from geojson_pydantic import Feature, Polygon
+from pydantic import BaseModel
 
 geojson_feature = {
     "type": "Feature",
@@ -94,11 +98,41 @@ geojson_feature = {
 # Define a Feature model with Geometry as `Polygon` and Properties as `Dict`
 MyPolygonFeatureModel = Feature[Polygon, Dict]
 
->>> MyPolygonFeatureModel(**geojson_feature)  # should raise Validation Error because `geojson_feature` is a polygon
-ValidationError: 3 validation errors for Feature[Polygon, Dict]
+feat = MyPolygonFeatureModel(**geojson_feature)  # should raise Validation Error because `geojson_feature` is a polygon
+>>> ValidationError: 3 validation errors for Feature[Polygon, Dict]
 ...
 geometry -> type
   unexpected value; permitted: 'Polygon' (type=value_error.const; given=Point; permitted=['Polygon'])
+
+
+geojson_feature = {
+    "type": "Feature",
+    "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+            [
+                [13.38272, 52.46385],
+                [13.42786, 52.46385],
+                [13.42786, 52.48445],
+                [13.38272, 52.48445],
+                [13.38272, 52.46385],
+            ]
+        ],
+    },
+    "properties": {
+        "name": "jeff",
+    },
+}
+
+feat = MyPolygonFeatureModel(**geojson_feature)
+assert type(feature.geometry) == Polygon
+```
+
+And now with constrained properties
+
+```python
+from geojson_pydantic import Feature, Point
+from pydantic import BaseModel, constr
 
 # Define a Feature model with Geometry as `Point` and Properties as a constrained Model
 class MyProps(BaseModel):
@@ -106,10 +140,25 @@ class MyProps(BaseModel):
 
 MyPointFeatureModel = Feature[Point, MyProps]
 
->>> MyPointFeatureModel(**geojson_feature)
-ValidationError: 1 validation error for Feature[Point, MyProps]
+geojson_feature = {
+    "type": "Feature",
+    "geometry": {
+        "type": "Point",
+        "coordinates": [13.38272, 52.46385],
+    },
+    "properties": {
+        "name": "jeff",
+    },
+}
+
+feat = MyPointFeatureModel(**geojson_feature)
+>>> ValidationError: 1 validation error for Feature[Point, MyProps]
 properties -> name
   string does not match regex "^(drew|vincent)$" (type=value_error.str.regex; pattern=^(drew|vincent)$)
+
+geojson_feature["properties"]["name"] = "drew"
+feat = MyPointFeatureModel(**geojson_feature)
+assert feat.properties.name == "drew"
 ```
 
 ## Contributing
