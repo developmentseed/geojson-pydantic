@@ -70,7 +70,7 @@ assert fc.features[0].properties["name"] == "jeff"
 
 ### Advanced usage
 
-In `geojson_pydantic` we implemented [pydantic's Generic](https://pydantic-docs.helpmanual.io/usage/models/#generic-models) models which allow the creation of more advanced models to validate either the geometry type or the properties.
+In `geojson_pydantic` we've implemented pydantic's [Generic Models](https://pydantic-docs.helpmanual.io/usage/models/#generic-models) which allow the creation of more advanced models to validate either the geometry type or the properties.
 
 To create a model using `Generic` you can pass two variables to the `Feature` model in form of `Feature[Geometry Type, Properties Type]`
 
