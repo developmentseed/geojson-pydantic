@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.0] - TBD
 
+### Added
+- `Feature` and `FeatureCollection` model generics to support custom geometry and/or properties validation (author @iwpnd, https://github.com/developmentseed/geojson-pydantic/pull/29)
+
+    ```python
+    from pydantic import BaseModel
+    from geojson_pydantic.features import Feature
+    from geojson_pydantic.geometries import Polygon
+
+    class MyFeatureProperties(BaseModel):
+        name: str
+        value: int
+
+    feature = Feature[Polygon, MyFeatureProperties](
+        **{
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": [
+                [
+                    [13.38272,52.46385],
+                    [13.42786,52.46385],
+                    [13.42786,52.48445],
+                    [13.38272,52.48445],
+                    [13.38272,52.46385]
+                ]
+                ]
+            },
+            "properties": {
+                "name": "test",
+                "value": 1
+            }
+        }
+    )
+    ```
+
 ### Removed
 - Drop python 3.6 support
 
