@@ -8,6 +8,9 @@ from pydantic.error_wrappers import ErrorWrapper
 
 from .utils import NumType
 
+Coordinate = Union[Tuple[NumType, NumType], Tuple[NumType, NumType, NumType]]
+Position = Coordinate
+
 
 class _GeometryBase(BaseModel, abc.ABC):
     """Base class for geometry models"""
@@ -17,11 +20,6 @@ class _GeometryBase(BaseModel, abc.ABC):
     @property
     def __geo_interface__(self):
         return self.dict()
-
-
-Coordinate = Union[Tuple[NumType, NumType], Tuple[NumType, NumType, NumType]]
-
-Position = Coordinate
 
 
 class Point(_GeometryBase):
