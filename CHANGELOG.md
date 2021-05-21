@@ -44,14 +44,14 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - Top level export (https://github.com/developmentseed/geojson-pydantic/pull/34)
 
-```python
-# before
-from geojson_pydantic.features import Feature, FeatureCollection
-from geojson_pydantic.geometries import Polygon
+    ```python
+    # before
+    from geojson_pydantic.features import Feature, FeatureCollection
+    from geojson_pydantic.geometries import Polygon
 
-# now
-from geojson_pydantic import Feature, Polygon
-```
+    # now
+    from geojson_pydantic import Feature, Polygon
+    ```
 
 ### Removed
 - Drop python 3.6 support
