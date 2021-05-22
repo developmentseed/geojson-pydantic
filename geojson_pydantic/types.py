@@ -1,4 +1,4 @@
-"""utility types for pydantic models"""
+"""Types for geojson_pydantic models"""
 
 from typing import Tuple, Union
 
@@ -7,3 +7,4 @@ BBox = Union[
     Tuple[NumType, NumType, NumType, NumType],  # 2D bbox
     Tuple[NumType, NumType, NumType, NumType, NumType, NumType],  # 3D bbox
 ]
+Position = Union[Tuple[NumType, NumType], Tuple[NumType, NumType, NumType]]

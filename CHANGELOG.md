@@ -55,6 +55,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Removed
 - Drop python 3.6 support
+- Renamed `utils.py` to `types.py`
+- Removed `Coordinate` type in `geojson_pydantic.features` (replaced by `Position`)
 
 ## [0.2.3] - 2021-05-05
 
