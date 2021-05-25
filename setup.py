@@ -15,7 +15,7 @@ extra_reqs = {
 
 setup(
     name="geojson-pydantic",
-    version="0.2.3",
+    version="0.3.0",
     python_requires=">=3.7",
     description=u"""Pydantic data models for the GeoJSON spec""",
     long_description=readme,

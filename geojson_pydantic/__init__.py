@@ -11,4 +11,4 @@ from .geometries import (  # noqa
     Polygon,
 )
 
-version = "0.2.3"
+version = "0.3.0"
