@@ -1,15 +1,12 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, List, Tuple, Union
+from typing import Any, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
-from .utils import NumType
-
-Coordinate = Union[Tuple[NumType, NumType], Tuple[NumType, NumType, NumType]]
-Position = Coordinate
+from geojson_pydantic.types import Position
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -26,35 +23,35 @@ class Point(_GeometryBase):
     """Point Model"""
 
     type: str = Field("Point", const=True)
-    coordinates: Coordinate
+    coordinates: Position
 
 
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
     type: str = Field("MultiPoint", const=True)
-    coordinates: List[Coordinate]
+    coordinates: List[Position]
 
 
 class LineString(_GeometryBase):
     """LineString Model"""
 
     type: str = Field("LineString", const=True)
-    coordinates: List[Coordinate] = Field(..., min_items=2)
+    coordinates: List[Position] = Field(..., min_items=2)
 
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
     type: str = Field("MultiLineString", const=True)
-    coordinates: List[List[Coordinate]]
+    coordinates: List[List[Position]]
 
 
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
     type: str = Field("Polygon", const=True)
-    coordinates: List[List[Coordinate]]
+    coordinates: List[List[Position]]
 
     @validator("coordinates")
     def check_coordinates(cls, coords):
@@ -70,7 +67,7 @@ class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
     type: str = Field("MultiPolygon", const=True)
-    coordinates: List[List[List[Coordinate]]]
+    coordinates: List[List[List[Position]]]
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]

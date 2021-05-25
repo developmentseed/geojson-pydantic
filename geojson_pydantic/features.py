@@ -5,8 +5,8 @@ from typing import Dict, Generic, List, Optional, TypeVar
 from pydantic import Field, validator
 from pydantic.generics import GenericModel
 
-from .geometries import Geometry
-from .utils import BBox
+from geojson_pydantic.geometries import Geometry
+from geojson_pydantic.types import BBox
 
 Props = TypeVar("Props", bound=Dict)
 Geom = TypeVar("Geom", bound=Geometry)
