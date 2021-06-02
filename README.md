@@ -19,6 +19,9 @@
   <a href="https://github.com/developmentseed/geojson-pydantic/blob/master/LICENSE" target="_blank">
       <img src="https://img.shields.io/github/license/developmentseed/geojson-pydantic.svg" alt="Downloads">
   </a>
+  <a href="https://conda.anaconda.org/conda-forge" target="_blank">
+      <img src="https://anaconda.org/conda-forge/geojson-pydantic/badges/installer/conda.svg" alt="Conda">
+  </a>
 </p>
 
 ## Description
