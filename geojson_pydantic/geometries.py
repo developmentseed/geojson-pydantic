@@ -54,13 +54,16 @@ class Polygon(_GeometryBase):
     coordinates: List[List[Position]]
 
     @validator("coordinates")
-    def check_coordinates(cls, coords):
+    def check_coordinates(cls, polygon):
         """Validate that Polygon coordinates pass the GeoJSON spec"""
-        if any([len(c) < 4 for c in coords]):
+        if len(polygon) == 0:
+            raise ValueError("Polygon must have a minimum one ring")
+        if any([len(ring) < 4 for ring in polygon]):
             raise ValueError("All linear rings must have four or more coordinates")
-        if any([c[-1] != c[0] for c in coords]):
+        if any([ring[-1] != ring[0] for ring in polygon]):
             raise ValueError("All linear rings have the same start and end coordinates")
-        return coords
+
+        return polygon
 
 
 class MultiPolygon(_GeometryBase):
