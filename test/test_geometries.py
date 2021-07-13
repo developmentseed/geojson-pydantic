@@ -75,6 +75,7 @@ def test_polygon_valid_coordinates(coordinates):
         [[(1, 2), (3, 4), (5, 6), (1, 2)], "foo", None],
         [[(1, 2), (3, 4), (1, 2)]],
         [[(1, 2), (3, 4), (5, 6), (7, 8)]],
+        [],
     ],
 )
 def test_polygon_invalid_coordinates(coordinates):
@@ -184,6 +185,8 @@ def test_parse_geometry_obj_multi_polygon():
 def test_parse_geometry_obj_invalid_type():
     with pytest.raises(ValidationError):
         parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
+    with pytest.raises(ValidationError):
+        parse_geometry_obj({"type": "", "obviously": "doesn't exist"})
 
 
 def test_parse_geometry_obj_invalid_point():
@@ -202,3 +205,20 @@ def test_geometry_collection_iteration(coordinates):
     polygon = Polygon(coordinates=coordinates)
     gc = GeometryCollection(geometries=[polygon, polygon])
     iter(gc)
+
+
+@pytest.mark.parametrize("polygon", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+def test_len_geometry_collection(polygon):
+    """test if GeometryCollection return self leng"""
+    polygon = Polygon(coordinates=polygon)
+    gc = GeometryCollection(geometries=[polygon, polygon])
+    assert len(gc) == 2
+
+
+@pytest.mark.parametrize("polygon", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+def test_getitem_geometry_collection(polygon):
+    """test if GeometryCollection return self leng"""
+    polygon = Polygon(coordinates=polygon)
+    gc = GeometryCollection(geometries=[polygon, polygon])
+    item = gc[0]
+    assert item == gc[0]
