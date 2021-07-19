@@ -6,7 +6,7 @@ from typing import Any, List, Union
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
-from geojson_pydantic.types import BBox, Position
+from geojson_pydantic.types import NumType, Position
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -66,9 +66,10 @@ class Polygon(_GeometryBase):
         return polygon
 
     @classmethod
-    def from_bounds(cls, bounds: BBox) -> "Polygon":
+    def from_bounds(
+        cls, xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType
+    ) -> "Polygon":
         """Create a Polygon geometry from a boundingbox."""
-        xmin, ymin, xmax, ymax = bounds[0], bounds[1], bounds[2], bounds[3]
         return cls(
             coordinates=[
                 [[xmin, ymin], [xmin, ymax], [xmax, ymax], [xmax, ymin], [xmin, ymin]]

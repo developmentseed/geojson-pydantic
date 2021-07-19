@@ -227,4 +227,4 @@ def test_getitem_geometry_collection(polygon):
 def test_polygon_from_bounds():
     """Result from `from_bounds` class method should be the same."""
     coordinates = [[(1.0, 2.0), (1.0, 4.0), (3.0, 4.0), (3.0, 2.0), (1.0, 2.0)]]
-    assert Polygon(coordinates=coordinates) == Polygon.from_bounds((1, 2, 3, 4))
+    assert Polygon(coordinates=coordinates) == Polygon.from_bounds(1, 2, 3, 4)
