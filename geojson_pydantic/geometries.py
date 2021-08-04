@@ -6,7 +6,7 @@ from typing import Any, List, Union
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
-from geojson_pydantic.types import Position
+from geojson_pydantic.types import NumType, Position
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -64,6 +64,17 @@ class Polygon(_GeometryBase):
             raise ValueError("All linear rings have the same start and end coordinates")
 
         return polygon
+
+    @classmethod
+    def from_bounds(
+        cls, xmin: NumType, ymin: NumType, xmax: NumType, ymax: NumType
+    ) -> "Polygon":
+        """Create a Polygon geometry from a boundingbox."""
+        return cls(
+            coordinates=[
+                [[xmin, ymin], [xmin, ymax], [xmax, ymax], [xmax, ymin], [xmin, ymin]]
+            ]
+        )
 
 
 class MultiPolygon(_GeometryBase):

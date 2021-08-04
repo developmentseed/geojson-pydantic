@@ -6,8 +6,18 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.3.1] - unreleased
+
+### Added
+- `Polygon.from_bounds` class method to create a Polygon geometry from a bounding box.
+    ```python
+    from geojson_pydantic import Polygon
+    print(Polygon.from_bounds((1, 2, 3, 4)).dict(exclude_none=True))
+    >> {'coordinates': [[(1.0, 2.0), (1.0, 4.0), (3.0, 4.0), (3.0, 2.0), (1.0, 2.0)]], 'type': 'Polygon'}
+    ```
+
+
 ### Fixed
-Added validation for Polygons with zero size.
+- Added validation for Polygons with zero size.
 
 
 ## [0.3.0] - 2021-05-25
