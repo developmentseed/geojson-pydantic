@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [0.3.1] - unreleased
+## [0.3.1] - 2021-08-04
 
 ### Added
 - `Polygon.from_bounds` class method to create a Polygon geometry from a bounding box.
@@ -14,7 +14,6 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     print(Polygon.from_bounds((1, 2, 3, 4)).dict(exclude_none=True))
     >> {'coordinates': [[(1.0, 2.0), (1.0, 4.0), (3.0, 4.0), (3.0, 2.0), (1.0, 2.0)]], 'type': 'Polygon'}
     ```
-
 
 ### Fixed
 - Added validation for Polygons with zero size.
