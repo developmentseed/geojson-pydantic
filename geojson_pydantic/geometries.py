@@ -6,7 +6,15 @@ from typing import Any, List, Union
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
-from geojson_pydantic.types import NumType, Position
+from geojson_pydantic.types import (
+    LineStringCoords,
+    MultiLineStringCoords,
+    MultiPointCoords,
+    MultiPolygonCoords,
+    NumType,
+    PolygonCoords,
+    Position,
+)
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -30,36 +38,32 @@ class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
     type: str = Field("MultiPoint", const=True)
-    coordinates: List[Position]
+    coordinates: MultiPointCoords
 
 
 class LineString(_GeometryBase):
     """LineString Model"""
 
     type: str = Field("LineString", const=True)
-    coordinates: List[Position] = Field(..., min_items=2)
+    coordinates: LineStringCoords
 
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
     type: str = Field("MultiLineString", const=True)
-    coordinates: List[List[Position]]
+    coordinates: MultiLineStringCoords
 
 
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
     type: str = Field("Polygon", const=True)
-    coordinates: List[List[Position]]
+    coordinates: PolygonCoords
 
     @validator("coordinates")
-    def check_coordinates(cls, polygon):
-        """Validate that Polygon coordinates pass the GeoJSON spec"""
-        if len(polygon) == 0:
-            raise ValueError("Polygon must have a minimum one ring")
-        if any([len(ring) < 4 for ring in polygon]):
-            raise ValueError("All linear rings must have four or more coordinates")
+    def check_closure(cls, polygon):
+        """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any([ring[-1] != ring[0] for ring in polygon]):
             raise ValueError("All linear rings have the same start and end coordinates")
 
@@ -81,7 +85,7 @@ class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
     type: str = Field("MultiPolygon", const=True)
-    coordinates: List[List[List[Position]]]
+    coordinates: MultiPolygonCoords
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
