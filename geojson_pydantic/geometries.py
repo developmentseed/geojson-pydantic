@@ -113,10 +113,10 @@ def parse_geometry_obj(obj) -> Geometry:
     """
     if "type" not in obj:
         raise ValidationError(
-            [
-                ErrorWrapper(ValueError("Missing 'type' field in geometry"), "type"),
-                "Geometry",
-            ]
+            errors=[
+                ErrorWrapper(ValueError("Missing 'type' field in geometry"), loc="type")
+            ],
+            model=_GeometryBase,
         )
     if obj["type"] == "Point":
         return Point.parse_obj(obj)
