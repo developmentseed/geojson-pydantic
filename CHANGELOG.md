@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.2] - 2022-02-21
+
+- fix `parse_geometry_obj` potential bug (author @geospatial-jeff, https://github.com/developmentseed/geojson-pydantic/pull/45)
+- improve type definition (and validation) for geometry coordinate arrays (author @geospatial-jeff, https://github.com/developmentseed/geojson-pydantic/pull/44)
+
 ## [0.3.1] - 2021-08-04
 
 ### Added
