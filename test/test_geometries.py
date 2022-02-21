@@ -187,6 +187,8 @@ def test_parse_geometry_obj_invalid_type():
         parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
     with pytest.raises(ValidationError):
         parse_geometry_obj({"type": "", "obviously": "doesn't exist"})
+    with pytest.raises(ValidationError):
+        parse_geometry_obj({})
 
 
 def test_parse_geometry_obj_invalid_point():

@@ -92,3 +92,11 @@ def test_feature_collection_generic():
     assert len(fc) == 2
     assert type(fc[0].properties) == GenericProperties
     assert type(fc[0].geometry) == Polygon
+
+
+def test_geo_interface_protocol():
+    class Pointy:
+        __geo_interface__ = {"type": "Point", "coordinates": (0.0, 0.0)}
+
+    feat = Feature(geometry=Pointy())
+    assert feat.geometry.dict() == Pointy.__geo_interface__
