@@ -40,6 +40,12 @@ test_feature = {
     "properties": properties,
 }
 
+test_feature_geom_null = {
+    "type": "Feature",
+    "geometry": None,
+    "properties": properties,
+}
+
 
 def test_geometry_collection_iteration():
     """test if feature collection is iterable"""
@@ -100,3 +106,8 @@ def test_geo_interface_protocol():
 
     feat = Feature(geometry=Pointy())
     assert feat.geometry.dict() == Pointy.__geo_interface__
+
+
+def test_feature_with_null_geometry():
+    feature = Feature(**test_feature_geom_null)
+    assert feature.geometry is None
