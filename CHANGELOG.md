@@ -5,6 +5,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.3.3] - 2022-03-04
+
+- Follow geojson specification and make feature geometry optional (Author @yellowcap, https://github.com/developmentseed/geojson-pydantic/pull/47)
+    ```python
+    from geojson_pydantic import Feature
+    # Before
+    feature = Feature(type="Feature", geometry=None, properties={})
+
+    >> ValidationError: 1 validation error for Feature
+    geometry none is not an allowed value (type=type_error.none.not_allowed)
+
+    # Now
+    feature = Feature(type="Feature", geometry=None, properties={})
+    assert feature.geometry is None
+    ```
+
 ## [0.3.2] - 2022-02-21
 
 - fix `parse_geometry_obj` potential bug (author @geospatial-jeff, https://github.com/developmentseed/geojson-pydantic/pull/45)

@@ -137,6 +137,18 @@ feat = MyPolygonFeatureModel(**geojson_feature)
 assert type(feature.geometry) == Polygon
 ```
 
+Or with optional geometry
+
+```python
+from geojson_pydantic import Feature, Point
+from typing import Optional
+
+MyPointFeatureModel = Feature[Optional[Point], Dict]
+
+assert MyPointFeatureModel(type="Feature", geometry=None, properties={}).geometry is None
+assert MyPointFeatureModel(type="Feature", geometry=Point(coordinates=(0,0)), properties={}).geometry is not None
+```
+
 And now with constrained properties
 
 ```python
