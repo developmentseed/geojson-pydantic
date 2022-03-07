@@ -76,7 +76,7 @@ class Polygon(_GeometryBase):
         """Create a Polygon geometry from a boundingbox."""
         return cls(
             coordinates=[
-                [[xmin, ymin], [xmin, ymax], [xmax, ymax], [xmax, ymin], [xmin, ymin]]
+                [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]
             ]
         )
 
