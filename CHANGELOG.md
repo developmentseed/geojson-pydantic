@@ -5,9 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+
+- Fix `Polygon.from_bounds` to respect geojson specification and return counterclockwise linear ring (author @jmfee-usgs, https://github.com/developmentseed/geojson-pydantic/pull/49)
+
 ## [0.3.3] - 2022-03-04
 
-- Follow geojson specification and make feature geometry optional (Author @yellowcap, https://github.com/developmentseed/geojson-pydantic/pull/47)
+- Follow geojson specification and make feature geometry optional (author @yellowcap, https://github.com/developmentseed/geojson-pydantic/pull/47)
     ```python
     from geojson_pydantic import Feature
     # Before
