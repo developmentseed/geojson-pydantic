@@ -16,10 +16,10 @@ class Feature(GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
     type: str = Field("Feature", const=True)
-    geometry: Geom
+    geometry: Geom = None
     properties: Optional[Props]
     id: Optional[str]
-    bbox: Optional[BBox]
+    bbox: Optional[BBox] = None
 
     class Config:
         """TODO: document"""
