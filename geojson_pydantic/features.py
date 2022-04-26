@@ -9,14 +9,14 @@ from geojson_pydantic.geometries import Geometry
 from geojson_pydantic.types import BBox
 
 Props = TypeVar("Props", bound=Dict)
-Geom = TypeVar("Geom", bound=Geometry)
+Geom = TypeVar("Geom", bound=Optional[Geometry])
 
 
 class Feature(GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
     type: str = Field("Feature", const=True)
-    geometry: Optional[Geom] = None
+    geometry: Geom = None
     properties: Optional[Props]
     id: Optional[str]
     bbox: Optional[BBox] = None
