@@ -16,7 +16,7 @@ extra_reqs = {
 setup(
     name="geojson-pydantic",
     python_requires=">=3.7",
-    description=u"""Pydantic data models for the GeoJSON spec""",
+    description="""Pydantic data models for the GeoJSON spec""",
     long_description=readme,
     long_description_content_type="text/markdown",
     classifiers=[
@@ -29,7 +29,7 @@ setup(
         "Topic :: Scientific/Engineering :: GIS",
     ],
     keywords="geojson pydantic",
-    author=u"Drew Bollinger",
+    author="Drew Bollinger",
     author_email="drew@developmentseed.org",
     url="https://github.com/developmentseed/geojson-pydantic",
     license="MIT",
