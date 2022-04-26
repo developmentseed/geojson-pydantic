@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## Unreleased
 
+- Fix optional geometry and bbox fields on `Feature`; allowing users to pass in `None` or even omit either field (author @moradology, https://github.com/developmentseed/geojson-pydantic/pull/56)
 - Fix `Polygon.from_bounds` to respect geojson specification and return counterclockwise linear ring (author @jmfee-usgs, https://github.com/developmentseed/geojson-pydantic/pull/49)
 
 ## [0.3.3] - 2022-03-04
