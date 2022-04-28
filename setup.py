@@ -10,7 +10,7 @@ inst_reqs = ["pydantic"]
 
 extra_reqs = {
     "test": ["pytest", "pytest-cov"],
-    "dev": ["pytest", "pytest-cov", "pre-commit"],
+    "dev": ["pre-commit"],
 }
 
 setup(
@@ -23,6 +23,7 @@ setup(
         "Intended Audience :: Information Technology",
         "Intended Audience :: Science/Research",
         "License :: OSI Approved :: BSD License",
+        "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.8",
         "Programming Language :: Python :: 3.7",

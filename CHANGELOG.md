@@ -5,7 +5,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## Unreleased
+## [0.3.4] - 2022-04-28
 
 - Fix optional geometry and bbox fields on `Feature`; allowing users to pass in `None` or even omit either field (author @moradology, https://github.com/developmentseed/geojson-pydantic/pull/56)
 - Fix `Polygon.from_bounds` to respect geojson specification and return counterclockwise linear ring (author @jmfee-usgs, https://github.com/developmentseed/geojson-pydantic/pull/49)
