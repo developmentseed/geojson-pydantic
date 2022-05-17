@@ -5,6 +5,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+- changelog compare links
+
 ## [0.3.4] - 2022-04-28
 
 - Fix optional geometry and bbox fields on `Feature`; allowing users to pass in `None` or even omit either field (author @moradology, https://github.com/developmentseed/geojson-pydantic/pull/56)
@@ -132,3 +137,15 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 
 ### Added
 - Initial Release
+
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.4...HEAD
+[0.3.4]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.3...0.3.4
+[0.3.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.2...0.3.3
+[0.3.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.1...0.3.2
+[0.3.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.0...0.3.1
+[0.3.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.2.3...0.3.0
+[0.2.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.2.2...0.2.3
+[0.2.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.2.1...0.2.2
+[0.2.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.2.0...0.2.1
+[0.2.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.1.0...0.2.0
+[0.1.0]: https://github.com/developmentseed/geojson-pydantic/compare/005f3e57ad07272c99c54302decc63eec12175c9...0.1.0
