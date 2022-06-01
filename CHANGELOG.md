@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Changed
+- switch to `pyproject.toml`
+- rename `geojson_pydantic.version` to `geojson_pydantic.__version__`
+
 ### Fixed
 - changelog compare links
 
