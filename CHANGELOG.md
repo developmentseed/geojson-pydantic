@@ -34,6 +34,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 - `__geo_interface__` to `geojson_pydantic.geometries.GeometryCollection` object
 - `__geo_interface__` to `geojson_pydantic.feature.Feature` and `geojson_pydantic.feature.FeatureCollection` object
+- `geojson_pydantic.__all__` to declaring public objects (author @farridav, https://github.com/developmentseed/geojson-pydantic/pull/52)
 
 ### Changed
 - switch to `pyproject.toml`

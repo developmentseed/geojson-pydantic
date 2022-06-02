@@ -12,3 +12,15 @@ from .geometries import (  # noqa
 )
 
 __version__ = "0.3.4"
+
+__all__ = [
+    "Feature",
+    "FeatureCollection",
+    "GeometryCollection",
+    "LineString",
+    "MultiLineString",
+    "MultiPoint",
+    "MultiPolygon",
+    "Point",
+    "Polygon",
+]
