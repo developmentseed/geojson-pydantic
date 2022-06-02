@@ -33,6 +33,11 @@ class Feature(GenericModel, Generic[Geom, Props]):
             return v.__geo_interface__
         return v
 
+    @property
+    def __geo_interface__(self):
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
+        return self.dict()
+
 
 class FeatureCollection(GenericModel, Generic[Geom, Props]):
     """FeatureCollection Model"""
@@ -52,3 +57,8 @@ class FeatureCollection(GenericModel, Generic[Geom, Props]):
     def __getitem__(self, index):
         """get feature at a given index"""
         return self.features[index]
+
+    @property
+    def __geo_interface__(self):
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
+        return self.dict()

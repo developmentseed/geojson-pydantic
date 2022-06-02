@@ -33,6 +33,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     ```
 
 - `__geo_interface__` to `geojson_pydantic.geometries.GeometryCollection` object
+- `__geo_interface__` to `geojson_pydantic.feature.Feature` and `geojson_pydantic.feature.FeatureCollection` object
 
 ### Changed
 - switch to `pyproject.toml`
