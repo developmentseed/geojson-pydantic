@@ -23,10 +23,8 @@ dynamic = ["version"]
 dependencies = ["pydantic"]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov"]
-dev = [
-    "pre-commit",
-]
+test = ["pytest", "pytest-cov", "shapely"]
+dev = ["pre-commit"]
 
 [project.urls]
 Source = "https://github.com/developmentseed/geojson-pydantic"
@@ -54,7 +52,7 @@ known_third_party = ["pydantic"]
 default_section = "THIRDPARTY"
 
 [tool.mypy]
-no_strict_optional = "True"
+no_strict_optional = true
 
 [tool.pydocstyle]
 select = "D1"
