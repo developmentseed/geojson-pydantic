@@ -1,0 +1,59 @@
+[project]
+name = "geojson-pydantic"
+description = "Pydantic data models for the GeoJSON spec."
+readme = "README.md"
+requires-python = ">=3.7"
+license = {file = "LICENSE"}
+authors = [
+    {name = "Drew Bollinger", email = "drew@developmentseed.org"},
+]
+keywords = ["geojson", "Pydantic"]
+classifiers = [
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Topic :: Scientific/Engineering :: GIS",
+    "Typing :: Typed",
+]
+dynamic = ["version"]
+dependencies = ["pydantic"]
+
+[project.optional-dependencies]
+test = ["pytest", "pytest-cov", "shapely"]
+dev = ["pre-commit"]
+
+[project.urls]
+Source = "https://github.com/developmentseed/geojson-pydantic"
+
+[build-system]
+requires = ["flit>=3.2,<4"]
+build-backend = "flit_core.buildapi"
+
+[tool.flit.module]
+name = "geojson_pydantic"
+
+[tool.flit.sdist]
+exclude = [
+    "tests/",
+    "docs/",
+    ".github/",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+]
+
+[tool.isort]
+profile = "black"
+known_first_party = ["geojson_pydantic"]
+known_third_party = ["pydantic"]
+default_section = "THIRDPARTY"
+
+[tool.mypy]
+no_strict_optional = true
+
+[tool.pydocstyle]
+select = "D1"
+match = "(?!test).*.py"

@@ -1,12 +1,13 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, List, Union
+from typing import Any, Iterator, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
 from geojson_pydantic.types import (
+    LinearRing,
     LineStringCoords,
     MultiLineStringCoords,
     MultiPointCoords,
@@ -26,12 +27,41 @@ class _GeometryBase(BaseModel, abc.ABC):
     def __geo_interface__(self):
         return self.dict()
 
+    @property
+    @abc.abstractmethod
+    def _wkt_coordinates(self) -> str:
+        ...
+
+    @property
+    @abc.abstractmethod
+    def _wkt_inset(self) -> str:
+        """Return Z for 3 dimensional geometry or an empty string for 2 dimensions."""
+        ...
+
+    @property
+    def _wkt_type(self) -> str:
+        """Return the WKT name of the geometry."""
+        return self.__class__.__name__.upper()
+
+    @property
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        return f"{self._wkt_type}{self._wkt_inset}({self._wkt_coordinates})"
+
 
 class Point(_GeometryBase):
     """Point Model"""
 
     type: str = Field("Point", const=True)
     coordinates: Position
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        return " ".join(str(coordinate) for coordinate in self.coordinates)
+
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates) == 3 else " "
 
 
 class MultiPoint(_GeometryBase):
@@ -40,6 +70,15 @@ class MultiPoint(_GeometryBase):
     type: str = Field("MultiPoint", const=True)
     coordinates: MultiPointCoords
 
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates[0]) == 3 else " "
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        points = [Point(coordinates=p) for p in self.coordinates]
+        return ", ".join(point._wkt_coordinates for point in points)
+
 
 class LineString(_GeometryBase):
     """LineString Model"""
@@ -47,12 +86,42 @@ class LineString(_GeometryBase):
     type: str = Field("LineString", const=True)
     coordinates: LineStringCoords
 
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates[0]) == 3 else " "
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        points = [Point(coordinates=p) for p in self.coordinates]
+        return ", ".join(point._wkt_coordinates for point in points)
+
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
     type: str = Field("MultiLineString", const=True)
     coordinates: MultiLineStringCoords
+
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        lines = [LineString(coordinates=line) for line in self.coordinates]
+        return ",".join(f"({line._wkt_coordinates})" for line in lines)
+
+
+class LinearRingGeom(LineString):
+    """LinearRing model."""
+
+    @validator("coordinates")
+    def check_closure(cls, values):
+        """Validate that LinearRing is closed (first and last coordinate are the same)."""
+        if values[-1] != values[0]:
+            raise ValueError("LinearRing must have the same start and end coordinates")
+
+        return values
 
 
 class Polygon(_GeometryBase):
@@ -68,6 +137,30 @@ class Polygon(_GeometryBase):
             raise ValueError("All linear rings have the same start and end coordinates")
 
         return polygon
+
+    @property
+    def exterior(self) -> LinearRing:
+        """Return the exterior Linear Ring of the polygon."""
+        return self.coordinates[0]
+
+    @property
+    def interiors(self) -> Iterator[LinearRing]:
+        """Interiors (Holes) of the polygon."""
+        yield from (
+            interior for interior in self.coordinates[1:] if len(self.coordinates) > 1
+        )
+
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        ic = "".join(
+            f", ({LinearRingGeom(coordinates=interior)._wkt_coordinates})"
+            for interior in self.interiors
+        )
+        return f"({LinearRingGeom(coordinates=self.exterior)._wkt_coordinates}){ic}"
 
     @classmethod
     def from_bounds(
@@ -86,6 +179,15 @@ class MultiPolygon(_GeometryBase):
 
     type: str = Field("MultiPolygon", const=True)
     coordinates: MultiPolygonCoords
+
+    @property
+    def _wkt_inset(self) -> str:
+        return " Z " if len(self.coordinates[0][0][0]) == 3 else " "
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        polygons = [Polygon(coordinates=poly) for poly in self.coordinates]
+        return ",".join(f"({poly._wkt_coordinates})" for poly in polygons)
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
@@ -108,6 +210,26 @@ class GeometryCollection(BaseModel):
     def __getitem__(self, index):
         """get geometry at a given index"""
         return self.geometries[index]
+
+    @property
+    def __geo_interface__(self):
+        """geo interface."""
+        return self.dict()
+
+    @property
+    def _wkt_type(self) -> str:
+        """Return the WKT name of the geometry."""
+        return self.__class__.__name__.upper()
+
+    @property
+    def _wkt_coordinates(self) -> str:
+        """Encode coordinates as WKT."""
+        return ", ".join(geom.wkt for geom in self.geometries)
+
+    @property
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        return f"{self._wkt_type} ({self._wkt_coordinates})"
 
 
 def parse_geometry_obj(obj) -> Geometry:

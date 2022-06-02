@@ -11,16 +11,16 @@ from .geometries import (  # noqa
     Polygon,
 )
 
-version = "0.3.3"
+__version__ = "0.3.4"
 
 __all__ = [
-    'Feature',
-    'FeatureCollection',
-    'GeometryCollection',
-    'LineString',
-    'MultiLineString',
-    'MultiPoint',
-    'MultiPolygon',
-    'Point',
-    'Polygon'
+    "Feature",
+    "FeatureCollection",
+    "GeometryCollection",
+    "LineString",
+    "MultiLineString",
+    "MultiPoint",
+    "MultiPolygon",
+    "Point",
+    "Polygon",
 ]
