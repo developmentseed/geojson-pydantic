@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [Unreleased]
 
+### Added
+- `.wkt` property for Geometry object
+    ```python
+    from geojson_pydantic.geometries import Point
+
+    Point(coordinates=(1, 2)).wkt
+    >> 'POINT (1.0 2.0)'
+    ```
+
+- `.exterior` and `.interiors` properties for `geojson_pydantic.geometries.Polygon` object.
+    ```python
+    from geojson_pydantic.geometries import Polygon
+    polygon = Polygon(
+        coordinates=[
+            [(0, 0), (0, 10), (10, 10), (10, 0), (0, 0)],
+            [(2, 2), (2, 4), (4, 4), (4, 2), (2, 2)],
+        ]
+    )
+    polygon.exterior
+    >> [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)]
+
+    list(polygon.interiors)
+    >> [[(2.0, 2.0), (2.0, 4.0), (4.0, 4.0), (4.0, 2.0), (2.0, 2.0)]]
+    ```
+
+- `__geo_interface__` to `geojson_pydantic.geometries.GeometryCollection` object
+
 ### Fixed
 - changelog compare links
 

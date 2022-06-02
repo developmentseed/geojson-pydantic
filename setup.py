@@ -9,7 +9,7 @@ with open("README.md") as f:
 inst_reqs = ["pydantic"]
 
 extra_reqs = {
-    "test": ["pytest", "pytest-cov"],
+    "test": ["pytest", "pytest-cov", "shapely"],
     "dev": ["pre-commit"],
 }
 
