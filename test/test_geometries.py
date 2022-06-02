@@ -1,7 +1,9 @@
 import pytest
 from pydantic import ValidationError
+from shapely.geometry import shape
 
 from geojson_pydantic.geometries import (
+    Geometry,
     GeometryCollection,
     LineString,
     MultiLineString,
@@ -13,6 +15,13 @@ from geojson_pydantic.geometries import (
 )
 
 
+def assert_wkt_equivalence(geom: Geometry):
+    """Assert WKT equivalence with Shapely."""
+    assert shape(geom.dict()).wkt == geom.wkt.replace(
+        ".0", ""
+    )  # We strip `.0` because shapely round the value by default
+
+
 @pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])
 def test_point_valid_coordinates(coordinates):
     """
@@ -22,6 +31,7 @@ def test_point_valid_coordinates(coordinates):
     assert p.type == "Point"
     assert p.coordinates == coordinates
     assert hasattr(p, "__geo_interface__")
+    assert_wkt_equivalence(p)
 
 
 @pytest.mark.parametrize(
@@ -36,7 +46,34 @@ def test_point_invalid_coordinates(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [[(1, 2), (3, 4)], [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]]
+    "coordinates",
+    [[(1, 2)], [(1, 2), (1, 2)], [(1, 2, 3), (1, 2, 3)], [(1.0, 2.0), (1.0, 2.0)]],
+)
+def test_multi_point_valid_coordinates(coordinates):
+    """
+    Two or three number elements as coordinates shold be okay
+    """
+    p = MultiPoint(coordinates=coordinates)
+    assert p.type == "MultiPoint"
+    assert p.coordinates == coordinates
+    assert hasattr(p, "__geo_interface__")
+    assert_wkt_equivalence(p)
+
+
+@pytest.mark.parametrize(
+    "coordinates", [[(1,)], [(1, 2, 3, 4)], ["Foo"], [(None, 2)], [(1, (2,))]]
+)
+def test_multi_point_invalid_coordinates(coordinates):
+    """
+    Too few or to many elements should not, nor weird data types
+    """
+    with pytest.raises(ValidationError):
+        MultiPoint(coordinates=coordinates)
+
+
+@pytest.mark.parametrize(
+    "coordinates",
+    [[(1, 2), (3, 4)], [(0, 0, 0), (1, 1, 1)], [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
 )
 def test_line_string_valid_coordinates(coordinates):
     """
@@ -46,6 +83,7 @@ def test_line_string_valid_coordinates(coordinates):
     assert linestring.type == "LineString"
     assert linestring.coordinates == coordinates
     assert hasattr(linestring, "__geo_interface__")
+    assert_wkt_equivalence(linestring)
 
 
 @pytest.mark.parametrize("coordinates", [None, "Foo", [], [(1, 2)], ["Foo", "Bar"]])
@@ -57,7 +95,43 @@ def test_line_string_invalid_coordinates(coordinates):
         LineString(coordinates=coordinates)
 
 
-@pytest.mark.parametrize("coordinates", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        [[(1, 2), (3, 4)]],
+        [[(0, 0, 0), (1, 1, 1)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+    ],
+)
+def test_multi_line_string_valid_coordinates(coordinates):
+    """
+    A list of two coordinates or more should be okay
+    """
+    multilinestring = MultiLineString(coordinates=coordinates)
+    assert multilinestring.type == "MultiLineString"
+    assert multilinestring.coordinates == coordinates
+    assert hasattr(multilinestring, "__geo_interface__")
+    assert_wkt_equivalence(multilinestring)
+
+
+@pytest.mark.parametrize(
+    "coordinates", [[None], ["Foo"], [[]], [[(1, 2)]], [["Foo", "Bar"]]]
+)
+def test_multi_line_string_invalid_coordinates(coordinates):
+    """
+    But we don't accept non-list inputs, too few coordinates, or bogus coordinates
+    """
+    with pytest.raises(ValidationError):
+        MultiLineString(coordinates=coordinates)
+
+
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        [[(1, 2), (3, 4), (5, 6), (1, 2)]],
+        [[(0, 0, 0), (1, 1, 0), (1, 0, 0), (0, 0, 0)]],
+    ],
+)
 def test_polygon_valid_coordinates(coordinates):
     """
     Should accept lists of linear rings
@@ -66,6 +140,25 @@ def test_polygon_valid_coordinates(coordinates):
     assert polygon.type == "Polygon"
     assert polygon.coordinates == coordinates
     assert hasattr(polygon, "__geo_interface__")
+    assert polygon.exterior == coordinates[0]
+    assert not list(polygon.interiors)
+    assert_wkt_equivalence(polygon)
+
+
+def test_polygon_with_holes():
+    """Check interior and exterior rings."""
+    polygon = Polygon(
+        coordinates=[
+            [(0, 0), (0, 10), (10, 10), (10, 0), (0, 0)],
+            [(2, 2), (2, 4), (4, 4), (4, 2), (2, 2)],
+        ]
+    )
+
+    assert polygon.type == "Polygon"
+    assert hasattr(polygon, "__geo_interface__")
+    assert polygon.exterior == polygon.coordinates[0]
+    assert list(polygon.interiors) == [polygon.coordinates[1]]
+    assert_wkt_equivalence(polygon)
 
 
 @pytest.mark.parametrize(
@@ -88,6 +181,28 @@ def test_polygon_invalid_coordinates(coordinates):
     """
     with pytest.raises(ValidationError):
         Polygon(coordinates=coordinates)
+
+
+def test_multi_polygon():
+    """Should accept sequence of polygons."""
+    multi_polygon = MultiPolygon(
+        coordinates=[
+            [
+                [(0, 0, 4), (1, 0, 4), (1, 1, 4), (0, 1, 4), (0, 0, 4)],
+                [
+                    (2.1, 2.1, 4),
+                    (2.2, 2.1, 4),
+                    (2.2, 2.2, 4),
+                    (2.1, 2.2, 4),
+                    (2.1, 2.1, 4),
+                ],
+            ]
+        ]
+    )
+
+    assert multi_polygon.type == "MultiPolygon"
+    assert hasattr(multi_polygon, "__geo_interface__")
+    assert_wkt_equivalence(multi_polygon)
 
 
 def test_parse_geometry_obj_point():
@@ -206,6 +321,7 @@ def test_geometry_collection_iteration(coordinates):
     """test if geometry collection is iterable"""
     polygon = Polygon(coordinates=coordinates)
     gc = GeometryCollection(geometries=[polygon, polygon])
+    assert_wkt_equivalence(gc)
     iter(gc)
 
 
@@ -214,6 +330,7 @@ def test_len_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
     polygon = Polygon(coordinates=polygon)
     gc = GeometryCollection(geometries=[polygon, polygon])
+    assert_wkt_equivalence(gc)
     assert len(gc) == 2
 
 
@@ -222,6 +339,7 @@ def test_getitem_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
     polygon = Polygon(coordinates=polygon)
     gc = GeometryCollection(geometries=[polygon, polygon])
+    assert_wkt_equivalence(gc)
     item = gc[0]
     assert item == gc[0]
 
