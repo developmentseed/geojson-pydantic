@@ -50,11 +50,13 @@ test_feature_geom_null = {
 def test_geometry_collection_iteration():
     """test if feature collection is iterable"""
     gc = FeatureCollection(features=[test_feature, test_feature])
+    assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
 
 def test_generic_properties_is_dict():
     feature = Feature(**test_feature)
+    assert hasattr(feature, "__geo_interface__")
     assert feature.properties["id"] == test_feature["properties"]["id"]
     assert type(feature.properties) == dict
     assert not hasattr(feature.properties, "id")
