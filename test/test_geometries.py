@@ -321,6 +321,7 @@ def test_geometry_collection_iteration(coordinates):
     """test if geometry collection is iterable"""
     polygon = Polygon(coordinates=coordinates)
     gc = GeometryCollection(geometries=[polygon, polygon])
+    assert hasattr(gc, "__geo_interface__")
     assert_wkt_equivalence(gc)
     iter(gc)
 
