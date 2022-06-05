@@ -1,3 +1,5 @@
+import json
+
 import pytest
 from pydantic import ValidationError
 from shapely.geometry import shape
@@ -34,6 +36,21 @@ def test_point_valid_coordinates(coordinates):
     assert_wkt_equivalence(p)
 
 
+@pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])
+def test_point_valid_coordinates_json(coordinates):
+    """
+    Two or three number elements as coordinates shold be okay
+    """
+    p_json = json.dumps(
+        {'type': 'Point', 'coordinates': coordinates}
+    )
+    p = Point.validate(p_json)
+    assert p.type == "Point"
+    assert p.coordinates == coordinates
+    assert hasattr(p, "__geo_interface__")
+    assert_wkt_equivalence(p)
+
+
 @pytest.mark.parametrize(
     "coordinates", [(1,), (1, 2, 3, 4), "Foo", (None, 2), (1, (2,))]
 )
@@ -61,6 +78,24 @@ def test_multi_point_valid_coordinates(coordinates):
 
 
 @pytest.mark.parametrize(
+    "coordinates",
+    [[(1, 2)], [(1, 2), (1, 2)], [(1, 2, 3), (1, 2, 3)], [(1.0, 2.0), (1.0, 2.0)]],
+)
+def test_multi_point_valid_coordinates_json(coordinates):
+    """
+    Two or three number elements as coordinates shold be okay
+    """
+    p_json = json.dumps(
+        {'type': 'MultiPoint', 'coordinates': coordinates}
+    )
+    p = MultiPoint.validate(p_json)
+    assert p.type == "MultiPoint"
+    assert p.coordinates == coordinates
+    assert hasattr(p, "__geo_interface__")
+    assert_wkt_equivalence(p)
+
+
+@pytest.mark.parametrize(
     "coordinates", [[(1,)], [(1, 2, 3, 4)], ["Foo"], [(None, 2)], [(1, (2,))]]
 )
 def test_multi_point_invalid_coordinates(coordinates):
@@ -80,6 +115,24 @@ def test_line_string_valid_coordinates(coordinates):
     A list of two coordinates or more should be okay
     """
     linestring = LineString(coordinates=coordinates)
+    assert linestring.type == "LineString"
+    assert linestring.coordinates == coordinates
+    assert hasattr(linestring, "__geo_interface__")
+    assert_wkt_equivalence(linestring)
+
+
+@pytest.mark.parametrize(
+    "coordinates",
+    [[(1, 2), (3, 4)], [(0, 0, 0), (1, 1, 1)], [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+)
+def test_line_string_valid_coordinates_json(coordinates):
+    """
+    A list of two coordinates or more should be okay
+    """
+    linestring_json = json.dumps(
+        {'type': 'LineString', 'coordinates': coordinates}
+    )
+    linestring = LineString.validate(linestring_json)
     assert linestring.type == "LineString"
     assert linestring.coordinates == coordinates
     assert hasattr(linestring, "__geo_interface__")
@@ -115,6 +168,28 @@ def test_multi_line_string_valid_coordinates(coordinates):
 
 
 @pytest.mark.parametrize(
+    "coordinates",
+    [
+        [[(1, 2), (3, 4)]],
+        [[(0, 0, 0), (1, 1, 1)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+    ],
+)
+def test_multi_line_string_valid_coordinates_json(coordinates):
+    """
+    A list of two coordinates or more should be okay
+    """
+    multilinestring_json = json.dumps(
+        {'type': 'MultiLineString', 'coordinates': coordinates}
+    )
+    multilinestring = MultiLineString.validate(multilinestring_json)
+    assert multilinestring.type == "MultiLineString"
+    assert multilinestring.coordinates == coordinates
+    assert hasattr(multilinestring, "__geo_interface__")
+    assert_wkt_equivalence(multilinestring)
+
+
+@pytest.mark.parametrize(
     "coordinates", [[None], ["Foo"], [[]], [[(1, 2)]], [["Foo", "Bar"]]]
 )
 def test_multi_line_string_invalid_coordinates(coordinates):
@@ -137,6 +212,29 @@ def test_polygon_valid_coordinates(coordinates):
     Should accept lists of linear rings
     """
     polygon = Polygon(coordinates=coordinates)
+    assert polygon.type == "Polygon"
+    assert polygon.coordinates == coordinates
+    assert hasattr(polygon, "__geo_interface__")
+    assert polygon.exterior == coordinates[0]
+    assert not list(polygon.interiors)
+    assert_wkt_equivalence(polygon)
+
+
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        [[(1, 2), (3, 4), (5, 6), (1, 2)]],
+        [[(0, 0, 0), (1, 1, 0), (1, 0, 0), (0, 0, 0)]],
+    ],
+)
+def test_polygon_valid_coordinates_json(coordinates):
+    """
+    Should accept lists of linear rings
+    """
+    polygon_json = json.dumps(
+        {'type': 'Polygon', 'coordinates': coordinates}
+    )
+    polygon = Polygon.validate(polygon_json)
     assert polygon.type == "Polygon"
     assert polygon.coordinates == coordinates
     assert hasattr(polygon, "__geo_interface__")
@@ -217,7 +315,7 @@ def test_parse_geometry_obj_multi_point():
     ) == MultiPoint(coordinates=[(100.0, 0.0), (101.0, 1.0)])
 
 
-def test_parse_geometry_obj_line_striing():
+def test_parse_geometry_obj_line_string():
     assert parse_geometry_obj(
         {
             "type": "LineString",
