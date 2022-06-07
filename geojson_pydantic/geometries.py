@@ -31,14 +31,12 @@ class _GeometryBase(BaseModel, abc.ABC):
     @classmethod
     def validate(cls, value):
         try:
-            return cls(**json.loads(value))
-        except Exception:
-            pass
-
-        try:
-            return cls(**value.dict())
-        except (AttributeError, ValidationError):
-            pass
+            value = json.loads(value)
+        except TypeError:
+            try:
+                return cls(**value.dict())
+            except (AttributeError, ValidationError):
+                pass
 
         return cls(**value)
 
