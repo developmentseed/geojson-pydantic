@@ -41,9 +41,7 @@ def test_point_valid_coordinates_json(coordinates):
     """
     Two or three number elements as coordinates shold be okay
     """
-    p_json = json.dumps(
-        {'type': 'Point', 'coordinates': coordinates}
-    )
+    p_json = json.dumps({"type": "Point", "coordinates": coordinates})
     p = Point.validate(p_json)
     assert p.type == "Point"
     assert p.coordinates == coordinates
@@ -85,9 +83,7 @@ def test_multi_point_valid_coordinates_json(coordinates):
     """
     Two or three number elements as coordinates shold be okay
     """
-    p_json = json.dumps(
-        {'type': 'MultiPoint', 'coordinates': coordinates}
-    )
+    p_json = json.dumps({"type": "MultiPoint", "coordinates": coordinates})
     p = MultiPoint.validate(p_json)
     assert p.type == "MultiPoint"
     assert p.coordinates == coordinates
@@ -129,9 +125,7 @@ def test_line_string_valid_coordinates_json(coordinates):
     """
     A list of two coordinates or more should be okay
     """
-    linestring_json = json.dumps(
-        {'type': 'LineString', 'coordinates': coordinates}
-    )
+    linestring_json = json.dumps({"type": "LineString", "coordinates": coordinates})
     linestring = LineString.validate(linestring_json)
     assert linestring.type == "LineString"
     assert linestring.coordinates == coordinates
@@ -180,7 +174,7 @@ def test_multi_line_string_valid_coordinates_json(coordinates):
     A list of two coordinates or more should be okay
     """
     multilinestring_json = json.dumps(
-        {'type': 'MultiLineString', 'coordinates': coordinates}
+        {"type": "MultiLineString", "coordinates": coordinates}
     )
     multilinestring = MultiLineString.validate(multilinestring_json)
     assert multilinestring.type == "MultiLineString"
@@ -231,9 +225,7 @@ def test_polygon_valid_coordinates_json(coordinates):
     """
     Should accept lists of linear rings
     """
-    polygon_json = json.dumps(
-        {'type': 'Polygon', 'coordinates': coordinates}
-    )
+    polygon_json = json.dumps({"type": "Polygon", "coordinates": coordinates})
     polygon = Polygon.validate(polygon_json)
     assert polygon.type == "Polygon"
     assert polygon.coordinates == coordinates
