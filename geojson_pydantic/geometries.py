@@ -2,6 +2,7 @@
 
 import abc
 import json
+from functools import singledispatchmethod
 from typing import Any, Iterator, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
@@ -28,17 +29,30 @@ class _GeometryBase(BaseModel, abc.ABC):
     def __geo_interface__(self):
         return self.dict()
 
-    @classmethod
-    def validate(cls, value):
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
+    class Config:
+        keep_untouched = (singledispatchmethod,)
 
-        return cls(**value)
+    @singledispatchmethod
+    @staticmethod
+    def validate(value):
+        """Validate geometry object"""
+        raise ValueError
+
+    @validate.register
+    @classmethod
+    def _(cls, value: dict):
+        value = cls(**value)
+        return value
+
+    @validate.register
+    @classmethod
+    def _(cls, value: str):
+        return cls.validate(json.loads(value))
+
+    @validate.register
+    @classmethod
+    def _(cls, value: BaseModel):
+        return cls.validate(value.dict())
 
     @property
     @abc.abstractmethod
@@ -128,7 +142,7 @@ class MultiLineString(_GeometryBase):
 class LinearRingGeom(LineString):
     """LinearRing model."""
 
-    @validator("coordinates")
+    @validator("coordinates", allow_reuse=True)
     def check_closure(cls, values):
         """Validate that LinearRing is closed (first and last coordinate are the same)."""
         if values[-1] != values[0]:
@@ -143,7 +157,7 @@ class Polygon(_GeometryBase):
     type: str = Field("Polygon", const=True)
     coordinates: PolygonCoords
 
-    @validator("coordinates")
+    @validator("coordinates", allow_reuse=True)
     def check_closure(cls, polygon):
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any([ring[-1] != ring[0] for ring in polygon]):
