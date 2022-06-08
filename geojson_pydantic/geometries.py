@@ -1,6 +1,7 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
+import json
 from typing import Any, Iterator, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
@@ -26,6 +27,18 @@ class _GeometryBase(BaseModel, abc.ABC):
     @property
     def __geo_interface__(self):
         return self.dict()
+
+    @classmethod
+    def validate(cls, value):
+        try:
+            value = json.loads(value)
+        except TypeError:
+            try:
+                return cls(**value.dict())
+            except (AttributeError, ValidationError):
+                pass
+
+        return cls(**value)
 
     @property
     @abc.abstractmethod
