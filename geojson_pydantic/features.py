@@ -45,7 +45,10 @@ class Feature(GenericModel, Generic[Geom, Props]):
         try:
             value = json.loads(value)
         except TypeError:
-            pass
+            try:
+                return cls(**value.dict())
+            except (AttributeError, ValidationError):
+                pass
 
         return cls(**value)
 
