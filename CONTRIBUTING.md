@@ -11,7 +11,7 @@ pip install -e '.[test]'
 You can then run the tests with the following command:
 
 ```sh
-python -m pytest --cov geojson_pydantic --cov-report term-missing --ignore=venv
+python -m pytest --cov geojson_pydantic --cov-report term-missing
 ```
 
 This repo is set to use pre-commit to run `isort`, `flake8`, `pydocstring`, `black` ("uncompromising Python code formatter") and `mypy` when committing new code.

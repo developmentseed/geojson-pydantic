@@ -9,11 +9,18 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
-- Geometry validation from dict or string (author @Vikka, https://github.com/developmentseed/geojson-pydantic/pull/69)
+- `Geometry` and `GeometryCollection` validation from dict or string (author @Vikka, https://github.com/developmentseed/geojson-pydantic/pull/69)
 
     ```python
     Point.validate('{"coordinates": [1.0, 2.0], "type": "Point"}')
     >> Point(coordinates=(1.0, 2.0), type='Point'
+    ```
+
+- `Feature` and `FeatureCollection` validation from dict or string
+
+    ```python
+    FeatureCollection.validate('{"type": "FeatureCollection", "features": [{"type": "Feature", "geometry": {"coordinates": [1.0, 2.0], "type": "Point"}}]}')
+    >> FeatureCollection(type='FeatureCollection', features=[Feature(type='Feature', geometry=Point(coordinates=(1.0, 2.0), type='Point'), properties=None, id=None, bbox=None)], bbox=None)
     ```
 
 ## [0.4.0] - 2022-06-03

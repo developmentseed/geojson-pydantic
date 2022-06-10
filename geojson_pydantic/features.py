@@ -1,8 +1,9 @@
 """pydantic models for GeoJSON Feature objects."""
 
+import json
 from typing import Dict, Generic, List, Optional, TypeVar
 
-from pydantic import Field, validator
+from pydantic import Field, ValidationError, validator
 from pydantic.generics import GenericModel
 
 from geojson_pydantic.geometries import Geometry
@@ -22,7 +23,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
     bbox: Optional[BBox] = None
 
     class Config:
-        """TODO: document"""
+        """Model configuration."""
 
         use_enum_values = True
 
@@ -37,6 +38,19 @@ class Feature(GenericModel, Generic[Geom, Props]):
     def __geo_interface__(self):
         """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
         return self.dict()
+
+    @classmethod
+    def validate(cls, value):
+        """Validate input."""
+        try:
+            value = json.loads(value)
+        except TypeError:
+            try:
+                return cls(**value.dict())
+            except (AttributeError, ValidationError):
+                pass
+
+        return cls(**value)
 
 
 class FeatureCollection(GenericModel, Generic[Geom, Props]):
@@ -62,3 +76,16 @@ class FeatureCollection(GenericModel, Generic[Geom, Props]):
     def __geo_interface__(self):
         """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
         return self.dict()
+
+    @classmethod
+    def validate(cls, value):
+        """Validate input."""
+        try:
+            value = json.loads(value)
+        except TypeError:
+            try:
+                return cls(**value.dict())
+            except (AttributeError, ValidationError):
+                pass
+
+        return cls(**value)
