@@ -7,7 +7,12 @@ import pytest
 from pydantic import BaseModel, ValidationError
 
 from geojson_pydantic.features import Feature, FeatureCollection
-from geojson_pydantic.geometries import Geometry, MultiPolygon, Polygon
+from geojson_pydantic.geometries import (
+    Geometry,
+    GeometryCollection,
+    MultiPolygon,
+    Polygon,
+)
 
 
 class GenericProperties(BaseModel):
@@ -35,6 +40,8 @@ polygon = {
     ],
 }
 
+geom_collection = {"type": "GeometryCollection", "geometries": [polygon, polygon]}
+
 test_feature = {
     "type": "Feature",
     "geometry": polygon,
@@ -47,10 +54,23 @@ test_feature_geom_null = {
     "properties": properties,
 }
 
+test_feature_geometry_collection = {
+    "type": "Feature",
+    "geometry": geom_collection,
+    "properties": properties,
+}
+
+
+def test_feature_collection_iteration():
+    """test if feature collection is iterable"""
+    gc = FeatureCollection(features=[test_feature, test_feature])
+    assert hasattr(gc, "__geo_interface__")
+    iter(gc)
+
 
 def test_geometry_collection_iteration():
     """test if feature collection is iterable"""
-    gc = FeatureCollection(features=[test_feature, test_feature])
+    gc = FeatureCollection(features=[test_feature_geometry_collection])
     assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
@@ -59,6 +79,16 @@ def test_generic_properties_is_dict():
     feature = Feature(**test_feature)
     assert hasattr(feature, "__geo_interface__")
     assert feature.properties["id"] == test_feature["properties"]["id"]
+    assert type(feature.properties) == dict
+    assert not hasattr(feature.properties, "id")
+
+
+def test_generic_properties_is_dict_collection():
+    feature = Feature(**test_feature_geometry_collection)
+    assert hasattr(feature, "__geo_interface__")
+    assert (
+        feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    )
     assert type(feature.properties) == dict
     assert not hasattr(feature.properties, "id")
 
@@ -72,7 +102,7 @@ def test_generic_properties_is_object():
 
 def test_generic_geometry():
     feature = Feature[Polygon, GenericProperties](**test_feature)
-    assert feature.properties.id == test_feature["properties"]["id"]
+    assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
     assert type(feature.geometry) == Polygon
     assert type(feature.properties) == GenericProperties
     assert hasattr(feature.properties, "id")
@@ -80,6 +110,29 @@ def test_generic_geometry():
     feature = Feature[Polygon, Dict](**test_feature)
     assert type(feature.geometry) == Polygon
     assert feature.properties["id"] == test_feature["properties"]["id"]
+    assert type(feature.properties) == dict
+    assert not hasattr(feature.properties, "id")
+
+    with pytest.raises(ValidationError):
+        Feature[MultiPolygon, Dict](**({"type": "Feature", "geometry": polygon}))
+
+
+def test_generic_geometry_collection():
+    feature = Feature[GeometryCollection, GenericProperties](
+        **test_feature_geometry_collection
+    )
+    assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
+    assert type(feature.geometry) == GeometryCollection
+    assert feature.geometry.wkt.startswith("GEOMETRYCOLLECTION (POLYGON ")
+    assert feature.geometry.geometries[0].wkt == feature.geometry.geometries[1].wkt
+    assert type(feature.properties) == GenericProperties
+    assert hasattr(feature.properties, "id")
+
+    feature = Feature[GeometryCollection, Dict](**test_feature_geometry_collection)
+    assert type(feature.geometry) == GeometryCollection
+    assert (
+        feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    )
     assert type(feature.properties) == dict
     assert not hasattr(feature.properties, "id")
 

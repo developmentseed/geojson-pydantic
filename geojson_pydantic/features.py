@@ -1,16 +1,16 @@
 """pydantic models for GeoJSON Feature objects."""
 
 import json
-from typing import Dict, Generic, List, Optional, TypeVar
+from typing import Dict, Generic, List, Optional, TypeVar, Union
 
 from pydantic import Field, ValidationError, validator
 from pydantic.generics import GenericModel
 
-from geojson_pydantic.geometries import Geometry
+from geojson_pydantic.geometries import Geometry, GeometryCollection
 from geojson_pydantic.types import BBox
 
 Props = TypeVar("Props", bound=Dict)
-Geom = TypeVar("Geom", bound=Optional[Geometry])
+Geom = TypeVar("Geom", bound=Optional[Union[Geometry, GeometryCollection]])
 
 
 class Feature(GenericModel, Generic[Geom, Props]):

@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.4.2] - 2022-06-13
+
+### Added
+
+- `GeometryCollection` as optional input to geometry field in `Feature` (author @davidraleigh, https://github.com/developmentseed/geojson-pydantic/pull/72)
+
 ## [0.4.1] - 2022-06-10
 
 ### Added
@@ -189,7 +195,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.1...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.2...HEAD
+[0.4.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.0...0.4.1
 [0.4.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.4...0.4.0
 [0.3.4]: https://github.com/developmentseed/geojson-pydantic/compare/0.3.3...0.3.4
