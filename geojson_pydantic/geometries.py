@@ -2,11 +2,11 @@
 
 import abc
 import json
-from functools import singledispatchmethod
 from typing import Any, Iterator, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
+from singledispatchmethod import singledispatchmethod
 
 from geojson_pydantic.types import (
     LinearRing,
