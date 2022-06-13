@@ -35,23 +35,26 @@ class _GeometryBase(BaseModel, abc.ABC):
     @singledispatchmethod
     @staticmethod
     def validate(value):
-        """Validate geometry object"""
+        """Validate geometry object from unexpected type."""
         raise ValueError
 
     @validate.register
     @classmethod
     def _(cls, value: dict):
+        """Validate geometry object from dictionary."""
         value = cls(**value)
         return value
 
     @validate.register
     @classmethod
     def _(cls, value: str):
+        """Validate geometry object from json-formatted string."""
         return cls.validate(json.loads(value))
 
     @validate.register
     @classmethod
     def _(cls, value: BaseModel):
+        """Validate geometry object from Pydantic BaseModel object."""
         return cls.validate(value.dict())
 
     @property
