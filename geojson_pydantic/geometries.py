@@ -6,7 +6,12 @@ from typing import Any, Iterator, List, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
-from singledispatchmethod import singledispatchmethod
+
+try:
+    from functools import singledispatchmethod
+except ImportError:
+    from singledispatchmethod import singledispatchmethod
+
 
 from geojson_pydantic.types import (
     LinearRing,
