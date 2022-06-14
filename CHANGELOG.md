@@ -19,7 +19,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
     ```python
     Point.validate('{"coordinates": [1.0, 2.0], "type": "Point"}')
-    >> Point(coordinates=(1.0, 2.0), type='Point'
+    >> Point(coordinates=(1.0, 2.0), type='Point')
     ```
 
 - `Feature` and `FeatureCollection` validation from dict or string
