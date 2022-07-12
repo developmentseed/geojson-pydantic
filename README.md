@@ -107,7 +107,7 @@ geojson_feature = {
 # Define a Feature model with Geometry as `Polygon` and Properties as `Dict`
 MyPolygonFeatureModel = Feature[Polygon, Dict]
 
-feat = MyPolygonFeatureModel(**geojson_feature)  # should raise Validation Error because `geojson_feature` is a polygon
+feat = MyPolygonFeatureModel(**geojson_feature)  # should raise Validation Error because `geojson_feature` is a point
 >>> ValidationError: 3 validation errors for Feature[Polygon, Dict]
 ...
 geometry -> type
