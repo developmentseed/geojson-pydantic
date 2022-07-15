@@ -19,14 +19,22 @@ from geojson_pydantic.types import (
 )
 
 
-class _GeometryBase(BaseModel, abc.ABC):
-    """Base class for geometry models"""
-
-    coordinates: Any  # will be constrained in child classes
+class GeoInterfaceMixin:
+    """Geo interface mixin class"""
 
     @property
     def __geo_interface__(self):
-        return self.dict()
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
+        result = self.dict()
+        if "bbox" in result and result["bbox"] is None:
+            del result["bbox"]
+        return result
+
+
+class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
+    """Base class for geometry models"""
+
+    coordinates: Any  # will be constrained in child classes
 
     @classmethod
     def validate(cls, value):
@@ -206,7 +214,7 @@ class MultiPolygon(_GeometryBase):
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
 
 
-class GeometryCollection(BaseModel):
+class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
     type: str = Field("GeometryCollection", const=True)
@@ -223,11 +231,6 @@ class GeometryCollection(BaseModel):
     def __getitem__(self, index):
         """get geometry at a given index"""
         return self.geometries[index]
-
-    @property
-    def __geo_interface__(self):
-        """geo interface."""
-        return self.dict()
 
     @property
     def _wkt_type(self) -> str:

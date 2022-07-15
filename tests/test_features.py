@@ -169,6 +169,11 @@ def test_feature_with_null_geometry():
     assert feature.geometry is None
 
 
+def test_feature_geo_interface_with_null_geometry():
+    feature = Feature(**test_feature_geom_null)
+    assert "bbox" not in feature.__geo_interface__
+
+
 def test_validation_from_string():
     """Model.validate() can take string as input."""
     f_string = Feature.validate(json.dumps(test_feature))
