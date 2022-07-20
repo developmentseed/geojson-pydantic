@@ -22,16 +22,20 @@ from geojson_pydantic.types import (
 class GeoInterfaceMixin:
     """Geo interface mixin class"""
 
-    @property
-    def __geo_interface__(self):
-        """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
-        result = self.dict()
+    def dict(self, *args, **kwargs):
+        """Dict method that removes null bbox values"""
+        result = super().dict(*args, **kwargs)
         if "bbox" in result and result["bbox"] is None:
             del result["bbox"]
         return result
 
+    @property
+    def __geo_interface__(self):
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
+        return self.dict()
 
-class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
+
+class _GeometryBase(GeoInterfaceMixin, BaseModel, abc.ABC):
     """Base class for geometry models"""
 
     coordinates: Any  # will be constrained in child classes
@@ -214,7 +218,7 @@ class MultiPolygon(_GeometryBase):
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
 
 
-class GeometryCollection(BaseModel, GeoInterfaceMixin):
+class GeometryCollection(GeoInterfaceMixin, BaseModel):
     """GeometryCollection Model"""
 
     type: str = Field("GeometryCollection", const=True)

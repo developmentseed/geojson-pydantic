@@ -13,7 +13,7 @@ Props = TypeVar("Props", bound=Dict)
 Geom = TypeVar("Geom", bound=Optional[Union[Geometry, GeometryCollection]])
 
 
-class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class Feature(GeoInterfaceMixin, GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
     type: str = Field("Feature", const=True)
@@ -48,7 +48,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         return cls(**value)
 
 
-class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class FeatureCollection(GeoInterfaceMixin, GenericModel, Generic[Geom, Props]):
     """FeatureCollection Model"""
 
     type: str = Field("FeatureCollection", const=True)
