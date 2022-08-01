@@ -34,7 +34,9 @@ class GeoInterfaceMixin:
 class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     """Base class for geometry models"""
 
-    coordinates: Any  # will be constrained in child classes
+    # will be constrained in child classes
+    type: str
+    coordinates: Any
 
     @classmethod
     def validate(cls, value):
@@ -62,7 +64,7 @@ class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     @property
     def _wkt_type(self) -> str:
         """Return the WKT name of the geometry."""
-        return self.__class__.__name__.upper()
+        return self.type.upper()
 
     @property
     def wkt(self) -> str:
@@ -235,7 +237,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
     @property
     def _wkt_type(self) -> str:
         """Return the WKT name of the geometry."""
-        return self.__class__.__name__.upper()
+        return self.type.upper()
 
     @property
     def _wkt_coordinates(self) -> str:
