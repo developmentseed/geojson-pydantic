@@ -1,4 +1,5 @@
 import json
+import re
 
 import pytest
 from pydantic import ValidationError
@@ -19,12 +20,12 @@ from geojson_pydantic.geometries import (
 
 def assert_wkt_equivalence(geom: Geometry):
     """Assert WKT equivalence with Shapely."""
-    assert shape(geom.dict()).wkt == geom.wkt.replace(
-        ".0", ""
-    )  # We strip `.0` because shapely round the value by default
+    # Remove any trailing `.0` to match Shapely format
+    clean_wkt = re.sub(r"\.0(\D)", r"\1", geom.wkt)
+    assert shape(geom.dict()).wkt == clean_wkt
 
 
-@pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])
+@pytest.mark.parametrize("coordinates", [(1.01, 2.01), (1.0, 2.0, 3.0), (1.0, 2.0)])
 def test_point_valid_coordinates(coordinates):
     """
     Two or three number elements as coordinates shold be okay
@@ -36,7 +37,7 @@ def test_point_valid_coordinates(coordinates):
     assert_wkt_equivalence(p)
 
 
-@pytest.mark.parametrize("coordinates", [(1, 2), (1, 2, 3), (1.0, 2.0)])
+@pytest.mark.parametrize("coordinates", [(1.01, 2.01), (1.0, 2.0, 3.0), (1.0, 2.0)])
 def test_point_valid_coordinates_json(coordinates):
     """
     Two or three number elements as coordinates shold be okay
@@ -50,7 +51,7 @@ def test_point_valid_coordinates_json(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [(1,), (1, 2, 3, 4), "Foo", (None, 2), (1, (2,))]
+    "coordinates", [(1.0,), (1.0, 2.0, 3.0, 4.0), "Foo", (None, 2.0), (1.0, (2.0,))]
 )
 def test_point_invalid_coordinates(coordinates):
     """
@@ -62,7 +63,12 @@ def test_point_invalid_coordinates(coordinates):
 
 @pytest.mark.parametrize(
     "coordinates",
-    [[(1, 2)], [(1, 2), (1, 2)], [(1, 2, 3), (1, 2, 3)], [(1.0, 2.0), (1.0, 2.0)]],
+    [
+        [(1.0, 2.0)],
+        [(1.0, 2.0), (1.0, 2.0)],
+        [(1.0, 2.0, 3.0), (1.0, 2.0, 3.0)],
+        [(1.0, 2.0), (1.0, 2.0)],
+    ],
 )
 def test_multi_point_valid_coordinates(coordinates):
     """
@@ -77,7 +83,12 @@ def test_multi_point_valid_coordinates(coordinates):
 
 @pytest.mark.parametrize(
     "coordinates",
-    [[(1, 2)], [(1, 2), (1, 2)], [(1, 2, 3), (1, 2, 3)], [(1.0, 2.0), (1.0, 2.0)]],
+    [
+        [(1.0, 2.0)],
+        [(1.0, 2.0), (1.0, 2.0)],
+        [(1.0, 2.0, 3.0), (1.0, 2.0, 3.0)],
+        [(1.0, 2.0), (1.0, 2.0)],
+    ],
 )
 def test_multi_point_valid_coordinates_json(coordinates):
     """
@@ -92,7 +103,8 @@ def test_multi_point_valid_coordinates_json(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [[(1,)], [(1, 2, 3, 4)], ["Foo"], [(None, 2)], [(1, (2,))]]
+    "coordinates",
+    [[(1.0,)], [(1.0, 2.0, 3.0, 4.0)], ["Foo"], [(None, 2.0)], [(1.0, (2.0,))]],
 )
 def test_multi_point_invalid_coordinates(coordinates):
     """
@@ -104,7 +116,11 @@ def test_multi_point_invalid_coordinates(coordinates):
 
 @pytest.mark.parametrize(
     "coordinates",
-    [[(1, 2), (3, 4)], [(0, 0, 0), (1, 1, 1)], [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+    [
+        [(1.0, 2.0), (3.0, 4.0)],
+        [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
+        [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)],
+    ],
 )
 def test_line_string_valid_coordinates(coordinates):
     """
@@ -119,7 +135,11 @@ def test_line_string_valid_coordinates(coordinates):
 
 @pytest.mark.parametrize(
     "coordinates",
-    [[(1, 2), (3, 4)], [(0, 0, 0), (1, 1, 1)], [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+    [
+        [(1.0, 2.0), (3.0, 4.0)],
+        [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
+        [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)],
+    ],
 )
 def test_line_string_valid_coordinates_json(coordinates):
     """
@@ -133,7 +153,7 @@ def test_line_string_valid_coordinates_json(coordinates):
     assert_wkt_equivalence(linestring)
 
 
-@pytest.mark.parametrize("coordinates", [None, "Foo", [], [(1, 2)], ["Foo", "Bar"]])
+@pytest.mark.parametrize("coordinates", [None, "Foo", [], [(1.0, 2.0)], ["Foo", "Bar"]])
 def test_line_string_invalid_coordinates(coordinates):
     """
     But we don't accept non-list inputs, too few coordinates, or bogus coordinates
@@ -145,8 +165,8 @@ def test_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
-        [[(1, 2), (3, 4)]],
-        [[(0, 0, 0), (1, 1, 1)]],
+        [[(1.0, 2.0), (3.0, 4.0)]],
+        [[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
     ],
 )
@@ -164,8 +184,8 @@ def test_multi_line_string_valid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
-        [[(1, 2), (3, 4)]],
-        [[(0, 0, 0), (1, 1, 1)]],
+        [[(1.0, 2.0), (3.0, 4.0)]],
+        [[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
     ],
 )
@@ -184,7 +204,7 @@ def test_multi_line_string_valid_coordinates_json(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [[None], ["Foo"], [[]], [[(1, 2)]], [["Foo", "Bar"]]]
+    "coordinates", [[None], ["Foo"], [[]], [[(1.0, 2.0)]], [["Foo", "Bar"]]]
 )
 def test_multi_line_string_invalid_coordinates(coordinates):
     """
@@ -197,8 +217,8 @@ def test_multi_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
-        [[(1, 2), (3, 4), (5, 6), (1, 2)]],
-        [[(0, 0, 0), (1, 1, 0), (1, 0, 0), (0, 0, 0)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+        [[(0.0, 0.0, 0.0), (1.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 0.0)]],
     ],
 )
 def test_polygon_valid_coordinates(coordinates):
@@ -217,8 +237,8 @@ def test_polygon_valid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
-        [[(1, 2), (3, 4), (5, 6), (1, 2)]],
-        [[(0, 0, 0), (1, 1, 0), (1, 0, 0), (0, 0, 0)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+        [[(0.0, 0.0, 0.0), (1.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 0.0)]],
     ],
 )
 def test_polygon_valid_coordinates_json(coordinates):
@@ -239,8 +259,8 @@ def test_polygon_with_holes():
     """Check interior and exterior rings."""
     polygon = Polygon(
         coordinates=[
-            [(0, 0), (0, 10), (10, 10), (10, 0), (0, 0)],
-            [(2, 2), (2, 4), (4, 4), (4, 2), (2, 2)],
+            [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)],
+            [(2.0, 2.0), (2.0, 4.0), (4.0, 4.0), (4.0, 2.0), (2.0, 2.0)],
         ]
     )
 
@@ -255,9 +275,9 @@ def test_polygon_with_holes():
     "coordinates",
     [
         "foo",
-        [[(1, 2), (3, 4), (5, 6), (1, 2)], "foo", None],
-        [[(1, 2), (3, 4), (1, 2)]],
-        [[(1, 2), (3, 4), (5, 6), (7, 8)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)], "foo", None],
+        [[(1.0, 2.0), (3.0, 4.0), (1.0, 2.0)]],
+        [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (7.0, 8.0)]],
         [],
     ],
 )
@@ -278,13 +298,19 @@ def test_multi_polygon():
     multi_polygon = MultiPolygon(
         coordinates=[
             [
-                [(0, 0, 4), (1, 0, 4), (1, 1, 4), (0, 1, 4), (0, 0, 4)],
                 [
-                    (2.1, 2.1, 4),
-                    (2.2, 2.1, 4),
-                    (2.2, 2.2, 4),
-                    (2.1, 2.2, 4),
-                    (2.1, 2.1, 4),
+                    (0.0, 0.0, 4.0),
+                    (1.0, 0.0, 4.0),
+                    (1.0, 1.0, 4.0),
+                    (0.0, 1.0, 4.0),
+                    (0.0, 0.0, 4.0),
+                ],
+                [
+                    (2.1, 2.1, 4.0),
+                    (2.2, 2.1, 4.0),
+                    (2.2, 2.2, 4.0),
+                    (2.1, 2.2, 4.0),
+                    (2.1, 2.1, 4.0),
                 ],
             ]
         ]
@@ -406,7 +432,9 @@ def test_parse_geometry_obj_invalid_point():
         )
 
 
-@pytest.mark.parametrize("coordinates", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+@pytest.mark.parametrize(
+    "coordinates", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
+)
 def test_geometry_collection_iteration(coordinates):
     """test if geometry collection is iterable"""
     polygon = Polygon(coordinates=coordinates)
@@ -416,7 +444,9 @@ def test_geometry_collection_iteration(coordinates):
     iter(gc)
 
 
-@pytest.mark.parametrize("polygon", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+@pytest.mark.parametrize(
+    "polygon", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
+)
 def test_len_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
     polygon = Polygon(coordinates=polygon)
@@ -425,7 +455,9 @@ def test_len_geometry_collection(polygon):
     assert len(gc) == 2
 
 
-@pytest.mark.parametrize("polygon", [[[(1, 2), (3, 4), (5, 6), (1, 2)]]])
+@pytest.mark.parametrize(
+    "polygon", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
+)
 def test_getitem_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
     polygon = Polygon(coordinates=polygon)
@@ -438,4 +470,4 @@ def test_getitem_geometry_collection(polygon):
 def test_polygon_from_bounds():
     """Result from `from_bounds` class method should be the same."""
     coordinates = [[(1.0, 2.0), (3.0, 2.0), (3.0, 4.0), (1.0, 4.0), (1.0, 2.0)]]
-    assert Polygon(coordinates=coordinates) == Polygon.from_bounds(1, 2, 3, 4)
+    assert Polygon(coordinates=coordinates) == Polygon.from_bounds(1.0, 2.0, 3.0, 4.0)
