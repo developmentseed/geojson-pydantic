@@ -1,11 +1,11 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-import json
-from typing import Any, Iterator, List, Union
+from typing import Any, Dict, Iterable, Iterator, List, Protocol, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
+from typing_extensions import Annotated, Literal, TypeAlias
 
 from geojson_pydantic.types import (
     LinearRing,
@@ -18,11 +18,19 @@ from geojson_pydantic.types import (
 )
 
 
+class DictFuncProto(Protocol):
+    """Protocol to to let GeoInterfaceMixin know it has a `dict` function."""
+
+    def dict(self) -> Dict[str, Any]:
+        """A placeholder for the dict function of a BaseModel"""
+        ...
+
+
 class GeoInterfaceMixin:
     """Geo interface mixin class"""
 
     @property
-    def __geo_interface__(self):
+    def __geo_interface__(self: DictFuncProto) -> Dict[str, Any]:
         """GeoJSON-like protocol for geo-spatial (GIS) vector data."""
         result = self.dict()
         if "bbox" in result and result["bbox"] is None:
@@ -33,19 +41,9 @@ class GeoInterfaceMixin:
 class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     """Base class for geometry models"""
 
-    coordinates: Any  # will be constrained in child classes
-
-    @classmethod
-    def validate(cls, value):
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
-
-        return cls(**value)
+    # These are constrained in child classes
+    type: str
+    coordinates: Any
 
     @property
     @abc.abstractmethod
@@ -72,7 +70,7 @@ class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
 class Point(_GeometryBase):
     """Point Model"""
 
-    type: str = Field("Point", const=True)
+    type: Literal["Point"] = "Point"
     coordinates: Position
 
     @property
@@ -87,7 +85,7 @@ class Point(_GeometryBase):
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
-    type: str = Field("MultiPoint", const=True)
+    type: Literal["MultiPoint"] = "MultiPoint"
     coordinates: MultiPointCoords
 
     @property
@@ -103,7 +101,7 @@ class MultiPoint(_GeometryBase):
 class LineString(_GeometryBase):
     """LineString Model"""
 
-    type: str = Field("LineString", const=True)
+    type: Literal["LineString"] = "LineString"
     coordinates: LineStringCoords
 
     @property
@@ -119,7 +117,7 @@ class LineString(_GeometryBase):
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
-    type: str = Field("MultiLineString", const=True)
+    type: Literal["MultiLineString"] = "MultiLineString"
     coordinates: MultiLineStringCoords
 
     @property
@@ -132,26 +130,14 @@ class MultiLineString(_GeometryBase):
         return ",".join(f"({line._wkt_coordinates})" for line in lines)
 
 
-class LinearRingGeom(LineString):
-    """LinearRing model."""
-
-    @validator("coordinates")
-    def check_closure(cls, values):
-        """Validate that LinearRing is closed (first and last coordinate are the same)."""
-        if values[-1] != values[0]:
-            raise ValueError("LinearRing must have the same start and end coordinates")
-
-        return values
-
-
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
-    type: str = Field("Polygon", const=True)
+    type: Literal["Polygon"] = "Polygon"
     coordinates: PolygonCoords
 
     @validator("coordinates")
-    def check_closure(cls, polygon):
+    def check_closure(cls, polygon: PolygonCoords) -> PolygonCoords:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any([ring[-1] != ring[0] for ring in polygon]):
             raise ValueError("All linear rings have the same start and end coordinates")
@@ -177,10 +163,10 @@ class Polygon(_GeometryBase):
     @property
     def _wkt_coordinates(self) -> str:
         ic = "".join(
-            f", ({LinearRingGeom(coordinates=interior)._wkt_coordinates})"
+            f", ({LineString(coordinates=interior)._wkt_coordinates})"
             for interior in self.interiors
         )
-        return f"({LinearRingGeom(coordinates=self.exterior)._wkt_coordinates}){ic}"
+        return f"({LineString(coordinates=self.exterior)._wkt_coordinates}){ic}"
 
     @classmethod
     def from_bounds(
@@ -189,7 +175,7 @@ class Polygon(_GeometryBase):
         """Create a Polygon geometry from a boundingbox."""
         return cls(
             coordinates=[
-                [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]
+                [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin)]
             ]
         )
 
@@ -197,7 +183,7 @@ class Polygon(_GeometryBase):
 class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
-    type: str = Field("MultiPolygon", const=True)
+    type: Literal["MultiPolygon"] = "MultiPolygon"
     coordinates: MultiPolygonCoords
 
     @property
@@ -210,24 +196,27 @@ class MultiPolygon(_GeometryBase):
         return ",".join(f"({poly._wkt_coordinates})" for poly in polygons)
 
 
-Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
+Geometry: TypeAlias = Annotated[
+    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
+    Field(discriminator="type"),
+]
 
 
 class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
-    type: str = Field("GeometryCollection", const=True)
+    type: Literal["GeometryCollection"] = "GeometryCollection"
     geometries: List[Geometry]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterable[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Geometry:
         """get geometry at a given index"""
         return self.geometries[index]
 
@@ -247,7 +236,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         return f"{self._wkt_type} ({self._wkt_coordinates})"
 
 
-def parse_geometry_obj(obj) -> Geometry:
+def parse_geometry_obj(obj: Any) -> Geometry:
     """
     `obj` is an object that is supposed to represent a GeoJSON geometry. This method returns the
     reads the `"type"` field and returns the correct pydantic Geometry model.
@@ -272,5 +261,5 @@ def parse_geometry_obj(obj) -> Geometry:
     elif obj["type"] == "MultiPolygon":
         return MultiPolygon.parse_obj(obj)
     raise ValidationError(
-        [ErrorWrapper(ValueError("Unknown type"), "type")], "Geometry"
+        [ErrorWrapper(ValueError("Unknown type"), "type")], _GeometryBase
     )

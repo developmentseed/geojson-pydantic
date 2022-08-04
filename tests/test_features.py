@@ -1,4 +1,3 @@
-import json
 from random import randint
 from typing import Dict
 from uuid import uuid4
@@ -172,17 +171,3 @@ def test_feature_with_null_geometry():
 def test_feature_geo_interface_with_null_geometry():
     feature = Feature(**test_feature_geom_null)
     assert "bbox" not in feature.__geo_interface__
-
-
-def test_validation_from_string():
-    """Model.validate() can take string as input."""
-    f_string = Feature.validate(json.dumps(test_feature))
-    f = Feature.validate(test_feature)
-    assert f.json() == f_string.json()
-
-    fc = FeatureCollection(features=[test_feature, test_feature]).dict(
-        exclude_none=True
-    )
-    f_string = FeatureCollection.validate(json.dumps(fc))
-    f = FeatureCollection.validate(fc)
-    assert f.json() == f_string.json()
