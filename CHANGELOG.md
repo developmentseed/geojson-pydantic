@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.5.0] - TBD
+
+### Changed
+
+- Remove `NumType` and use `float` throughout (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/83)
+
 ## [0.4.3] - 2022-07-18
 
 ### Fixed
@@ -201,7 +207,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.3...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.5.0...HEAD
+[0.5.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.3...0.5.0
 [0.4.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.2...0.4.3
 [0.4.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.1...0.4.2
 [0.4.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.0...0.4.1
