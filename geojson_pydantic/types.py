@@ -4,12 +4,11 @@ from typing import Tuple, Union
 
 from pydantic import conlist
 
-NumType = Union[float, int]
 BBox = Union[
-    Tuple[NumType, NumType, NumType, NumType],  # 2D bbox
-    Tuple[NumType, NumType, NumType, NumType, NumType, NumType],  # 3D bbox
+    Tuple[float, float, float, float],  # 2D bbox
+    Tuple[float, float, float, float, float, float],  # 3D bbox
 ]
-Position = Union[Tuple[NumType, NumType], Tuple[NumType, NumType, NumType]]
+Position = Union[Tuple[float, float], Tuple[float, float, float]]
 
 # Coordinate arrays
 MultiPointCoords = conlist(Position, min_items=1)
