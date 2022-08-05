@@ -33,7 +33,6 @@ class GeoInterfaceMixin:
 class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     """Base class for geometry models"""
 
-    # will be constrained in child classes
     type: str
     coordinates: Any
 

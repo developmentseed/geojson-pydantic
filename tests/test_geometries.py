@@ -471,3 +471,14 @@ def test_polygon_from_bounds():
     """Result from `from_bounds` class method should be the same."""
     coordinates = [[(1.0, 2.0), (3.0, 2.0), (3.0, 4.0), (1.0, 4.0), (1.0, 2.0)]]
     assert Polygon(coordinates=coordinates) == Polygon.from_bounds(1.0, 2.0, 3.0, 4.0)
+
+
+def test_wkt_name():
+    """Make sure WKT name is derived from geometry Type."""
+
+    class PointType(Point):
+        ...
+
+    assert (
+        PointType(coordinates=(1.01, 2.01)).wkt == Point(coordinates=(1.01, 2.01)).wkt
+    )
