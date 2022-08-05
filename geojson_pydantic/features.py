@@ -40,7 +40,12 @@ class Feature(GenericModel, Generic[Geom, Props]):
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface
         """
-        geo: Dict[str, Any] = {"type": self.type, "geometry": self.geometry}
+        geo: Dict[str, Any] = {
+            "type": self.type,
+            "geometry": self.geometry.__geo_interface__
+            if self.geometry is not None
+            else None,
+        }
         if self.bbox:
             geo["bbox"] = self.bbox
 
