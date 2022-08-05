@@ -25,7 +25,7 @@ class _GeometryBase(BaseModel, abc.ABC):
     coordinates: Any
 
     @property
-    def __geo_interface__(self) -> Dict:
+    def __geo_interface__(self) -> Dict[str, Any]:
         """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface
@@ -244,7 +244,7 @@ class GeometryCollection(BaseModel):
         return f"{self._wkt_type} ({self._wkt_coordinates})"
 
     @property
-    def __geo_interface__(self) -> Dict:
+    def __geo_interface__(self) -> Dict[str, Any]:
         """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface

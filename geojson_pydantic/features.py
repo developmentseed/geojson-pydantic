@@ -35,7 +35,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
         return v
 
     @property
-    def __geo_interface__(self) -> Dict:
+    def __geo_interface__(self) -> Dict[str, Any]:
         """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface
