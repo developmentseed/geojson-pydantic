@@ -2,7 +2,7 @@
 
 import abc
 import json
-from typing import Any, Dict, Iterator, List, Union
+from typing import Any, Dict, Iterator, List, Type, TypeVar, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
@@ -30,6 +30,9 @@ class GeoInterfaceMixin:
         return result
 
 
+T = TypeVar("T", bound="_GeometryBase")
+
+
 class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     """Base class for geometry models"""
 
@@ -37,7 +40,7 @@ class _GeometryBase(BaseModel, GeoInterfaceMixin, abc.ABC):
     coordinates: Any
 
     @classmethod
-    def validate(cls, value: Any) -> "_GeometryBase":
+    def validate(cls: Type[T], value: Any) -> T:
         try:
             value = json.loads(value)
         except TypeError:

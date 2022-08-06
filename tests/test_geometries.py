@@ -1,5 +1,6 @@
 import json
 import re
+from typing import Union
 
 import pytest
 from pydantic import ValidationError
@@ -18,7 +19,7 @@ from geojson_pydantic.geometries import (
 )
 
 
-def assert_wkt_equivalence(geom: Geometry):
+def assert_wkt_equivalence(geom: Union[Geometry, GeometryCollection]):
     """Assert WKT equivalence with Shapely."""
     # Remove any trailing `.0` to match Shapely format
     clean_wkt = re.sub(r"\.0(\D)", r"\1", geom.wkt)

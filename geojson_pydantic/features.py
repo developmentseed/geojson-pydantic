@@ -1,16 +1,17 @@
 """pydantic models for GeoJSON Feature objects."""
 
 import json
-from typing import Any, Dict, Generic, Iterator, List, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
 
-from pydantic import Field, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.generics import GenericModel
 
 from geojson_pydantic.geometries import GeoInterfaceMixin, Geometry, GeometryCollection
 from geojson_pydantic.types import BBox
 
-Props = TypeVar("Props", bound=Dict)
+Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
+F = TypeVar("F", bound="Feature")
 
 
 class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
@@ -35,7 +36,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         return geometry
 
     @classmethod
-    def validate(cls, value: Any) -> "Feature":
+    def validate(cls: Type[F], value: Any) -> F:
         """Validate input."""
         try:
             value = json.loads(value)
@@ -46,6 +47,9 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
                 pass
 
         return cls(**value)
+
+
+FC = TypeVar("FC", bound="FeatureCollection")
 
 
 class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
@@ -68,7 +72,7 @@ class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         return self.features[index]
 
     @classmethod
-    def validate(cls, value: Any) -> "FeatureCollection":
+    def validate(cls: Type[FC], value: Any) -> FC:
         """Validate input."""
         try:
             value = json.loads(value)

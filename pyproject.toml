@@ -52,6 +52,9 @@ known_third_party = ["pydantic"]
 default_section = "THIRDPARTY"
 
 [tool.mypy]
+plugins = [
+  "pydantic.mypy"
+]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
@@ -59,6 +62,9 @@ warn_redundant_casts = true
 warn_unused_ignores = true
 no_implicit_optional = true
 show_error_codes = true
+
+[tool.pydantic-mypy]
+warn_untyped_fields = true
 
 [tool.pydocstyle]
 select = "D1"
