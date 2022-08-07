@@ -1,9 +1,8 @@
 """pydantic models for GeoJSON Feature objects."""
 
-import json
 from typing import Dict, Generic, List, Optional, TypeVar, Union
 
-from pydantic import Field, ValidationError, validator
+from pydantic import Field, validator
 from pydantic.generics import GenericModel
 
 from geojson_pydantic.geometries import GeoInterfaceMixin, Geometry, GeometryCollection
@@ -34,19 +33,6 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
             return v.__geo_interface__
         return v
 
-    @classmethod
-    def validate(cls, value):
-        """Validate input."""
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
-
-        return cls(**value)
-
 
 class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     """FeatureCollection Model"""
@@ -66,16 +52,3 @@ class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     def __getitem__(self, index):
         """get feature at a given index"""
         return self.features[index]
-
-    @classmethod
-    def validate(cls, value):
-        """Validate input."""
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
-
-        return cls(**value)
