@@ -1,20 +1,18 @@
 """pydantic models for GeoJSON Feature objects."""
 
-import json
-from typing import Any, Dict, Generic, Iterator, List, Optional, Type, TypeVar, Union
+from typing import Any, Dict, Generic, Iterator, List, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
 
-from geojson_pydantic.geometries import GeoInterfaceMixin, Geometry, GeometryCollection
+from geojson_pydantic.geometries import Geometry, GeometryCollection
 from geojson_pydantic.types import BBox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
-F = TypeVar("F", bound="Feature")
 
 
-class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class Feature(GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
     type: str = Field(default="Feature", const=True)
@@ -35,24 +33,31 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
             return geometry.__geo_interface__
         return geometry
 
-    @classmethod
-    def validate(cls: Type[F], value: Any) -> F:
-        """Validate input."""
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
+    @property
+    def __geo_interface__(self) -> Dict[str, Any]:
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
-        return cls(**value)
+        ref: https://gist.github.com/sgillies/2217756#__geo_interface
+        """
+        geo: Dict[str, Any] = {
+            "type": self.type,
+            "geometry": self.geometry.__geo_interface__
+            if self.geometry is not None
+            else None,
+        }
+        if self.bbox:
+            geo["bbox"] = self.bbox
+
+        if self.id:
+            geo["id"] = self.id
+
+        if self.properties:
+            geo["properties"] = self.properties
+
+        return geo
 
 
-FC = TypeVar("FC", bound="FeatureCollection")
-
-
-class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class FeatureCollection(GenericModel, Generic[Geom, Props]):
     """FeatureCollection Model"""
 
     type: str = Field(default="FeatureCollection", const=True)
@@ -71,15 +76,18 @@ class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         """get feature at a given index"""
         return self.features[index]
 
-    @classmethod
-    def validate(cls: Type[FC], value: Any) -> FC:
-        """Validate input."""
-        try:
-            value = json.loads(value)
-        except TypeError:
-            try:
-                return cls(**value.dict())
-            except (AttributeError, ValidationError):
-                pass
+    @property
+    def __geo_interface__(self) -> Dict[str, Any]:
+        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
-        return cls(**value)
+        ref: https://gist.github.com/sgillies/2217756#__geo_interface
+        """
+        features: List[Dict[str, Any]] = []
+        for feat in self.features:
+            features.append(feat.__geo_interface__)
+
+        geo: Dict[str, Any] = {"type": self.type, "features": features}
+        if self.bbox:
+            geo["bbox"] = self.bbox
+
+        return geo
