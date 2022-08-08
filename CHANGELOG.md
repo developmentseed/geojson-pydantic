@@ -14,6 +14,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 ### Changed
 
 - Remove `NumType` and use `float` throughout (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/83)
+- `__geo_interface__` definition to not use pydantic `BaseModel.dict()` method and better match the specification
 
 ## [0.4.3] - 2022-07-18
 

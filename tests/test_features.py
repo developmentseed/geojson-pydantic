@@ -45,6 +45,7 @@ test_feature = {
     "type": "Feature",
     "geometry": polygon,
     "properties": properties,
+    "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
 }
 
 test_feature_geom_null = {
@@ -171,3 +172,10 @@ def test_feature_with_null_geometry():
 def test_feature_geo_interface_with_null_geometry():
     feature = Feature(**test_feature_geom_null)
     assert "bbox" not in feature.__geo_interface__
+
+
+def test_feature_collection_geo_interface_with_null_geometry():
+    fc = FeatureCollection(features=[test_feature_geom_null, test_feature])
+    assert "bbox" not in fc.__geo_interface__
+    assert "bbox" not in fc.__geo_interface__["features"][0]
+    assert "bbox" in fc.__geo_interface__["features"][1]
