@@ -1,24 +1,24 @@
 """pydantic models for GeoJSON Feature objects."""
 
-from typing import Any, Dict, Generic, List, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, Iterator, List, Optional, TypeVar, Union
 
-from pydantic import Field, validator
+from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
 
 from geojson_pydantic.geometries import Geometry, GeometryCollection
 from geojson_pydantic.types import BBox
 
-Props = TypeVar("Props", bound=Dict)
-Geom = TypeVar("Geom", bound=Optional[Union[Geometry, GeometryCollection]])
+Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
+Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
 
 
 class Feature(GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
-    type: str = Field("Feature", const=True)
-    geometry: Geom = None
-    properties: Optional[Props]
-    id: Optional[str]
+    type: str = Field(default="Feature", const=True)
+    geometry: Optional[Geom] = None
+    properties: Optional[Props] = None
+    id: Optional[str] = None
     bbox: Optional[BBox] = None
 
     class Config:
@@ -27,11 +27,11 @@ class Feature(GenericModel, Generic[Geom, Props]):
         use_enum_values = True
 
     @validator("geometry", pre=True, always=True)
-    def set_geometry(cls, v):
+    def set_geometry(cls, geometry: Any) -> Any:
         """set geometry from geo interface or input"""
-        if hasattr(v, "__geo_interface__"):
-            return v.__geo_interface__
-        return v
+        if hasattr(geometry, "__geo_interface__"):
+            return geometry.__geo_interface__
+        return geometry
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
@@ -60,19 +60,19 @@ class Feature(GenericModel, Generic[Geom, Props]):
 class FeatureCollection(GenericModel, Generic[Geom, Props]):
     """FeatureCollection Model"""
 
-    type: str = Field("FeatureCollection", const=True)
+    type: str = Field(default="FeatureCollection", const=True)
     features: List[Feature[Geom, Props]]
-    bbox: Optional[BBox]
+    bbox: Optional[BBox] = None
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Feature]:  # type: ignore [override]
         """iterate over features"""
         return iter(self.features)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """return features length"""
         return len(self.features)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Feature:
         """get feature at a given index"""
         return self.features[index]
 
@@ -82,7 +82,7 @@ class FeatureCollection(GenericModel, Generic[Geom, Props]):
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface
         """
-        features = []
+        features: List[Dict[str, Any]] = []
         for feat in self.features:
             features.append(feat.__geo_interface__)
 

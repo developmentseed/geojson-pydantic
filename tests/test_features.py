@@ -1,5 +1,5 @@
 from random import randint
-from typing import Dict
+from typing import Any, Dict
 from uuid import uuid4
 
 import pytest
@@ -20,13 +20,13 @@ class GenericProperties(BaseModel):
     size: int
 
 
-properties = {
+properties: Dict[str, Any] = {
     "id": str(uuid4()),
     "description": str(uuid4()),
     "size": randint(0, 1000),
 }
 
-polygon = {
+polygon: Dict[str, Any] = {
     "type": "Polygon",
     "coordinates": [
         [
@@ -39,22 +39,25 @@ polygon = {
     ],
 }
 
-geom_collection = {"type": "GeometryCollection", "geometries": [polygon, polygon]}
+geom_collection: Dict[str, Any] = {
+    "type": "GeometryCollection",
+    "geometries": [polygon, polygon],
+}
 
-test_feature = {
+test_feature: Dict[str, Any] = {
     "type": "Feature",
     "geometry": polygon,
     "properties": properties,
     "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
 }
 
-test_feature_geom_null = {
+test_feature_geom_null: Dict[str, Any] = {
     "type": "Feature",
     "geometry": None,
     "properties": properties,
 }
 
-test_feature_geometry_collection = {
+test_feature_geometry_collection: Dict[str, Any] = {
     "type": "Feature",
     "geometry": geom_collection,
     "properties": properties,

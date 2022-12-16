@@ -56,7 +56,7 @@ class _GeometryBase(BaseModel, abc.ABC):
 class Point(_GeometryBase):
     """Point Model"""
 
-    type: str = Field("Point", const=True)
+    type: str = Field(default="Point", const=True)
     coordinates: Position
 
     @property
@@ -71,7 +71,7 @@ class Point(_GeometryBase):
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
-    type: str = Field("MultiPoint", const=True)
+    type: str = Field(default="MultiPoint", const=True)
     coordinates: MultiPointCoords
 
     @property
@@ -87,7 +87,7 @@ class MultiPoint(_GeometryBase):
 class LineString(_GeometryBase):
     """LineString Model"""
 
-    type: str = Field("LineString", const=True)
+    type: str = Field(default="LineString", const=True)
     coordinates: LineStringCoords
 
     @property
@@ -103,7 +103,7 @@ class LineString(_GeometryBase):
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
-    type: str = Field("MultiLineString", const=True)
+    type: str = Field(default="MultiLineString", const=True)
     coordinates: MultiLineStringCoords
 
     @property
@@ -120,27 +120,27 @@ class LinearRingGeom(LineString):
     """LinearRing model."""
 
     @validator("coordinates")
-    def check_closure(cls, values):
+    def check_closure(cls, coordinates: List) -> List:
         """Validate that LinearRing is closed (first and last coordinate are the same)."""
-        if values[-1] != values[0]:
+        if coordinates[-1] != coordinates[0]:
             raise ValueError("LinearRing must have the same start and end coordinates")
 
-        return values
+        return coordinates
 
 
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
-    type: str = Field("Polygon", const=True)
+    type: str = Field(default="Polygon", const=True)
     coordinates: PolygonCoords
 
     @validator("coordinates")
-    def check_closure(cls, polygon):
+    def check_closure(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
-        if any([ring[-1] != ring[0] for ring in polygon]):
+        if any([ring[-1] != ring[0] for ring in coordinates]):
             raise ValueError("All linear rings have the same start and end coordinates")
 
-        return polygon
+        return coordinates
 
     @property
     def exterior(self) -> LinearRing:
@@ -173,7 +173,7 @@ class Polygon(_GeometryBase):
         """Create a Polygon geometry from a boundingbox."""
         return cls(
             coordinates=[
-                [[xmin, ymin], [xmax, ymin], [xmax, ymax], [xmin, ymax], [xmin, ymin]]
+                [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin)]
             ]
         )
 
@@ -181,7 +181,7 @@ class Polygon(_GeometryBase):
 class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
-    type: str = Field("MultiPolygon", const=True)
+    type: str = Field(default="MultiPolygon", const=True)
     coordinates: MultiPolygonCoords
 
     @property
@@ -200,18 +200,18 @@ Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiP
 class GeometryCollection(BaseModel):
     """GeometryCollection Model"""
 
-    type: str = Field("GeometryCollection", const=True)
+    type: str = Field(default="GeometryCollection", const=True)
     geometries: List[Geometry]
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
-    def __len__(self):
+    def __len__(self) -> int:
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index):
+    def __getitem__(self, index: int) -> Geometry:
         """get geometry at a given index"""
         return self.geometries[index]
 
@@ -236,14 +236,14 @@ class GeometryCollection(BaseModel):
 
         ref: https://gist.github.com/sgillies/2217756#__geo_interface
         """
-        geometries = []
+        geometries: List[Dict[str, Any]] = []
         for geom in self.geometries:
             geometries.append(geom.__geo_interface__)
 
         return {"type": self.type, "geometries": self.geometries}
 
 
-def parse_geometry_obj(obj) -> Geometry:
+def parse_geometry_obj(obj: Any) -> Geometry:
     """
     `obj` is an object that is supposed to represent a GeoJSON geometry. This method returns the
     reads the `"type"` field and returns the correct pydantic Geometry model.
@@ -268,5 +268,6 @@ def parse_geometry_obj(obj) -> Geometry:
     elif obj["type"] == "MultiPolygon":
         return MultiPolygon.parse_obj(obj)
     raise ValidationError(
-        [ErrorWrapper(ValueError("Unknown type"), "type")], "Geometry"
+        errors=[ErrorWrapper(ValueError("Unknown type"), loc="type")],
+        model=_GeometryBase,
     )

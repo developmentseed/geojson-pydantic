@@ -7,18 +7,25 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.5.0] - TBD
 
-## Added
+### Added
 
 - python 3.11 support
 
-## Fixed
+### Fixed
 
 - Derive WKT type from Geometry's type instead of class name (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/81)
 
 ### Changed
 
-- Remove `NumType` and use `float` throughout (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/83)
+- Replace `NumType` with `float` throughout (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/83)
 - `__geo_interface__` definition to not use pydantic `BaseModel.dict()` method and better match the specification
+- Adjusted mypy configuration and updated type definitions to satisfy all rules (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/87)
+- Updated pre-commit config to run mypy on the whole library instead of individual changed files.
+- Defaults are more explicit. This keeps pyright from thinking they are required.
+
+### Removed
+
+- Remove `validate` classmethods used to implicitly load json strings (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/88)
 
 ## [0.4.3] - 2022-07-18
 
