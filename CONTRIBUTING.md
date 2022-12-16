@@ -34,5 +34,5 @@ $ pip install --upgrade bump2version
 $ bump2version patch
 
 # Push change and tag to github
-$ git push origin master --tags
+$ git push origin main --tags
 ```
