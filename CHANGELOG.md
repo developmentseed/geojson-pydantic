@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.5.0] - TBD
 
+### Added
+
+- python 3.11 support
+
 ### Fixed
 
 - Derive WKT type from Geometry's type instead of class name (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/81)
