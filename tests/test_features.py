@@ -182,3 +182,14 @@ def test_feature_collection_geo_interface_with_null_geometry():
     assert "bbox" not in fc.__geo_interface__
     assert "bbox" not in fc.__geo_interface__["features"][0]
     assert "bbox" in fc.__geo_interface__["features"][1]
+
+
+def test_feature_id():
+    feature = Feature(**test_feature, id="A")
+    assert feature.id == "A"
+
+    feature = Feature(**test_feature, id=1)
+    assert feature.id == 1
+
+    feature = Feature(**test_feature, id="1")
+    assert feature.id == "1"

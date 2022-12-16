@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [unreleased]
+
+- allow Feature's **id** to be either a String or a Number
+
 ## [0.5.0] - 2022-12-16
 
 ### Added

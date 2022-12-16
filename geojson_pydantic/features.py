@@ -18,12 +18,13 @@ class Feature(GenericModel, Generic[Geom, Props]):
     type: str = Field(default="Feature", const=True)
     geometry: Optional[Geom] = None
     properties: Optional[Props] = None
-    id: Optional[str] = None
+    id: Optional[Union[int, str]] = None
     bbox: Optional[BBox] = None
 
     class Config:
         """Model configuration."""
 
+        smart_union = True
         use_enum_values = True
 
     @validator("geometry", pre=True, always=True)
