@@ -29,11 +29,10 @@ class Feature(GenericModel, Generic[Geom, Props]):
     @validator("geometry", pre=True, always=True)
     def set_geometry(cls, geometry: Any) -> Any:
         """set geometry from geo interface or input"""
-        if geometry is not None:
-            if hasattr(geometry, "__geo_interface__"):
-                return geometry.__geo_interface__
+        if hasattr(geometry, "__geo_interface__"):
+            return geometry.__geo_interface__
 
-            return geometry
+        return geometry
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
