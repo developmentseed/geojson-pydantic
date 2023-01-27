@@ -1,9 +1,9 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, Dict, Iterator, List, Union
+from typing import Any, Dict, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
 from geojson_pydantic.types import (
@@ -56,7 +56,7 @@ class _GeometryBase(BaseModel, abc.ABC):
 class Point(_GeometryBase):
     """Point Model"""
 
-    type: str = Field(default="Point", const=True)
+    type: Literal["Point"]
     coordinates: Position
 
     @property
@@ -71,7 +71,7 @@ class Point(_GeometryBase):
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
-    type: str = Field(default="MultiPoint", const=True)
+    type: Literal["MultiPoint"]
     coordinates: MultiPointCoords
 
     @property
@@ -80,14 +80,14 @@ class MultiPoint(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        points = [Point(coordinates=p) for p in self.coordinates]
+        points = [Point(type="Point", coordinates=p) for p in self.coordinates]
         return ", ".join(point._wkt_coordinates for point in points)
 
 
 class LineString(_GeometryBase):
     """LineString Model"""
 
-    type: str = Field(default="LineString", const=True)
+    type: Literal["LineString"]
     coordinates: LineStringCoords
 
     @property
@@ -96,14 +96,14 @@ class LineString(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        points = [Point(coordinates=p) for p in self.coordinates]
+        points = [Point(type="Point", coordinates=p) for p in self.coordinates]
         return ", ".join(point._wkt_coordinates for point in points)
 
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
-    type: str = Field(default="MultiLineString", const=True)
+    type: Literal["MultiLineString"]
     coordinates: MultiLineStringCoords
 
     @property
@@ -112,7 +112,9 @@ class MultiLineString(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        lines = [LineString(coordinates=line) for line in self.coordinates]
+        lines = [
+            LineString(type="LineString", coordinates=line) for line in self.coordinates
+        ]
         return ",".join(f"({line._wkt_coordinates})" for line in lines)
 
 
@@ -131,7 +133,7 @@ class LinearRingGeom(LineString):
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
-    type: str = Field(default="Polygon", const=True)
+    type: Literal["Polygon"]
     coordinates: PolygonCoords
 
     @validator("coordinates")
@@ -161,10 +163,10 @@ class Polygon(_GeometryBase):
     @property
     def _wkt_coordinates(self) -> str:
         ic = "".join(
-            f", ({LinearRingGeom(coordinates=interior)._wkt_coordinates})"
+            f", ({LinearRingGeom(type='LineString', coordinates=interior)._wkt_coordinates})"
             for interior in self.interiors
         )
-        return f"({LinearRingGeom(coordinates=self.exterior)._wkt_coordinates}){ic}"
+        return f"({LinearRingGeom(type='LineString', coordinates=self.exterior)._wkt_coordinates}){ic}"
 
     @classmethod
     def from_bounds(
@@ -172,16 +174,17 @@ class Polygon(_GeometryBase):
     ) -> "Polygon":
         """Create a Polygon geometry from a boundingbox."""
         return cls(
+            type="Polygon",
             coordinates=[
                 [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin)]
-            ]
+            ],
         )
 
 
 class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
-    type: str = Field(default="MultiPolygon", const=True)
+    type: Literal["MultiPolygon"]
     coordinates: MultiPolygonCoords
 
     @property
@@ -190,7 +193,9 @@ class MultiPolygon(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        polygons = [Polygon(coordinates=poly) for poly in self.coordinates]
+        polygons = [
+            Polygon(type="Polygon", coordinates=poly) for poly in self.coordinates
+        ]
         return ",".join(f"({poly._wkt_coordinates})" for poly in polygons)
 
 
@@ -200,7 +205,7 @@ Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiP
 class GeometryCollection(BaseModel):
     """GeometryCollection Model"""
 
-    type: str = Field(default="GeometryCollection", const=True)
+    type: Literal["GeometryCollection"]
     geometries: List[Geometry]
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
