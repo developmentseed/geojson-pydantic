@@ -188,3 +188,18 @@ def test_feature_collection_geo_interface_with_null_geometry():
     assert "bbox" not in fc.__geo_interface__
     assert "bbox" not in fc.__geo_interface__["features"][0]
     assert "bbox" in fc.__geo_interface__["features"][1]
+
+
+def test_feature_validation():
+    """Test default."""
+    with pytest.raises(ValidationError):
+        # should be type=Feature
+        Feature(type="feature", properties={}, geometry=None)
+
+    with pytest.raises(ValidationError):
+        # should be properties={}
+        Feature(type="Feature", properties=None, geometry=None)
+
+    with pytest.raises(ValidationError):
+        # should be geometry=None
+        Feature(type="Feature", properties={})
