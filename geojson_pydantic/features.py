@@ -17,7 +17,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
 
     type: Literal["Feature"]
     geometry: Union[Geom, None] = Field(...)
-    properties: Props = Field(...)
+    properties: Union[Props, None] = Field(...)
     id: Optional[str] = None
     bbox: Optional[BBox] = None
 
