@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.6.0] - TBD
 
-- Remove python 3.7 support
+### Added
+
 - Enforce required keys and avoid defaults. This aim to follow the geojson specification to the letter.
 
     ```python
@@ -25,9 +26,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     )
     ```
 
+### Changed
+
+- Refactor and simplify WKT construction (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/97)
+
 ### Fixed
 
 - Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
+
+### Removed
+
+- python 3.7 support
 
 ## [0.5.0] - 2022-12-16
 
