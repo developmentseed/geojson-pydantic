@@ -1,9 +1,9 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, Dict, Iterator, List, Union
+from typing import Any, Dict, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
+from pydantic import BaseModel, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
 from geojson_pydantic.types import (
@@ -75,7 +75,7 @@ class _GeometryBase(BaseModel, abc.ABC):
 class Point(_GeometryBase):
     """Point Model"""
 
-    type: str = Field(default="Point", const=True)
+    type: Literal["Point"]
     coordinates: Position
 
     @property
@@ -90,7 +90,7 @@ class Point(_GeometryBase):
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
-    type: str = Field(default="MultiPoint", const=True)
+    type: Literal["MultiPoint"]
     coordinates: MultiPointCoords
 
     @property
@@ -105,7 +105,7 @@ class MultiPoint(_GeometryBase):
 class LineString(_GeometryBase):
     """LineString Model"""
 
-    type: str = Field(default="LineString", const=True)
+    type: Literal["LineString"]
     coordinates: LineStringCoords
 
     @property
@@ -120,7 +120,7 @@ class LineString(_GeometryBase):
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
-    type: str = Field(default="MultiLineString", const=True)
+    type: Literal["MultiLineString"]
     coordinates: MultiLineStringCoords
 
     @property
@@ -147,7 +147,7 @@ class LinearRingGeom(LineString):
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
-    type: str = Field(default="Polygon", const=True)
+    type: Literal["Polygon"]
     coordinates: PolygonCoords
 
     @validator("coordinates")
@@ -184,16 +184,17 @@ class Polygon(_GeometryBase):
     ) -> "Polygon":
         """Create a Polygon geometry from a boundingbox."""
         return cls(
+            type="Polygon",
             coordinates=[
                 [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin)]
-            ]
+            ],
         )
 
 
 class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
-    type: str = Field(default="MultiPolygon", const=True)
+    type: Literal["MultiPolygon"]
     coordinates: MultiPolygonCoords
 
     @property
@@ -213,7 +214,7 @@ Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiP
 class GeometryCollection(BaseModel):
     """GeometryCollection Model"""
 
-    type: str = Field(default="GeometryCollection", const=True)
+    type: Literal["GeometryCollection"]
     geometries: List[Geometry]
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]

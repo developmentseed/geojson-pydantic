@@ -5,6 +5,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.0] - TBD
+
+- Remove python 3.7 support
+- Enforce required keys and avoid defaults. This aim to follow the geojson specification to the letter.
+
+    ```python
+    # Before
+    Feature(geometry=Point(coordinates=(0,0)))
+
+    # Now
+    Feature(
+        type="Feature",
+        geometry=Point(
+            type="Point",
+            coordinates=(0,0)
+        ),
+        properties=None,
+    )
+    ```
+
+### Fixed
+
+- Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
+
 ## [0.5.0] - 2022-12-16
 
 ### Added
