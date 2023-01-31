@@ -30,7 +30,7 @@ def test_point_valid_coordinates(coordinates):
     """
     Two or three number elements as coordinates shold be okay
     """
-    p = Point(coordinates=coordinates)
+    p = Point(type="Point", coordinates=coordinates)
     assert p.type == "Point"
     assert p.coordinates == coordinates
     assert hasattr(p, "__geo_interface__")
@@ -45,7 +45,7 @@ def test_point_invalid_coordinates(coordinates):
     Too few or to many elements should not, nor weird data types
     """
     with pytest.raises(ValidationError):
-        Point(coordinates=coordinates)
+        Point(type="Point", coordinates=coordinates)
 
 
 @pytest.mark.parametrize(
@@ -61,7 +61,7 @@ def test_multi_point_valid_coordinates(coordinates):
     """
     Two or three number elements as coordinates shold be okay
     """
-    p = MultiPoint(coordinates=coordinates)
+    p = MultiPoint(type="MultiPoint", coordinates=coordinates)
     assert p.type == "MultiPoint"
     assert p.coordinates == coordinates
     assert hasattr(p, "__geo_interface__")
@@ -77,7 +77,7 @@ def test_multi_point_invalid_coordinates(coordinates):
     Too few or to many elements should not, nor weird data types
     """
     with pytest.raises(ValidationError):
-        MultiPoint(coordinates=coordinates)
+        MultiPoint(type="MultiPoint", coordinates=coordinates)
 
 
 @pytest.mark.parametrize(
@@ -92,7 +92,7 @@ def test_line_string_valid_coordinates(coordinates):
     """
     A list of two coordinates or more should be okay
     """
-    linestring = LineString(coordinates=coordinates)
+    linestring = LineString(type="LineString", coordinates=coordinates)
     assert linestring.type == "LineString"
     assert linestring.coordinates == coordinates
     assert hasattr(linestring, "__geo_interface__")
@@ -105,7 +105,7 @@ def test_line_string_invalid_coordinates(coordinates):
     But we don't accept non-list inputs, too few coordinates, or bogus coordinates
     """
     with pytest.raises(ValidationError):
-        LineString(coordinates=coordinates)
+        LineString(type="LineString", coordinates=coordinates)
 
 
 @pytest.mark.parametrize(
@@ -120,7 +120,7 @@ def test_multi_line_string_valid_coordinates(coordinates):
     """
     A list of two coordinates or more should be okay
     """
-    multilinestring = MultiLineString(coordinates=coordinates)
+    multilinestring = MultiLineString(type="MultiLineString", coordinates=coordinates)
     assert multilinestring.type == "MultiLineString"
     assert multilinestring.coordinates == coordinates
     assert hasattr(multilinestring, "__geo_interface__")
@@ -135,7 +135,7 @@ def test_multi_line_string_invalid_coordinates(coordinates):
     But we don't accept non-list inputs, too few coordinates, or bogus coordinates
     """
     with pytest.raises(ValidationError):
-        MultiLineString(coordinates=coordinates)
+        MultiLineString(type="MultiLineString", coordinates=coordinates)
 
 
 @pytest.mark.parametrize(
@@ -149,7 +149,7 @@ def test_polygon_valid_coordinates(coordinates):
     """
     Should accept lists of linear rings
     """
-    polygon = Polygon(coordinates=coordinates)
+    polygon = Polygon(type="Polygon", coordinates=coordinates)
     assert polygon.type == "Polygon"
     assert polygon.coordinates == coordinates
     assert hasattr(polygon, "__geo_interface__")
@@ -161,10 +161,11 @@ def test_polygon_valid_coordinates(coordinates):
 def test_polygon_with_holes():
     """Check interior and exterior rings."""
     polygon = Polygon(
+        type="Polygon",
         coordinates=[
             [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)],
             [(2.0, 2.0), (2.0, 4.0), (4.0, 4.0), (4.0, 2.0), (2.0, 2.0)],
-        ]
+        ],
     )
 
     assert polygon.type == "Polygon"
@@ -193,12 +194,13 @@ def test_polygon_invalid_coordinates(coordinates):
     - If not all elements are linear rings
     """
     with pytest.raises(ValidationError):
-        Polygon(coordinates=coordinates)
+        Polygon(type="Polygon", coordinates=coordinates)
 
 
 def test_multi_polygon():
     """Should accept sequence of polygons."""
     multi_polygon = MultiPolygon(
+        type="MultiPolygon",
         coordinates=[
             [
                 [
@@ -216,7 +218,7 @@ def test_multi_polygon():
                     (2.1, 2.1, 4.0),
                 ],
             ]
-        ]
+        ],
     )
 
     assert multi_polygon.type == "MultiPolygon"
@@ -226,14 +228,14 @@ def test_multi_polygon():
 
 def test_parse_geometry_obj_point():
     assert parse_geometry_obj({"type": "Point", "coordinates": [102.0, 0.5]}) == Point(
-        coordinates=(102.0, 0.5)
+        type="Point", coordinates=(102.0, 0.5)
     )
 
 
 def test_parse_geometry_obj_multi_point():
     assert parse_geometry_obj(
         {"type": "MultiPoint", "coordinates": [[100.0, 0.0], [101.0, 1.0]]}
-    ) == MultiPoint(coordinates=[(100.0, 0.0), (101.0, 1.0)])
+    ) == MultiPoint(type="MultiPoint", coordinates=[(100.0, 0.0), (101.0, 1.0)])
 
 
 def test_parse_geometry_obj_line_string():
@@ -243,7 +245,8 @@ def test_parse_geometry_obj_line_string():
             "coordinates": [[102.0, 0.0], [103.0, 1.0], [104.0, 0.0], [105.0, 1.0]],
         }
     ) == LineString(
-        coordinates=[(102.0, 0.0), (103.0, 1.0), (104.0, 0.0), (105.0, 1.0)]
+        type="LineString",
+        coordinates=[(102.0, 0.0), (103.0, 1.0), (104.0, 0.0), (105.0, 1.0)],
     )
 
 
@@ -254,7 +257,8 @@ def test_parse_geometry_obj_multi_line_string():
             "coordinates": [[[100.0, 0.0], [101.0, 1.0]], [[102.0, 2.0], [103.0, 3.0]]],
         }
     ) == MultiLineString(
-        coordinates=[[(100.0, 0.0), (101.0, 1.0)], [(102.0, 2.0), (103.0, 3.0)]]
+        type="MultiLineString",
+        coordinates=[[(100.0, 0.0), (101.0, 1.0)], [(102.0, 2.0), (103.0, 3.0)]],
     )
 
 
@@ -267,9 +271,10 @@ def test_parse_geometry_obj_polygon():
             ],
         }
     ) == Polygon(
+        type="Polygon",
         coordinates=[
             [(100.0, 0.0), (101.0, 0.0), (101.0, 1.0), (100.0, 1.0), (100.0, 0.0)]
-        ]
+        ],
     )
 
 
@@ -306,6 +311,7 @@ def test_parse_geometry_obj_multi_polygon():
             ],
         }
     ) == MultiPolygon(
+        type="MultiPolygon",
         coordinates=[
             [[(102.0, 2.0), (103.0, 2.0), (103.0, 3.0), (102.0, 3.0), (102.0, 2.0)]],
             [
@@ -340,8 +346,8 @@ def test_parse_geometry_obj_invalid_point():
 )
 def test_geometry_collection_iteration(coordinates):
     """test if geometry collection is iterable"""
-    polygon = Polygon(coordinates=coordinates)
-    gc = GeometryCollection(geometries=[polygon, polygon])
+    polygon = Polygon(type="Polygon", coordinates=coordinates)
+    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
     assert hasattr(gc, "__geo_interface__")
     assert_wkt_equivalence(gc)
     iter(gc)
@@ -352,8 +358,8 @@ def test_geometry_collection_iteration(coordinates):
 )
 def test_len_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
-    polygon = Polygon(coordinates=polygon)
-    gc = GeometryCollection(geometries=[polygon, polygon])
+    polygon = Polygon(type="Polygon", coordinates=polygon)
+    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
     assert_wkt_equivalence(gc)
     assert len(gc) == 2
 
@@ -363,8 +369,8 @@ def test_len_geometry_collection(polygon):
 )
 def test_getitem_geometry_collection(polygon):
     """test if GeometryCollection return self leng"""
-    polygon = Polygon(coordinates=polygon)
-    gc = GeometryCollection(geometries=[polygon, polygon])
+    polygon = Polygon(type="Polygon", coordinates=polygon)
+    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
     assert_wkt_equivalence(gc)
     item = gc[0]
     assert item == gc[0]
@@ -373,7 +379,9 @@ def test_getitem_geometry_collection(polygon):
 def test_polygon_from_bounds():
     """Result from `from_bounds` class method should be the same."""
     coordinates = [[(1.0, 2.0), (3.0, 2.0), (3.0, 4.0), (1.0, 4.0), (1.0, 2.0)]]
-    assert Polygon(coordinates=coordinates) == Polygon.from_bounds(1.0, 2.0, 3.0, 4.0)
+    assert Polygon(type="Polygon", coordinates=coordinates) == Polygon.from_bounds(
+        1.0, 2.0, 3.0, 4.0
+    )
 
 
 def test_wkt_name():
@@ -383,5 +391,6 @@ def test_wkt_name():
         ...
 
     assert (
-        PointType(coordinates=(1.01, 2.01)).wkt == Point(coordinates=(1.01, 2.01)).wkt
+        PointType(type="Point", coordinates=(1.01, 2.01)).wkt
+        == Point(type="Point", coordinates=(1.01, 2.01)).wkt
     )

@@ -1,6 +1,6 @@
 """pydantic models for GeoJSON Feature objects."""
 
-from typing import Any, Dict, Generic, Iterator, List, Optional, TypeVar, Union
+from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
@@ -15,9 +15,9 @@ Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
 class Feature(GenericModel, Generic[Geom, Props]):
     """Feature Model"""
 
-    type: str = Field(default="Feature", const=True)
-    geometry: Optional[Geom] = None
-    properties: Optional[Props] = None
+    type: Literal["Feature"]
+    geometry: Union[Geom, None] = Field(...)
+    properties: Union[Props, None] = Field(...)
     id: Optional[str] = None
     bbox: Optional[BBox] = None
 
@@ -31,6 +31,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
         """set geometry from geo interface or input"""
         if hasattr(geometry, "__geo_interface__"):
             return geometry.__geo_interface__
+
         return geometry
 
     @property
@@ -44,15 +45,14 @@ class Feature(GenericModel, Generic[Geom, Props]):
             "geometry": self.geometry.__geo_interface__
             if self.geometry is not None
             else None,
+            "properties": self.properties,
         }
+
         if self.bbox:
             geo["bbox"] = self.bbox
 
         if self.id:
             geo["id"] = self.id
-
-        if self.properties:
-            geo["properties"] = self.properties
 
         return geo
 
@@ -60,7 +60,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
 class FeatureCollection(GenericModel, Generic[Geom, Props]):
     """FeatureCollection Model"""
 
-    type: str = Field(default="FeatureCollection", const=True)
+    type: Literal["FeatureCollection"]
     features: List[Feature[Geom, Props]]
     bbox: Optional[BBox] = None
 

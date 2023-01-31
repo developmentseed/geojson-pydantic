@@ -66,14 +66,18 @@ test_feature_geometry_collection: Dict[str, Any] = {
 
 def test_feature_collection_iteration():
     """test if feature collection is iterable"""
-    gc = FeatureCollection(features=[test_feature, test_feature])
+    gc = FeatureCollection(
+        type="FeatureCollection", features=[test_feature, test_feature]
+    )
     assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
 
 def test_geometry_collection_iteration():
     """test if feature collection is iterable"""
-    gc = FeatureCollection(features=[test_feature_geometry_collection])
+    gc = FeatureCollection(
+        type="FeatureCollection", features=[test_feature_geometry_collection]
+    )
     assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
@@ -152,7 +156,7 @@ def test_generic_properties_should_raise_for_string():
 
 def test_feature_collection_generic():
     fc = FeatureCollection[Polygon, GenericProperties](
-        features=[test_feature, test_feature]
+        type="FeatureCollection", features=[test_feature, test_feature]
     )
     assert len(fc) == 2
     assert type(fc[0].properties) == GenericProperties
@@ -163,7 +167,7 @@ def test_geo_interface_protocol():
     class Pointy:
         __geo_interface__ = {"type": "Point", "coordinates": (0.0, 0.0)}
 
-    feat = Feature(geometry=Pointy())
+    feat = Feature(type="Feature", geometry=Pointy(), properties={})
     assert feat.geometry.dict() == Pointy.__geo_interface__
 
 
@@ -178,7 +182,30 @@ def test_feature_geo_interface_with_null_geometry():
 
 
 def test_feature_collection_geo_interface_with_null_geometry():
-    fc = FeatureCollection(features=[test_feature_geom_null, test_feature])
+    fc = FeatureCollection(
+        type="FeatureCollection", features=[test_feature_geom_null, test_feature]
+    )
     assert "bbox" not in fc.__geo_interface__
     assert "bbox" not in fc.__geo_interface__["features"][0]
     assert "bbox" in fc.__geo_interface__["features"][1]
+
+
+def test_feature_validation():
+    """Test default."""
+    assert Feature(type="Feature", properties=None, geometry=None)
+
+    with pytest.raises(ValidationError):
+        # should be type=Feature
+        Feature(type="feature", properties=None, geometry=None)
+
+    with pytest.raises(ValidationError):
+        # missing type
+        Feature(properties=None, geometry=None)
+
+    with pytest.raises(ValidationError):
+        # missing properties
+        Feature(type="Feature", geometry=None)
+
+    with pytest.raises(ValidationError):
+        # missing geometry
+        Feature(type="Feature", properties=None)
