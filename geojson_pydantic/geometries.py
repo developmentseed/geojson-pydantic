@@ -3,7 +3,7 @@
 import abc
 from typing import Any, Dict, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 
 from geojson_pydantic.types import (
@@ -36,7 +36,7 @@ class _GeometryBase(BaseModel, abc.ABC):
     """Base class for geometry models"""
 
     type: str
-    coordinates: Any
+    coordinates: Union[Any, None] = Field(...)
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
@@ -48,88 +48,81 @@ class _GeometryBase(BaseModel, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _wkt_coordinates(self) -> str:
-        ...
-
-    @property
-    @abc.abstractmethod
-    def _wkt_inset(self) -> str:
-        """Return Z for 3 dimensional geometry or an empty string for 2 dimensions."""
-        ...
-
-    @property
-    def _wkt_type(self) -> str:
-        """Return the WKT name of the geometry."""
-        return self.type.upper()
-
-    @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        return self._wkt_type + (
-            f"{self._wkt_inset}({self._wkt_coordinates})"
-            if self.coordinates
-            else " EMPTY"
-        )
+        ...
 
 
 class Point(_GeometryBase):
     """Point Model"""
 
     type: Literal["Point"]
-    coordinates: Position
+    coordinates: Union[Position, None] = Field(...)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _position_wkt_coordinates(self.coordinates)
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates) == 3 else " "
+        wkt_inset = " Z " if len(self.coordinates) == 3 else " "
+        wkt_coordinates = _position_wkt_coordinates(self.coordinates)
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
 
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
     type: Literal["MultiPoint"]
-    coordinates: MultiPointCoords
+    coordinates: Union[MultiPointCoords, None] = Field(...)
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0]) == 3 else " "
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_coordinates(self) -> str:
-        return _position_list_wkt_coordinates(self.coordinates)
+        wkt_inset = " Z " if len(self.coordinates[0]) == 3 else " "
+        wkt_coordinates = _position_list_wkt_coordinates(self.coordinates)
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
 
 class LineString(_GeometryBase):
     """LineString Model"""
 
     type: Literal["LineString"]
-    coordinates: LineStringCoords
+    coordinates: Union[LineStringCoords, None] = Field(...)
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0]) == 3 else " "
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_coordinates(self) -> str:
-        return _position_list_wkt_coordinates(self.coordinates)
+        wkt_inset = " Z " if len(self.coordinates[0]) == 3 else " "
+        wkt_coordinates = _position_list_wkt_coordinates(self.coordinates)
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
     type: Literal["MultiLineString"]
-    coordinates: MultiLineStringCoords
+    coordinates: Union[MultiLineStringCoords, None] = Field(...)
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_coordinates(self) -> str:
-        return _lines_wtk_coordinates(self.coordinates)
+        wkt_inset = " Z " if len(self.coordinates[0][0]) == 3 else " "
+        wkt_coordinates = _lines_wtk_coordinates(self.coordinates)
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
 
 class LinearRingGeom(LineString):
@@ -148,7 +141,7 @@ class Polygon(_GeometryBase):
     """Polygon Model"""
 
     type: Literal["Polygon"]
-    coordinates: PolygonCoords
+    coordinates: Union[PolygonCoords, None] = Field(...)
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -161,22 +154,31 @@ class Polygon(_GeometryBase):
     @property
     def exterior(self) -> LinearRing:
         """Return the exterior Linear Ring of the polygon."""
+        if not self.coordinates:
+            return []
+
         return self.coordinates[0]
 
     @property
     def interiors(self) -> Iterator[LinearRing]:
         """Interiors (Holes) of the polygon."""
+        if not self.coordinates:
+            return []
+
         yield from (
             interior for interior in self.coordinates[1:] if len(self.coordinates) > 1
         )
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_coordinates(self) -> str:
-        return _lines_wtk_coordinates(self.coordinates)
+        wkt_inset = " Z " if len(self.coordinates[0][0]) == 3 else " "
+        wkt_coordinates = _lines_wtk_coordinates(self.coordinates)
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
     @classmethod
     def from_bounds(
@@ -195,17 +197,20 @@ class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
     type: Literal["MultiPolygon"]
-    coordinates: MultiPolygonCoords
+    coordinates: Union[MultiPolygonCoords, None] = Field(...)
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0][0]) == 3 else " "
+    def wkt(self) -> str:
+        """Return the Well Known Text representation."""
+        if not self.coordinates:
+            return f"{self.type.upper()} EMPTY"
 
-    @property
-    def _wkt_coordinates(self) -> str:
-        return ",".join(
+        wkt_inset = " Z " if len(self.coordinates[0][0][0]) == 3 else " "
+        wkt_coordinates = ",".join(
             f"({_lines_wtk_coordinates(polygon)})" for polygon in self.coordinates
         )
+
+        return f"{self.type.upper()}{wkt_inset}({wkt_coordinates})"
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]

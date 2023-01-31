@@ -103,7 +103,7 @@ def test_line_string_valid_coordinates(coordinates):
     assert_wkt_equivalence(linestring)
 
 
-@pytest.mark.parametrize("coordinates", [None, "Foo", [], [(1.0, 2.0)], ["Foo", "Bar"]])
+@pytest.mark.parametrize("coordinates", ["Foo", [(1.0, 2.0)], ["Foo", "Bar"]])
 def test_line_string_invalid_coordinates(coordinates):
     """
     But we don't accept non-list inputs, too few coordinates, or bogus coordinates
