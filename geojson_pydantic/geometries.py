@@ -207,6 +207,14 @@ class MultiPolygon(_GeometryBase):
             f"({_lines_wtk_coordinates(polygon)})" for polygon in self.coordinates
         )
 
+    @validator("coordinates")
+    def check_closure(cls, coordinates: List) -> List:
+        """Validate that Polygon is closed (first and last coordinate are the same)."""
+        if any([ring[-1] != ring[0] for polygon in coordinates for ring in polygon]):
+            raise ValueError("All linear rings have the same start and end coordinates")
+
+        return coordinates
+
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
 
