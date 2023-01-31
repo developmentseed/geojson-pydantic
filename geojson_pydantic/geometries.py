@@ -3,8 +3,9 @@
 import abc
 from typing import Any, Dict, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
+from typing_extensions import Annotated
 
 from geojson_pydantic.types import (
     LinearRing,
@@ -208,7 +209,10 @@ class MultiPolygon(_GeometryBase):
         )
 
 
-Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
+Geometry = Annotated[
+    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
+    Field(discriminator="type"),
+]
 
 
 class GeometryCollection(BaseModel):
