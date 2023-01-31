@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ## [0.6.0] - TBD
 
+- Remove python 3.7 support
 - Enforce required keys and avoid defaults. This aim to follow the geojson specification to the letter.
 
     ```python
