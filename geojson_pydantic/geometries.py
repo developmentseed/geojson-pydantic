@@ -17,6 +17,21 @@ from geojson_pydantic.types import (
 )
 
 
+def _position_wkt_coordinates(position: Position) -> str:
+    """Converts a Position to WKT Coordinates."""
+    return " ".join(str(number) for number in position)
+
+
+def _position_list_wkt_coordinates(positions: List[Position]) -> str:
+    """Converts a list of Positions to WKT Coordinates."""
+    return ", ".join(_position_wkt_coordinates(position) for position in positions)
+
+
+def _lines_wtk_coordinates(lines: List[List[Position]]) -> str:
+    """Converts lines to WKT Coordinates."""
+    return ", ".join(f"({_position_list_wkt_coordinates(line)})" for line in lines)
+
+
 class _GeometryBase(BaseModel, abc.ABC):
     """Base class for geometry models"""
 
@@ -50,7 +65,11 @@ class _GeometryBase(BaseModel, abc.ABC):
     @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        return f"{self._wkt_type}{self._wkt_inset}({self._wkt_coordinates})"
+        return self._wkt_type + (
+            f"{self._wkt_inset}({self._wkt_coordinates})"
+            if self.coordinates
+            else " EMPTY"
+        )
 
 
 class Point(_GeometryBase):
@@ -61,7 +80,7 @@ class Point(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        return " ".join(str(coordinate) for coordinate in self.coordinates)
+        return _position_wkt_coordinates(self.coordinates)
 
     @property
     def _wkt_inset(self) -> str:
@@ -80,8 +99,7 @@ class MultiPoint(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        points = [Point(type="Point", coordinates=p) for p in self.coordinates]
-        return ", ".join(point._wkt_coordinates for point in points)
+        return _position_list_wkt_coordinates(self.coordinates)
 
 
 class LineString(_GeometryBase):
@@ -96,8 +114,7 @@ class LineString(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        points = [Point(type="Point", coordinates=p) for p in self.coordinates]
-        return ", ".join(point._wkt_coordinates for point in points)
+        return _position_list_wkt_coordinates(self.coordinates)
 
 
 class MultiLineString(_GeometryBase):
@@ -112,10 +129,7 @@ class MultiLineString(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        lines = [
-            LineString(type="LineString", coordinates=line) for line in self.coordinates
-        ]
-        return ",".join(f"({line._wkt_coordinates})" for line in lines)
+        return _lines_wtk_coordinates(self.coordinates)
 
 
 class LinearRingGeom(LineString):
@@ -162,11 +176,7 @@ class Polygon(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        ic = "".join(
-            f", ({LinearRingGeom(type='LineString', coordinates=interior)._wkt_coordinates})"
-            for interior in self.interiors
-        )
-        return f"({LinearRingGeom(type='LineString', coordinates=self.exterior)._wkt_coordinates}){ic}"
+        return _lines_wtk_coordinates(self.coordinates)
 
     @classmethod
     def from_bounds(
@@ -193,10 +203,9 @@ class MultiPolygon(_GeometryBase):
 
     @property
     def _wkt_coordinates(self) -> str:
-        polygons = [
-            Polygon(type="Polygon", coordinates=poly) for poly in self.coordinates
-        ]
-        return ",".join(f"({poly._wkt_coordinates})" for poly in polygons)
+        return ",".join(
+            f"({_lines_wtk_coordinates(polygon)})" for polygon in self.coordinates
+        )
 
 
 Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]

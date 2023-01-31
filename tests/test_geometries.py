@@ -22,7 +22,7 @@ def assert_wkt_equivalence(geom: Union[Geometry, GeometryCollection]):
     """Assert WKT equivalence with Shapely."""
     # Remove any trailing `.0` to match Shapely format
     clean_wkt = re.sub(r"\.0(\D)", r"\1", geom.wkt)
-    assert shape(geom.dict()).wkt == clean_wkt
+    assert shape(geom).wkt == clean_wkt
 
 
 @pytest.mark.parametrize("coordinates", [(1.01, 2.01), (1.0, 2.0, 3.0), (1.0, 2.0)])
@@ -51,10 +51,11 @@ def test_point_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # No Z
         [(1.0, 2.0)],
         [(1.0, 2.0), (1.0, 2.0)],
+        # Has Z
         [(1.0, 2.0, 3.0), (1.0, 2.0, 3.0)],
-        [(1.0, 2.0), (1.0, 2.0)],
     ],
 )
 def test_multi_point_valid_coordinates(coordinates):
@@ -83,9 +84,12 @@ def test_multi_point_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Two Points, no Z
         [(1.0, 2.0), (3.0, 4.0)],
-        [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
+        # Three Points, no Z
         [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)],
+        # Two Points, has Z
+        [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
     ],
 )
 def test_line_string_valid_coordinates(coordinates):
@@ -111,9 +115,16 @@ def test_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # One line, two points, no Z
         [[(1.0, 2.0), (3.0, 4.0)]],
+        # One line, two points, has Z
         [[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
+        # One line, three points, no Z
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)]],
+        # Two lines, two points each, no Z
+        [[(1.0, 2.0), (3.0, 4.0)], [(0.0, 0.0), (1.0, 1.0)]],
+        # Two lines, two points each, has Z
+        [[(1.0, 2.0, 0.0), (3.0, 4.0, 1.0)], [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
     ],
 )
 def test_multi_line_string_valid_coordinates(coordinates):
@@ -141,7 +152,9 @@ def test_multi_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Polygon, no Z
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+        # Polygon, has Z
         [[(0.0, 0.0, 0.0), (1.0, 1.0, 0.0), (1.0, 0.0, 0.0), (0.0, 0.0, 0.0)]],
     ],
 )
@@ -158,16 +171,36 @@ def test_polygon_valid_coordinates(coordinates):
     assert_wkt_equivalence(polygon)
 
 
-def test_polygon_with_holes():
-    """Check interior and exterior rings."""
-    polygon = Polygon(
-        type="Polygon",
-        coordinates=[
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        # Polygon with holes, no Z
+        [
             [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)],
             [(2.0, 2.0), (2.0, 4.0), (4.0, 4.0), (4.0, 2.0), (2.0, 2.0)],
         ],
-    )
-
+        # Polygon with holes, has Z
+        [
+            [
+                (0.0, 0.0, 0.0),
+                (0.0, 10.0, 0.0),
+                (10.0, 10.0, 0.0),
+                (10.0, 0.0, 0.0),
+                (0.0, 0.0, 0.0),
+            ],
+            [
+                (2.0, 2.0, 1.0),
+                (2.0, 4.0, 1.0),
+                (4.0, 4.0, 1.0),
+                (4.0, 2.0, 1.0),
+                (2.0, 2.0, 1.0),
+            ],
+        ],
+    ],
+)
+def test_polygon_with_holes(coordinates):
+    """Check interior and exterior rings."""
+    polygon = Polygon(type="Polygon", coordinates=coordinates)
     assert polygon.type == "Polygon"
     assert hasattr(polygon, "__geo_interface__")
     assert polygon.exterior == polygon.coordinates[0]
@@ -197,11 +230,18 @@ def test_polygon_invalid_coordinates(coordinates):
         Polygon(type="Polygon", coordinates=coordinates)
 
 
-def test_multi_polygon():
-    """Should accept sequence of polygons."""
-    multi_polygon = MultiPolygon(
-        type="MultiPolygon",
-        coordinates=[
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        # Multipolygon, no Z
+        [
+            [
+                [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)],
+                [(2.1, 2.1), (2.2, 2.1), (2.2, 2.2), (2.1, 2.2), (2.1, 2.1)],
+            ]
+        ],
+        # Multipolygon, has Z
+        [
             [
                 [
                     (0.0, 0.0, 4.0),
@@ -219,7 +259,11 @@ def test_multi_polygon():
                 ],
             ]
         ],
-    )
+    ],
+)
+def test_multi_polygon(coordinates):
+    """Should accept sequence of polygons."""
+    multi_polygon = MultiPolygon(type="MultiPolygon", coordinates=coordinates)
 
     assert multi_polygon.type == "MultiPolygon"
     assert hasattr(multi_polygon, "__geo_interface__")
