@@ -438,3 +438,122 @@ def test_wkt_name():
         PointType(type="Point", coordinates=(1.01, 2.01)).wkt
         == Point(type="Point", coordinates=(1.01, 2.01)).wkt
     )
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ((0, 0), False),
+        ((0, 0, 0), True),
+    ],
+)
+def test_point_has_z(coordinates, expected):
+    assert Point(type="Point", coordinates=coordinates).has_z == expected
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ([(0, 0)], False),
+        ([(0, 0), (1, 1)], False),
+        ([(0, 0), (1, 1, 1)], True),
+        ([(0, 0, 0)], True),
+        ([(0, 0, 0), (1, 1)], True),
+    ],
+)
+def test_multipoint_has_z(coordinates, expected):
+    assert MultiPoint(type="MultiPoint", coordinates=coordinates).has_z == expected
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ([(0, 0), (1, 1)], False),
+        ([(0, 0), (1, 1, 1)], True),
+        ([(0, 0, 0), (1, 1, 1)], True),
+        ([(0, 0, 0), (1, 1)], True),
+    ],
+)
+def test_linestring_has_z(coordinates, expected):
+    assert LineString(type="LineString", coordinates=coordinates).has_z == expected
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ([[(0, 0), (1, 1)]], False),
+        ([[(0, 0), (1, 1)], [(0, 0), (1, 1)]], False),
+        ([[(0, 0), (1, 1)], [(0, 0, 0), (1, 1)]], True),
+        ([[(0, 0), (1, 1)], [(0, 0), (1, 1, 1)]], True),
+        ([[(0, 0), (1, 1, 1)]], True),
+        ([[(0, 0, 0), (1, 1, 1)]], True),
+        ([[(0, 0, 0), (1, 1)]], True),
+        ([[(0, 0, 0), (1, 1, 1)], [(0, 0, 0), (1, 1, 1)]], True),
+    ],
+)
+def test_multilinestring_has_z(coordinates, expected):
+    assert (
+        MultiLineString(type="MultiLineString", coordinates=coordinates).has_z
+        == expected
+    )
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ([[(0, 0), (1, 1), (2, 2), (0, 0)]], False),
+        ([[(0, 0), (1, 1), (2, 2, 2), (0, 0)]], True),
+        ([[(0, 0), (1, 1), (2, 2), (0, 0)], [(0, 0), (1, 1), (2, 2), (0, 0)]], False),
+        (
+            [[(0, 0), (1, 1), (2, 2), (0, 0)], [(0, 0), (1, 1), (2, 2, 2), (0, 0)]],
+            True,
+        ),
+        ([[(0, 0, 0), (1, 1, 1), (2, 2, 2), (0, 0, 0)]], True),
+        (
+            [
+                [(0, 0, 0), (1, 1, 1), (2, 2, 2), (0, 0, 0)],
+                [(0, 0), (1, 1), (2, 2), (0, 0)],
+            ],
+            True,
+        ),
+    ],
+)
+def test_polygon_has_z(coordinates, expected):
+    assert Polygon(type="Polygon", coordinates=coordinates).has_z == expected
+
+
+@pytest.mark.parametrize(
+    "coordinates,expected",
+    [
+        ([[[(0, 0), (1, 1), (2, 2), (0, 0)]]], False),
+        ([[[(0, 0), (1, 1), (2, 2, 2), (0, 0)]]], True),
+        (
+            [[[(0, 0), (1, 1), (2, 2), (0, 0)]], [[(0, 0), (1, 1), (2, 2), (0, 0)]]],
+            False,
+        ),
+        (
+            [
+                [[(0, 0), (1, 1), (2, 2), (0, 0)]],
+                [
+                    [(0, 0), (1, 1), (2, 2), (0, 0)],
+                    [(0, 0, 0), (1, 1, 1), (2, 2, 2), (0, 0, 0)],
+                ],
+            ],
+            True,
+        ),
+        (
+            [[[(0, 0), (1, 1), (2, 2), (0, 0)]], [[(0, 0), (1, 1), (2, 2, 2), (0, 0)]]],
+            True,
+        ),
+        ([[[(0, 0, 0), (1, 1, 1), (2, 2, 2), (0, 0, 0)]]], True),
+        (
+            [
+                [[(0, 0, 0), (1, 1, 1), (2, 2, 2), (0, 0, 0)]],
+                [[(0, 0), (1, 1), (2, 2), (0, 0)]],
+            ],
+            True,
+        ),
+    ],
+)
+def test_multipolygon_has_z(coordinates, expected):
+    assert MultiPolygon(type="MultiPolygon", coordinates=coordinates).has_z == expected
