@@ -175,6 +175,8 @@ def test_polygon_valid_coordinates(coordinates):
     assert hasattr(polygon, "__geo_interface__")
     if polygon.coordinates:
         assert polygon.exterior == coordinates[0]
+    else:
+        assert polygon.exterior is None
     assert not list(polygon.interiors)
     assert_wkt_equivalence(polygon)
 
@@ -467,4 +469,23 @@ def test_wkt_name():
     assert (
         PointType(type="Point", coordinates=(1.01, 2.01)).wkt
         == Point(type="Point", coordinates=(1.01, 2.01)).wkt
+    )
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        MultiPoint,
+        MultiLineString,
+        Polygon,
+        MultiPolygon,
+    ],
+)
+def test_wkt_empty(shape):
+    assert shape(type=shape.__name__, coordinates=[]).wkt.endswith(" EMPTY")
+
+
+def test_wkt_empty_geometrycollection():
+    assert GeometryCollection(type="GeometryCollection", geometries=[]).wkt.endswith(
+        " EMPTY"
     )
