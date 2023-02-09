@@ -26,13 +26,17 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     )
     ```
 
+- Add has_z function to Geometries (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/103)
+
 ### Changed
 
 - Refactor and simplify WKT construction (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/97)
+- Support empty geometry coordinates (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/100)
 
 ### Fixed
 
 - Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
+- Add Geometry discriminator when parsing geometry objects (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/101)
 
 ### Removed
 
