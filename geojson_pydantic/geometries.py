@@ -13,10 +13,9 @@ from typing import (
     Union,
 )
 
-from pydantic import Field, ValidationError, conlist, validator
+from pydantic import ValidationError, conlist, validator
 from pydantic.error_wrappers import ErrorWrapper
 from pydantic.generics import GenericModel
-from typing_extensions import Annotated
 
 from geojson_pydantic.types import Position, Position2D, Position3D
 
@@ -264,31 +263,22 @@ class MultiPolygon(_GeometryBase, Generic[_Position]):
         return coordinates
 
 
-Geometry = Annotated[
-    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
-    Field(discriminator="type"),
+Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
+Geometry2D = Union[
+    Point[Position2D],
+    MultiPoint[Position2D],
+    LineString[Position2D],
+    MultiLineString[Position2D],
+    Polygon[Position2D],
+    MultiPolygon[Position2D],
 ]
-Geometry2D = Annotated[
-    Union[
-        Point[Position2D],
-        MultiPoint[Position2D],
-        LineString[Position2D],
-        MultiLineString[Position2D],
-        Polygon[Position2D],
-        MultiPolygon[Position2D],
-    ],
-    Field(discriminator="type"),
-]
-Geometry3D = Annotated[
-    Union[
-        Point[Position3D],
-        MultiPoint[Position3D],
-        LineString[Position3D],
-        MultiLineString[Position3D],
-        Polygon[Position3D],
-        MultiPolygon[Position3D],
-    ],
-    Field(discriminator="type"),
+Geometry3D = Union[
+    Point[Position3D],
+    MultiPoint[Position3D],
+    LineString[Position3D],
+    MultiLineString[Position3D],
+    Polygon[Position3D],
+    MultiPolygon[Position3D],
 ]
 
 _Geometry = TypeVar("_Geometry", bound=Geometry)
@@ -358,16 +348,22 @@ def parse_geometry_obj(obj: Any) -> Geometry:
         )
     if obj["type"] == "Point":
         return Point.parse_obj(obj)
+
     elif obj["type"] == "MultiPoint":
         return MultiPoint.parse_obj(obj)
+
     elif obj["type"] == "LineString":
         return LineString.parse_obj(obj)
+
     elif obj["type"] == "MultiLineString":
         return MultiLineString.parse_obj(obj)
+
     elif obj["type"] == "Polygon":
         return Polygon.parse_obj(obj)
+
     elif obj["type"] == "MultiPolygon":
         return MultiPolygon.parse_obj(obj)
+
     raise ValidationError(
         errors=[ErrorWrapper(ValueError("Unknown type"), loc="type")],
         model=_GeometryBase,

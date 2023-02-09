@@ -26,7 +26,7 @@ class Feature(GenericModel, Generic[Geom, Props]):
 
         use_enum_values = True
 
-    @validator("geometry", pre=True, always=True)
+    @validator("geometry", pre=True)
     def set_geometry(cls, geometry: Any) -> Any:
         """set geometry from geo interface or input"""
         if hasattr(geometry, "__geo_interface__"):
