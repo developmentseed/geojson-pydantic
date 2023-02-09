@@ -23,14 +23,30 @@ def _position_wkt_coordinates(position: Position) -> str:
     return " ".join(str(number) for number in position)
 
 
+def _position_has_z(position: Position) -> bool:
+    return len(position) == 3
+
+
 def _position_list_wkt_coordinates(positions: List[Position]) -> str:
     """Converts a list of Positions to WKT Coordinates."""
     return ", ".join(_position_wkt_coordinates(position) for position in positions)
 
 
+def _position_list_has_z(positions: List[Position]) -> bool:
+    """Checks if any position in a list has a Z."""
+    return any(_position_has_z(position) for position in positions)
+
+
 def _lines_wtk_coordinates(lines: List[List[Position]]) -> str:
     """Converts lines to WKT Coordinates."""
     return ", ".join(f"({_position_list_wkt_coordinates(line)})" for line in lines)
+
+
+def _lines_has_z(lines: List[List[Position]]) -> bool:
+    """Checks if any position in a list has a Z."""
+    return any(
+        _position_has_z(position) for positions in lines for position in positions
+    )
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -49,13 +65,13 @@ class _GeometryBase(BaseModel, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _wkt_coordinates(self) -> str:
+    def has_z(self) -> bool:
+        """Checks if any coordinate has a Z value."""
         ...
 
     @property
     @abc.abstractmethod
-    def _wkt_inset(self) -> str:
-        """Return Z for 3 dimensional geometry or an empty string for 2 dimensions."""
+    def _wkt_coordinates(self) -> str:
         ...
 
     @property
@@ -66,11 +82,18 @@ class _GeometryBase(BaseModel, abc.ABC):
     @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        return self._wkt_type + (
-            f"{self._wkt_inset}({self._wkt_coordinates})"
-            if self.coordinates
-            else " EMPTY"
-        )
+        # Start with the WKT Type
+        wkt = self._wkt_type
+        if self.coordinates:
+            # If any of the coordinates have a Z add a "Z" to the WKT
+            wkt += " Z " if self.has_z else " "
+            # Add the rest of the WKT inside parentheses
+            wkt += f"({self._wkt_coordinates})"
+        else:
+            # Otherwise it will be "EMPTY"
+            wkt += " EMPTY"
+
+        return wkt
 
 
 class Point(_GeometryBase):
@@ -80,12 +103,13 @@ class Point(_GeometryBase):
     coordinates: Position
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _position_wkt_coordinates(self.coordinates)
+    def has_z(self) -> bool:
+        """Checks if any coordinate has a Z value."""
+        return _position_has_z(self.coordinates)
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates) == 3 else " "
+    def _wkt_coordinates(self) -> str:
+        return _position_wkt_coordinates(self.coordinates)
 
 
 class MultiPoint(_GeometryBase):
@@ -95,8 +119,9 @@ class MultiPoint(_GeometryBase):
     coordinates: MultiPointCoords
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0]) == 3 else " "
+    def has_z(self) -> bool:
+        """Checks if any coordinate has a Z value."""
+        return _position_list_has_z(self.coordinates)
 
     @property
     def _wkt_coordinates(self) -> str:
@@ -110,8 +135,9 @@ class LineString(_GeometryBase):
     coordinates: LineStringCoords
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0]) == 3 else " "
+    def has_z(self) -> bool:
+        """Checks if any coordinate has a Z value."""
+        return _position_list_has_z(self.coordinates)
 
     @property
     def _wkt_coordinates(self) -> str:
@@ -125,8 +151,9 @@ class MultiLineString(_GeometryBase):
     coordinates: MultiLineStringCoords
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+    def has_z(self) -> bool:
+        """Checks if any coordinate has a Z value."""
+        return _lines_has_z(self.coordinates)
 
     @property
     def _wkt_coordinates(self) -> str:
@@ -172,8 +199,9 @@ class Polygon(_GeometryBase):
         )
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0]) == 3 else " "
+    def has_z(self) -> bool:
+        """Checks if any coordinates have a Z value."""
+        return _lines_has_z(self.coordinates)
 
     @property
     def _wkt_coordinates(self) -> str:
@@ -199,8 +227,9 @@ class MultiPolygon(_GeometryBase):
     coordinates: MultiPolygonCoords
 
     @property
-    def _wkt_inset(self) -> str:
-        return " Z " if len(self.coordinates[0][0][0]) == 3 else " "
+    def has_z(self) -> bool:
+        """Checks if any coordinates have a Z value."""
+        return any(_lines_has_z(polygon) for polygon in self.coordinates)
 
     @property
     def _wkt_coordinates(self) -> str:
