@@ -18,7 +18,7 @@ from pydantic.error_wrappers import ErrorWrapper
 from pydantic.generics import GenericModel
 from typing_extensions import Annotated
 
-from geojson_pydantic.types import Position
+from geojson_pydantic.types import Position, Position2D, Position3D
 
 _Position = TypeVar("_Position", bound=Position)
 
@@ -266,6 +266,28 @@ class MultiPolygon(_GeometryBase, Generic[_Position]):
 
 Geometry = Annotated[
     Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
+    Field(discriminator="type"),
+]
+Geometry2D = Annotated[
+    Union[
+        Point[Position2D],
+        MultiPoint[Position2D],
+        LineString[Position2D],
+        MultiLineString[Position2D],
+        Polygon[Position2D],
+        MultiPolygon[Position2D],
+    ],
+    Field(discriminator="type"),
+]
+Geometry3D = Annotated[
+    Union[
+        Point[Position3D],
+        MultiPoint[Position3D],
+        LineString[Position3D],
+        MultiLineString[Position3D],
+        Polygon[Position3D],
+        MultiPolygon[Position3D],
+    ],
     Field(discriminator="type"),
 ]
 
