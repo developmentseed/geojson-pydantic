@@ -28,7 +28,7 @@ def assert_wkt_equivalence(geom: Union[Geometry, GeometryCollection]):
 @pytest.mark.parametrize("coordinates", [(1.01, 2.01), (1.0, 2.0, 3.0), (1.0, 2.0)])
 def test_point_valid_coordinates(coordinates):
     """
-    Two or three number elements as coordinates shold be okay
+    Two or three number elements as coordinates should be okay
     """
     p = Point(type="Point", coordinates=coordinates)
     assert p.type == "Point"
@@ -38,7 +38,8 @@ def test_point_valid_coordinates(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [(1.0,), (1.0, 2.0, 3.0, 4.0), "Foo", (None, 2.0), (1.0, (2.0,))]
+    "coordinates",
+    [(1.0,), (1.0, 2.0, 3.0, 4.0), "Foo", (None, 2.0), (1.0, (2.0,)), (), [], None],
 )
 def test_point_invalid_coordinates(coordinates):
     """
@@ -51,6 +52,8 @@ def test_point_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Empty array
+        [],
         # No Z
         [(1.0, 2.0)],
         [(1.0, 2.0), (1.0, 2.0)],
@@ -60,7 +63,7 @@ def test_point_invalid_coordinates(coordinates):
 )
 def test_multi_point_valid_coordinates(coordinates):
     """
-    Two or three number elements as coordinates shold be okay
+    Two or three number elements as coordinates should be okay, as well as an empty array.
     """
     p = MultiPoint(type="MultiPoint", coordinates=coordinates)
     assert p.type == "MultiPoint"
@@ -71,7 +74,7 @@ def test_multi_point_valid_coordinates(coordinates):
 
 @pytest.mark.parametrize(
     "coordinates",
-    [[(1.0,)], [(1.0, 2.0, 3.0, 4.0)], ["Foo"], [(None, 2.0)], [(1.0, (2.0,))]],
+    [[(1.0,)], [(1.0, 2.0, 3.0, 4.0)], ["Foo"], [(None, 2.0)], [(1.0, (2.0,))], None],
 )
 def test_multi_point_invalid_coordinates(coordinates):
     """
@@ -115,6 +118,8 @@ def test_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Empty array
+        [],
         # One line, two points, no Z
         [[(1.0, 2.0), (3.0, 4.0)]],
         # One line, two points, has Z
@@ -139,7 +144,7 @@ def test_multi_line_string_valid_coordinates(coordinates):
 
 
 @pytest.mark.parametrize(
-    "coordinates", [[None], ["Foo"], [[]], [[(1.0, 2.0)]], [["Foo", "Bar"]]]
+    "coordinates", [None, [None], ["Foo"], [[]], [[(1.0, 2.0)]], [["Foo", "Bar"]]]
 )
 def test_multi_line_string_invalid_coordinates(coordinates):
     """
@@ -152,6 +157,8 @@ def test_multi_line_string_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Empty array
+        [],
         # Polygon, no Z
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
         # Polygon, has Z
@@ -166,7 +173,10 @@ def test_polygon_valid_coordinates(coordinates):
     assert polygon.type == "Polygon"
     assert polygon.coordinates == coordinates
     assert hasattr(polygon, "__geo_interface__")
-    assert polygon.exterior == coordinates[0]
+    if polygon.coordinates:
+        assert polygon.exterior == coordinates[0]
+    else:
+        assert polygon.exterior is None
     assert not list(polygon.interiors)
     assert_wkt_equivalence(polygon)
 
@@ -212,10 +222,10 @@ def test_polygon_with_holes(coordinates):
     "coordinates",
     [
         "foo",
+        None,
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)], "foo", None],
         [[(1.0, 2.0), (3.0, 4.0), (1.0, 2.0)]],
         [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (7.0, 8.0)]],
-        [],
     ],
 )
 def test_polygon_invalid_coordinates(coordinates):
@@ -233,6 +243,8 @@ def test_polygon_invalid_coordinates(coordinates):
 @pytest.mark.parametrize(
     "coordinates",
     [
+        # Empty array
+        [],
         # Multipolygon, no Z
         [
             [
@@ -268,6 +280,26 @@ def test_multi_polygon(coordinates):
     assert multi_polygon.type == "MultiPolygon"
     assert hasattr(multi_polygon, "__geo_interface__")
     assert_wkt_equivalence(multi_polygon)
+
+
+@pytest.mark.parametrize(
+    "coordinates",
+    [
+        "foo",
+        None,
+        [
+            [
+                [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)],
+            ],
+            [
+                [(2.1, 2.1), (2.2, 2.1), (2.2, 2.2), (2.1, 4.2)],
+            ],
+        ],
+    ],
+)
+def test_multipolygon_invalid_coordinates(coordinates):
+    with pytest.raises(ValidationError):
+        MultiPolygon(type="MultiPolygon", coordinates=coordinates)
 
 
 def test_parse_geometry_obj_point():
@@ -557,3 +589,22 @@ def test_polygon_has_z(coordinates, expected):
 )
 def test_multipolygon_has_z(coordinates, expected):
     assert MultiPolygon(type="MultiPolygon", coordinates=coordinates).has_z == expected
+
+
+@pytest.mark.parametrize(
+    "shape",
+    [
+        MultiPoint,
+        MultiLineString,
+        Polygon,
+        MultiPolygon,
+    ],
+)
+def test_wkt_empty(shape):
+    assert shape(type=shape.__name__, coordinates=[]).wkt.endswith(" EMPTY")
+
+
+def test_wkt_empty_geometrycollection():
+    assert GeometryCollection(type="GeometryCollection", geometries=[]).wkt.endswith(
+        " EMPTY"
+    )

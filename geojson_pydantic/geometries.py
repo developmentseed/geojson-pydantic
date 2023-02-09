@@ -3,8 +3,9 @@
 import abc
 from typing import Any, Dict, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, ValidationError, validator
+from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
+from typing_extensions import Annotated
 
 from geojson_pydantic.types import (
     LinearRing,
@@ -186,9 +187,9 @@ class Polygon(_GeometryBase):
         return coordinates
 
     @property
-    def exterior(self) -> LinearRing:
+    def exterior(self) -> Union[LinearRing, None]:
         """Return the exterior Linear Ring of the polygon."""
-        return self.coordinates[0]
+        return self.coordinates[0] if self.coordinates else None
 
     @property
     def interiors(self) -> Iterator[LinearRing]:
@@ -236,8 +237,19 @@ class MultiPolygon(_GeometryBase):
             f"({_lines_wtk_coordinates(polygon)})" for polygon in self.coordinates
         )
 
+    @validator("coordinates")
+    def check_closure(cls, coordinates: List) -> List:
+        """Validate that Polygon is closed (first and last coordinate are the same)."""
+        if any([ring[-1] != ring[0] for polygon in coordinates for ring in polygon]):
+            raise ValueError("All linear rings have the same start and end coordinates")
 
-Geometry = Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon]
+        return coordinates
+
+
+Geometry = Annotated[
+    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
+    Field(discriminator="type"),
+]
 
 
 class GeometryCollection(BaseModel):
@@ -271,7 +283,11 @@ class GeometryCollection(BaseModel):
     @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        return f"{self._wkt_type} ({self._wkt_coordinates})"
+        return (
+            self._wkt_type
+            + " "
+            + (f"({self._wkt_coordinates})" if self._wkt_coordinates else "EMPTY")
+        )
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
