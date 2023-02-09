@@ -1,55 +1,73 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, Dict, Iterator, List, Literal, Union
-
-from pydantic import BaseModel, Field, ValidationError, validator
-from pydantic.error_wrappers import ErrorWrapper
-from typing_extensions import Annotated
-
-from geojson_pydantic.types import (
-    LinearRing,
-    LineStringCoords,
-    MultiLineStringCoords,
-    MultiPointCoords,
-    MultiPolygonCoords,
-    PolygonCoords,
-    Position,
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    Dict,
+    Generic,
+    Iterator,
+    List,
+    Literal,
+    TypeVar,
+    Union,
 )
 
+from pydantic import Field, ValidationError, conlist, validator
+from pydantic.error_wrappers import ErrorWrapper
+from pydantic.generics import GenericModel
+from typing_extensions import Annotated
 
-def _position_wkt_coordinates(position: Position) -> str:
+from geojson_pydantic.types import Position
+
+_Position = TypeVar("_Position", bound=Position)
+
+# Coordinate arrays
+if TYPE_CHECKING:
+    LineStringCoords = List[_Position]
+    LinearRing = List[_Position]
+else:
+    LineStringCoords = conlist(_Position, min_items=2)
+    LinearRing = conlist(_Position, min_items=4)
+
+MultiPointCoords = List[_Position]
+MultiLineStringCoords = List[LineStringCoords]
+PolygonCoords = List[LinearRing]
+MultiPolygonCoords = List[PolygonCoords]
+
+
+def _position_wkt_coordinates(position: _Position) -> str:
     """Converts a Position to WKT Coordinates."""
     return " ".join(str(number) for number in position)
 
 
-def _position_has_z(position: Position) -> bool:
+def _position_has_z(position: _Position) -> bool:
     return len(position) == 3
 
 
-def _position_list_wkt_coordinates(positions: List[Position]) -> str:
+def _position_list_wkt_coordinates(positions: List[_Position]) -> str:
     """Converts a list of Positions to WKT Coordinates."""
     return ", ".join(_position_wkt_coordinates(position) for position in positions)
 
 
-def _position_list_has_z(positions: List[Position]) -> bool:
+def _position_list_has_z(positions: List[_Position]) -> bool:
     """Checks if any position in a list has a Z."""
     return any(_position_has_z(position) for position in positions)
 
 
-def _lines_wtk_coordinates(lines: List[List[Position]]) -> str:
+def _lines_wtk_coordinates(lines: List[List[_Position]]) -> str:
     """Converts lines to WKT Coordinates."""
     return ", ".join(f"({_position_list_wkt_coordinates(line)})" for line in lines)
 
 
-def _lines_has_z(lines: List[List[Position]]) -> bool:
+def _lines_has_z(lines: List[List[_Position]]) -> bool:
     """Checks if any position in a list has a Z."""
     return any(
         _position_has_z(position) for positions in lines for position in positions
     )
 
 
-class _GeometryBase(BaseModel, abc.ABC):
+class _GeometryBase(GenericModel, abc.ABC):
     """Base class for geometry models"""
 
     type: str
@@ -96,11 +114,11 @@ class _GeometryBase(BaseModel, abc.ABC):
         return wkt
 
 
-class Point(_GeometryBase):
+class Point(_GeometryBase, Generic[_Position]):
     """Point Model"""
 
     type: Literal["Point"]
-    coordinates: Position
+    coordinates: _Position
 
     @property
     def has_z(self) -> bool:
@@ -112,7 +130,7 @@ class Point(_GeometryBase):
         return _position_wkt_coordinates(self.coordinates)
 
 
-class MultiPoint(_GeometryBase):
+class MultiPoint(_GeometryBase, Generic[_Position]):
     """MultiPoint Model"""
 
     type: Literal["MultiPoint"]
@@ -128,7 +146,7 @@ class MultiPoint(_GeometryBase):
         return _position_list_wkt_coordinates(self.coordinates)
 
 
-class LineString(_GeometryBase):
+class LineString(_GeometryBase, Generic[_Position]):
     """LineString Model"""
 
     type: Literal["LineString"]
@@ -144,7 +162,7 @@ class LineString(_GeometryBase):
         return _position_list_wkt_coordinates(self.coordinates)
 
 
-class MultiLineString(_GeometryBase):
+class MultiLineString(_GeometryBase, Generic[_Position]):
     """MultiLineString Model"""
 
     type: Literal["MultiLineString"]
@@ -160,7 +178,7 @@ class MultiLineString(_GeometryBase):
         return _lines_wtk_coordinates(self.coordinates)
 
 
-class LinearRingGeom(LineString):
+class LinearRingGeom(LineString, Generic[_Position]):
     """LinearRing model."""
 
     @validator("coordinates")
@@ -172,7 +190,7 @@ class LinearRingGeom(LineString):
         return coordinates
 
 
-class Polygon(_GeometryBase):
+class Polygon(_GeometryBase, Generic[_Position]):
     """Polygon Model"""
 
     type: Literal["Polygon"]
@@ -220,7 +238,7 @@ class Polygon(_GeometryBase):
         )
 
 
-class MultiPolygon(_GeometryBase):
+class MultiPolygon(_GeometryBase, Generic[_Position]):
     """MultiPolygon Model"""
 
     type: Literal["MultiPolygon"]
@@ -251,14 +269,16 @@ Geometry = Annotated[
     Field(discriminator="type"),
 ]
 
+_Geometry = TypeVar("_Geometry", bound=Geometry)
 
-class GeometryCollection(BaseModel):
+
+class GeometryCollection(GenericModel, Generic[_Geometry]):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
-    geometries: List[Geometry]
+    geometries: List[_Geometry]
 
-    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
+    def __iter__(self) -> Iterator[_Geometry]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
@@ -266,7 +286,7 @@ class GeometryCollection(BaseModel):
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index: int) -> Geometry:
+    def __getitem__(self, index: int) -> _Geometry:
         """get geometry at a given index"""
         return self.geometries[index]
 
