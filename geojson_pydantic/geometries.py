@@ -1,12 +1,13 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, Dict, Iterator, List, Literal, Union
+from typing import Any, Iterator, List, Literal, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
 from typing_extensions import Annotated
 
+from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.types import (
     LinearRing,
     LineStringCoords,
@@ -49,19 +50,11 @@ def _lines_has_z(lines: List[List[Position]]) -> bool:
     )
 
 
-class _GeometryBase(BaseModel, abc.ABC):
+class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
     """Base class for geometry models"""
 
     type: str
     coordinates: Any
-
-    @property
-    def __geo_interface__(self) -> Dict[str, Any]:
-        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
-
-        ref: https://gist.github.com/sgillies/2217756#__geo_interface
-        """
-        return {"type": self.type, "coordinates": self.coordinates}
 
     @property
     @abc.abstractmethod
@@ -252,7 +245,7 @@ Geometry = Annotated[
 ]
 
 
-class GeometryCollection(BaseModel):
+class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
@@ -288,18 +281,6 @@ class GeometryCollection(BaseModel):
             + " "
             + (f"({self._wkt_coordinates})" if self._wkt_coordinates else "EMPTY")
         )
-
-    @property
-    def __geo_interface__(self) -> Dict[str, Any]:
-        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
-
-        ref: https://gist.github.com/sgillies/2217756#__geo_interface
-        """
-        geometries: List[Dict[str, Any]] = []
-        for geom in self.geometries:
-            geometries.append(geom.__geo_interface__)
-
-        return {"type": self.type, "geometries": self.geometries}
 
 
 def parse_geometry_obj(obj: Any) -> Geometry:
