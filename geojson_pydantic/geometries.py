@@ -1,7 +1,8 @@
 """pydantic models for GeoJSON Geometry objects."""
+from __future__ import annotations
 
 import abc
-from typing import Any, Dict, Iterator, List, Literal, Union
+from typing import Any, Dict, Iterator, List, Literal, Protocol, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
@@ -18,18 +19,25 @@ from geojson_pydantic.types import (
 )
 
 
-def _position_wkt_coordinates(position: Position) -> str:
+def _position_wkt_coordinates(coordinates: Position, force_z: bool = False) -> str:
     """Converts a Position to WKT Coordinates."""
-    return " ".join(str(number) for number in position)
+    wkt_coordinates = " ".join(str(number) for number in coordinates)
+    if force_z and len(coordinates) < 3:
+        wkt_coordinates += " 0.0"
+    return wkt_coordinates
 
 
 def _position_has_z(position: Position) -> bool:
     return len(position) == 3
 
 
-def _position_list_wkt_coordinates(positions: List[Position]) -> str:
+def _position_list_wkt_coordinates(
+    coordinates: List[Position], force_z: bool = False
+) -> str:
     """Converts a list of Positions to WKT Coordinates."""
-    return ", ".join(_position_wkt_coordinates(position) for position in positions)
+    return ", ".join(
+        _position_wkt_coordinates(position, force_z) for position in coordinates
+    )
 
 
 def _position_list_has_z(positions: List[Position]) -> bool:
@@ -37,16 +45,33 @@ def _position_list_has_z(positions: List[Position]) -> bool:
     return any(_position_has_z(position) for position in positions)
 
 
-def _lines_wtk_coordinates(lines: List[List[Position]]) -> str:
+def _lines_wtk_coordinates(
+    coordinates: List[LineStringCoords], force_z: bool = False
+) -> str:
     """Converts lines to WKT Coordinates."""
-    return ", ".join(f"({_position_list_wkt_coordinates(line)})" for line in lines)
+    return ", ".join(
+        f"({_position_list_wkt_coordinates(line, force_z)})" for line in coordinates
+    )
 
 
-def _lines_has_z(lines: List[List[Position]]) -> bool:
+def _lines_has_z(lines: List[LineStringCoords]) -> bool:
     """Checks if any position in a list has a Z."""
     return any(
         _position_has_z(position) for positions in lines for position in positions
     )
+
+
+def _polygons_wkt_coordinates(
+    coordinates: List[PolygonCoords], force_z: bool = False
+) -> str:
+    return ",".join(
+        f"({_lines_wtk_coordinates(polygon, force_z)})" for polygon in coordinates
+    )
+
+
+class _WktCallable(Protocol):
+    def __call__(self, coordinates: Any, force_z: bool) -> str:
+        ...
 
 
 class _GeometryBase(BaseModel, abc.ABC):
@@ -71,7 +96,7 @@ class _GeometryBase(BaseModel, abc.ABC):
 
     @property
     @abc.abstractmethod
-    def _wkt_coordinates(self) -> str:
+    def _wkt_coordinates(self) -> _WktCallable:
         ...
 
     @property
@@ -84,11 +109,12 @@ class _GeometryBase(BaseModel, abc.ABC):
         """Return the Well Known Text representation."""
         # Start with the WKT Type
         wkt = self._wkt_type
+        has_z = self.has_z
         if self.coordinates:
             # If any of the coordinates have a Z add a "Z" to the WKT
-            wkt += " Z " if self.has_z else " "
+            wkt += " Z " if has_z else " "
             # Add the rest of the WKT inside parentheses
-            wkt += f"({self._wkt_coordinates})"
+            wkt += f"({self._wkt_coordinates(self.coordinates, force_z=has_z)})"
         else:
             # Otherwise it will be "EMPTY"
             wkt += " EMPTY"
@@ -108,8 +134,8 @@ class Point(_GeometryBase):
         return _position_has_z(self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _position_wkt_coordinates(self.coordinates)
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _position_wkt_coordinates
 
 
 class MultiPoint(_GeometryBase):
@@ -124,8 +150,8 @@ class MultiPoint(_GeometryBase):
         return _position_list_has_z(self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _position_list_wkt_coordinates(self.coordinates)
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _position_list_wkt_coordinates
 
 
 class LineString(_GeometryBase):
@@ -140,8 +166,8 @@ class LineString(_GeometryBase):
         return _position_list_has_z(self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _position_list_wkt_coordinates(self.coordinates)
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _position_list_wkt_coordinates
 
 
 class MultiLineString(_GeometryBase):
@@ -156,8 +182,8 @@ class MultiLineString(_GeometryBase):
         return _lines_has_z(self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _lines_wtk_coordinates(self.coordinates)
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _lines_wtk_coordinates
 
 
 class LinearRingGeom(LineString):
@@ -204,8 +230,8 @@ class Polygon(_GeometryBase):
         return _lines_has_z(self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return _lines_wtk_coordinates(self.coordinates)
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _lines_wtk_coordinates
 
     @classmethod
     def from_bounds(
@@ -232,10 +258,8 @@ class MultiPolygon(_GeometryBase):
         return any(_lines_has_z(polygon) for polygon in self.coordinates)
 
     @property
-    def _wkt_coordinates(self) -> str:
-        return ",".join(
-            f"({_lines_wtk_coordinates(polygon)})" for polygon in self.coordinates
-        )
+    def _wkt_coordinates(self) -> _WktCallable:
+        return _polygons_wkt_coordinates
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -276,18 +300,14 @@ class GeometryCollection(BaseModel):
         return self.type.upper()
 
     @property
-    def _wkt_coordinates(self) -> str:
-        """Encode coordinates as WKT."""
-        return ", ".join(geom.wkt for geom in self.geometries)
-
-    @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        return (
-            self._wkt_type
-            + " "
-            + (f"({self._wkt_coordinates})" if self._wkt_coordinates else "EMPTY")
+        coordinates = (
+            f'({", ".join(geom.wkt for geom in self.geometries)})'
+            if self.geometries
+            else "EMPTY"
         )
+        return f"{self._wkt_type} {coordinates}"
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
