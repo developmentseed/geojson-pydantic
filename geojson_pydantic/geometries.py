@@ -1,6 +1,4 @@
 """pydantic models for GeoJSON Geometry objects."""
-from __future__ import annotations
-
 import abc
 from typing import Any, Dict, Iterator, List, Literal, Protocol, Union
 
@@ -80,6 +78,8 @@ class _GeometryBase(BaseModel, abc.ABC):
     type: str
     coordinates: Any
 
+    __wkt_coordinates__: _WktCallable
+
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
         """GeoJSON-like protocol for geo-spatial (GIS) vector data.
@@ -95,26 +95,16 @@ class _GeometryBase(BaseModel, abc.ABC):
         ...
 
     @property
-    @abc.abstractmethod
-    def _wkt_coordinates(self) -> _WktCallable:
-        ...
-
-    @property
-    def _wkt_type(self) -> str:
-        """Return the WKT name of the geometry."""
-        return self.type.upper()
-
-    @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
         # Start with the WKT Type
-        wkt = self._wkt_type
+        wkt = self.type.upper()
         has_z = self.has_z
         if self.coordinates:
             # If any of the coordinates have a Z add a "Z" to the WKT
             wkt += " Z " if has_z else " "
             # Add the rest of the WKT inside parentheses
-            wkt += f"({self._wkt_coordinates(self.coordinates, force_z=has_z)})"
+            wkt += f"({self.__wkt_coordinates__(self.coordinates, force_z=has_z)})"
         else:
             # Otherwise it will be "EMPTY"
             wkt += " EMPTY"
@@ -128,14 +118,12 @@ class Point(_GeometryBase):
     type: Literal["Point"]
     coordinates: Position
 
+    __wkt_coordinates__ = staticmethod(_position_wkt_coordinates)
+
     @property
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _position_has_z(self.coordinates)
-
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _position_wkt_coordinates
 
 
 class MultiPoint(_GeometryBase):
@@ -144,14 +132,12 @@ class MultiPoint(_GeometryBase):
     type: Literal["MultiPoint"]
     coordinates: MultiPointCoords
 
+    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+
     @property
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _position_list_has_z(self.coordinates)
-
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _position_list_wkt_coordinates
 
 
 class LineString(_GeometryBase):
@@ -160,14 +146,12 @@ class LineString(_GeometryBase):
     type: Literal["LineString"]
     coordinates: LineStringCoords
 
+    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+
     @property
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _position_list_has_z(self.coordinates)
-
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _position_list_wkt_coordinates
 
 
 class MultiLineString(_GeometryBase):
@@ -176,14 +160,12 @@ class MultiLineString(_GeometryBase):
     type: Literal["MultiLineString"]
     coordinates: MultiLineStringCoords
 
+    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
+
     @property
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _lines_has_z(self.coordinates)
-
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _lines_wtk_coordinates
 
 
 class LinearRingGeom(LineString):
@@ -203,6 +185,8 @@ class Polygon(_GeometryBase):
 
     type: Literal["Polygon"]
     coordinates: PolygonCoords
+
+    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -229,10 +213,6 @@ class Polygon(_GeometryBase):
         """Checks if any coordinates have a Z value."""
         return _lines_has_z(self.coordinates)
 
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _lines_wtk_coordinates
-
     @classmethod
     def from_bounds(
         cls, xmin: float, ymin: float, xmax: float, ymax: float
@@ -252,14 +232,12 @@ class MultiPolygon(_GeometryBase):
     type: Literal["MultiPolygon"]
     coordinates: MultiPolygonCoords
 
+    __wkt_coordinates__ = staticmethod(_polygons_wkt_coordinates)
+
     @property
     def has_z(self) -> bool:
         """Checks if any coordinates have a Z value."""
         return any(_lines_has_z(polygon) for polygon in self.coordinates)
-
-    @property
-    def _wkt_coordinates(self) -> _WktCallable:
-        return _polygons_wkt_coordinates
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -295,11 +273,6 @@ class GeometryCollection(BaseModel):
         return self.geometries[index]
 
     @property
-    def _wkt_type(self) -> str:
-        """Return the WKT name of the geometry."""
-        return self.type.upper()
-
-    @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
         coordinates = (
@@ -307,7 +280,7 @@ class GeometryCollection(BaseModel):
             if self.geometries
             else "EMPTY"
         )
-        return f"{self._wkt_type} {coordinates}"
+        return f"{self.type.upper()} {coordinates}"
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
