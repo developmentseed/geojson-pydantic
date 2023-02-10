@@ -153,18 +153,6 @@ class MultiLineString(_GeometryBase):
         return _lines_wtk_coordinates(self.coordinates)
 
 
-class LinearRingGeom(LineString):
-    """LinearRing model."""
-
-    @validator("coordinates")
-    def check_closure(cls, coordinates: List) -> List:
-        """Validate that LinearRing is closed (first and last coordinate are the same)."""
-        if coordinates[-1] != coordinates[0]:
-            raise ValueError("LinearRing must have the same start and end coordinates")
-
-        return coordinates
-
-
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
