@@ -1,7 +1,7 @@
 """pydantic models for GeoJSON Geometry objects."""
 
 import abc
-from typing import Any, Iterator, List, Literal, Union
+from typing import Any, Iterator, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
@@ -9,6 +9,7 @@ from typing_extensions import Annotated
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.types import (
+    BBox,
     LinearRing,
     LineStringCoords,
     MultiLineStringCoords,
@@ -55,6 +56,7 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
 
     type: str
     coordinates: Any
+    bbox: Optional[BBox] = None
 
     @property
     @abc.abstractmethod
@@ -238,6 +240,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
 
     type: Literal["GeometryCollection"]
     geometries: List[Geometry]
+    bbox: Optional[BBox] = None
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
