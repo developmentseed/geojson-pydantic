@@ -14,16 +14,32 @@ from geojson_pydantic.geometries import (
     Polygon,
 )
 
-# Custom Strategies for floats that make sense as WGS-84 Coordinates
+T = TypeVar("T")
+
+# Helpers to use in strategy `.map()` functions
 
 
 def make_float(values: Tuple[int, int]) -> float:
+    """Concatenate a whole number part and a decimal part together to make a float."""
     return float(f"{values[0]}.{values[1]}")
 
 
+def close_ring(values: List[T]) -> List[T]:
+    """Close a linear ring by adding the first coordinate to the end."""
+    return values + [values[0]]
+
+
+def interleave(values: Tuple[List[T], ...]) -> Tuple[T, ...]:
+    """Interleave tuple of tuples together."""
+    return tuple(v for t in zip(*values) for v in t)
+
+
+# Custom Strategies for floats that make sense as WGS-84 Coordinates.
+# These will never produce -180/180 or -90/90 in order to stay within limits once
+# the decimals are added to them.
+# Z limits of +/- 100,000 were just to keep the generated values from being excessive.
+
 # Generate the integer portion of the coordinates
-# These will never produce -180/180 or -90/90 in order to stay within allowed
-# values once the decimals are added to them.
 int_lon = st.integers(min_value=-179, max_value=179)
 int_lat = st.integers(min_value=-89, max_value=89)
 int_z = st.integers(min_value=-100000, max_value=100000)
@@ -50,8 +66,9 @@ multi_line_string_coords_2d = st.lists(coord_list_2d, min_size=1)
 multi_line_string_coords_3d = st.lists(coord_list_3d, min_size=1)
 multi_line_string_coords = multi_line_string_coords_2d | multi_line_string_coords_3d
 # Linear Ring. At least 3 coords and append the first to the end to close it.
-linear_ring_coords_2d = st.lists(coord_2d, min_size=3).map(lambda x: x + [x[0]])
-linear_ring_coords_3d = st.lists(coord_3d, min_size=3).map(lambda x: x + [x[0]])
+# Not sure why mypy is unhappy here but Pyright is fine with it and it works.
+linear_ring_coords_2d = st.lists(coord_2d, min_size=3).map(close_ring)  # type: ignore[arg-type]
+linear_ring_coords_3d = st.lists(coord_3d, min_size=3).map(close_ring)  # type: ignore[arg-type]
 linear_ring_coords = linear_ring_coords_2d | linear_ring_coords_3d
 # Polygon Coordinates
 polygon_coords_2d = st.lists(linear_ring_coords_2d, min_size=1)
@@ -120,14 +137,6 @@ geometry_collection_3d = st.builds(
 geometry_collection = geometry_collection_2d | geometry_collection_3d
 
 # Bounding Box
-
-T = TypeVar("T")
-
-
-def interleave(values: Tuple[List[T], ...]) -> Tuple[T, ...]:
-    """Interleave tuple of tuples together."""
-    return tuple(v for t in zip(*values) for v in t)
-
 
 # Strategies which produce two unique and sorted values for each coordinate type
 # For some reason mypy does not like the `map(sorted)` but it is an example in the
