@@ -27,6 +27,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     ```
 
 - Add has_z function to Geometries (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/103)
+- Add optional bbox to geometries.
 
 ### Changed
 
