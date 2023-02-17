@@ -23,7 +23,7 @@ dynamic = ["version"]
 dependencies = ["pydantic"]
 
 [project.optional-dependencies]
-test = ["pytest", "pytest-cov", "shapely"]
+test = ["pytest", "pytest-cov", "shapely", "hypothesis"]
 dev = ["pre-commit"]
 
 [project.urls]
