@@ -1,7 +1,9 @@
+import string
 from typing import List, Tuple, TypeVar
 
 from hypothesis import strategies as st
 
+from geojson_pydantic.features import Feature, FeatureCollection
 from geojson_pydantic.geometries import (
     GeometryCollection,
     LineString,
@@ -14,60 +16,66 @@ from geojson_pydantic.geometries import (
 
 # Custom Strategies for floats that make sense as WGS-84 Coordinates
 
+
+def make_float(values: Tuple[int, int]) -> float:
+    return float(f"{values[0]}.{values[1]}")
+
+
 # Generate the integer portion of the coordinates
-int_lon = st.integers(min_value=-180, max_value=180)
-int_lat = st.integers(min_value=-90, max_value=90)
+# These will never produce -180/180 or -90/90 in order to stay within allowed
+# values once the decimals are added to them.
+int_lon = st.integers(min_value=-179, max_value=179)
+int_lat = st.integers(min_value=-89, max_value=89)
 int_z = st.integers(min_value=-100000, max_value=100000)
 # Generate decimal places for the coordinates
-int_dec_7 = st.integers(min_value=0, max_value=9999999)
-ind_dec_3 = st.integers(min_value=0, max_value=999)
+int_7_digit = st.integers(min_value=0, max_value=9999999)
+ind_3_digit = st.integers(min_value=0, max_value=999)
 # Generate values by combining the integer and decimal then mapping it to float
-longitude = st.tuples(int_lon, int_dec_7).map(lambda x: f"{x[0]}.{x[1]}").map(float)
-latitude = st.tuples(int_lat, int_dec_7).map(lambda x: f"{x[0]}.{x[1]}").map(float)
-z = st.tuples(int_z, ind_dec_3).map(lambda x: f"{x[0]}.{x[1]}").map(float)
+longitude = st.tuples(int_lon, int_7_digit).map(make_float)
+latitude = st.tuples(int_lat, int_7_digit).map(make_float)
+z = st.tuples(int_z, ind_3_digit).map(make_float)
 
 # Coordinate Strategies
 
 # Coordinates
 coord_2d = st.tuples(longitude, latitude)
 coord_3d = st.tuples(longitude, latitude, z)
-coord = st.one_of(coord_2d, coord_3d)
+coord = coord_2d | coord_3d
 # Coordinate Lists (MultiPoint & LineString)
 coord_list_2d = st.lists(coord_2d, min_size=2)
 coord_list_3d = st.lists(coord_3d, min_size=2)
-coord_list = st.one_of(coord_list_2d, coord_list_3d)
+coord_list = coord_list_2d | coord_list_3d
 # MultiLineString Coordinates
 multi_line_string_coords_2d = st.lists(coord_list_2d, min_size=1)
 multi_line_string_coords_3d = st.lists(coord_list_3d, min_size=1)
-multi_line_string_coords = st.one_of(
-    multi_line_string_coords_2d, multi_line_string_coords_3d
-)
+multi_line_string_coords = multi_line_string_coords_2d | multi_line_string_coords_3d
 # Linear Ring. At least 3 coords and append the first to the end to close it.
 linear_ring_coords_2d = st.lists(coord_2d, min_size=3).map(lambda x: x + [x[0]])
 linear_ring_coords_3d = st.lists(coord_3d, min_size=3).map(lambda x: x + [x[0]])
+linear_ring_coords = linear_ring_coords_2d | linear_ring_coords_3d
 # Polygon Coordinates
 polygon_coords_2d = st.lists(linear_ring_coords_2d, min_size=1)
 polygon_coords_3d = st.lists(linear_ring_coords_3d, min_size=1)
-polygon_coords = st.one_of(polygon_coords_2d, polygon_coords_3d)
+polygon_coords = polygon_coords_2d | polygon_coords_3d
 # MultiPolygon Coordinate
 multi_polygon_coords_2d = st.lists(polygon_coords_2d, min_size=1)
 multi_polygon_coords_3d = st.lists(polygon_coords_3d, min_size=1)
-multi_polygon_coords = st.one_of(multi_polygon_coords_2d, multi_polygon_coords_3d)
+multi_polygon_coords = multi_polygon_coords_2d | multi_polygon_coords_3d
 
 # Geometry Strategies
 
 # Point
 point_2d = st.builds(Point, coordinates=coord_2d)
 point_3d = st.builds(Point, coordinates=coord_3d)
-point = st.one_of(point_2d, point_3d)
+point = point_2d | point_3d
 # Multi Point
 multi_point_2d = st.builds(MultiPoint, coordinates=coord_list_2d)
 multi_point_3d = st.builds(MultiPoint, coordinates=coord_list_3d)
-multi_point = st.one_of(multi_point_2d, multi_point_3d)
+multi_point = multi_point_2d | multi_point_3d
 # Line
 line_string_2d = st.builds(LineString, coordinates=coord_list_2d)
 line_string_3d = st.builds(LineString, coordinates=coord_list_3d)
-line_string = st.one_of(line_string_2d, line_string_3d)
+line_string = line_string_2d | line_string_3d
 # Multi Line
 multi_line_string_2d = st.builds(
     MultiLineString, coordinates=multi_line_string_coords_2d
@@ -75,33 +83,33 @@ multi_line_string_2d = st.builds(
 multi_line_string_3d = st.builds(
     MultiLineString, coordinates=multi_line_string_coords_3d
 )
-multi_line_string = st.one_of(multi_line_string_2d, multi_line_string_2d)
+multi_line_string = multi_line_string_2d | multi_line_string_2d
 # Polygon
 polygon_2d = st.builds(Polygon, coordinates=polygon_coords_2d)
 polygon_3d = st.builds(Polygon, coordinates=polygon_coords_3d)
-polygon = st.one_of(polygon_2d, polygon_3d)
+polygon = polygon_2d | polygon_3d
 # Multi Polygon
 multi_polygon_2d = st.builds(MultiPolygon, coordinates=multi_polygon_coords_2d)
 multi_polygon_3d = st.builds(MultiPolygon, coordinates=multi_polygon_coords_3d)
-multi_polygon = st.one_of(multi_polygon_2d, multi_polygon_3d)
+multi_polygon = multi_polygon_2d | multi_polygon_3d
 # Geometry
-geometry_2d = st.one_of(
-    point_2d,
-    multi_point_2d,
-    line_string_2d,
-    multi_line_string_2d,
-    polygon_2d,
-    multi_polygon_2d,
+geometry_2d = (
+    point_2d
+    | multi_point_2d
+    | line_string_2d
+    | multi_line_string_2d
+    | polygon_2d
+    | multi_polygon_2d
 )
-geometry_3d = st.one_of(
-    point_3d,
-    multi_point_3d,
-    line_string_3d,
-    multi_line_string_3d,
-    polygon_3d,
-    multi_polygon_3d,
+geometry_3d = (
+    point_3d
+    | multi_point_3d
+    | line_string_3d
+    | multi_line_string_3d
+    | polygon_3d
+    | multi_polygon_3d
 )
-geometry = st.one_of(geometry_2d, geometry_3d)
+geometry = geometry_2d | geometry_3d
 # Geometry Collection
 geometry_collection_2d = st.builds(
     GeometryCollection, geometries=st.lists(geometry_2d, min_size=1)
@@ -109,16 +117,7 @@ geometry_collection_2d = st.builds(
 geometry_collection_3d = st.builds(
     GeometryCollection, geometries=st.lists(geometry_3d, min_size=1)
 )
-geometry_collection = st.one_of(geometry_collection_2d, geometry_collection_3d)
-
-# Register default strategies for Geometries
-st.register_type_strategy(Point, point)
-st.register_type_strategy(MultiPoint, multi_point)
-st.register_type_strategy(LineString, line_string)
-st.register_type_strategy(MultiLineString, multi_line_string)
-st.register_type_strategy(Polygon, polygon)
-st.register_type_strategy(MultiPolygon, multi_polygon)
-st.register_type_strategy(GeometryCollection, geometry_collection)
+geometry_collection = geometry_collection_2d | geometry_collection_3d
 
 # Bounding Box
 
@@ -137,8 +136,73 @@ two_lon = st.lists(longitude, min_size=2, max_size=2, unique=True).map(sorted)  
 two_lat = st.lists(latitude, min_size=2, max_size=2, unique=True).map(sorted)  # type: ignore[arg-type]
 two_z = st.lists(z, min_size=2, max_size=2, unique=True).map(sorted)  # type: ignore[arg-type]
 
-
 # Generate two lons and two lats and interleave them together
 bbox_2d = st.tuples(two_lon, two_lat).map(interleave)
 bbox_3d = st.tuples(two_lon, two_lat, two_z).map(interleave)
-bbox = st.one_of(bbox_2d, bbox_3d)
+bbox = bbox_2d | bbox_3d
+
+
+# Feature
+
+# Just using positive integers and uuids for for IDs for simplicity
+feature_id = st.integers(min_value=0) | st.uuids().map(str)
+# Keep the strings easy to print and read without special characters for the time being
+alpha_numeric = st.text(string.ascii_letters + string.digits, min_size=1)
+# Starting as a dict use alpha numeric keys and then use recursive values with limited leaves
+properties_dict = st.dictionaries(
+    alpha_numeric,
+    st.recursive(
+        st.none() | st.booleans() | z | int_z | alpha_numeric,
+        lambda children: st.lists(children) | st.dictionaries(alpha_numeric, children),
+        max_leaves=3,
+    ),
+)
+# This does not randomly generate a bbox since it would not correspond with the geometry.
+# A composite strategy could be used to compute the bbox from the geometry.
+feature_2d = st.builds(
+    Feature,
+    geometry=geometry_2d,
+    properties=st.none() | properties_dict,
+    id=st.none() | feature_id,
+    bbox=st.none(),
+)
+feature_3d = st.builds(
+    Feature,
+    geometry=geometry_3d,
+    properties=st.none() | properties_dict,
+    id=st.none() | feature_id,
+    bbox=st.none(),
+)
+feature = feature_2d | feature_3d
+
+# Feature Collection
+
+feature_collection_2d = st.builds(
+    FeatureCollection, features=st.lists(feature_2d), bbox=st.none()
+)
+feature_collection_3d = st.builds(
+    FeatureCollection, features=st.lists(feature_2d), bbox=st.none()
+)
+feature_collection = feature_collection_2d | feature_collection_3d
+
+
+# We may not want to automatically register the default strategies on import, so we can
+# hold them in an function and call that function.
+
+
+def _hypothesis_setup_hook() -> None:
+    """Setup hypothesis default strategies."""
+    # These are the strategies for geometries which will not mix dimensionality.
+    # Each geometry will be either all 2d or all 3d.
+    st.register_type_strategy(Point, point)
+    st.register_type_strategy(MultiPoint, multi_point)
+    st.register_type_strategy(LineString, line_string)
+    st.register_type_strategy(MultiLineString, multi_line_string)
+    st.register_type_strategy(Polygon, polygon)
+    st.register_type_strategy(MultiPolygon, multi_polygon)
+    # The entire geometry collection will be either 2d or 3d geometries
+    st.register_type_strategy(GeometryCollection, geometry_collection)
+    # Each feature is generated with the above strategies
+    st.register_type_strategy(Feature, feature)
+    # The feature collection will have only 2d or 3d geometries in it
+    st.register_type_strategy(FeatureCollection, feature_collection)
