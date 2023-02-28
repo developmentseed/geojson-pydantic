@@ -24,6 +24,24 @@ def make_float(values: Tuple[int, int]) -> float:
     return float(f"{values[0]}.{values[1]}")
 
 
+def cap_lon(lon: float) -> float:
+    """Cap longitude values at -180 / 180."""
+    if lon < -180:
+        return -180.0
+    if lon > 180:
+        return 180.0
+    return lon
+
+
+def cap_lat(lat: float) -> float:
+    """Cap latitude values at -90 / 90."""
+    if lat < -90:
+        return -90.0
+    if lat > 90:
+        return 90.0
+    return lat
+
+
 def close_ring(values: List[T]) -> List[T]:
     """Close a linear ring by adding the first coordinate to the end."""
     return values + [values[0]]
@@ -35,27 +53,25 @@ def interleave(values: Tuple[List[T], ...]) -> Tuple[T, ...]:
 
 
 # Custom Strategies for floats that make sense as WGS-84 Coordinates.
-# These will never produce -180/180 or -90/90 in order to stay within limits once
-# the decimals are added to them.
-# Z limits of +/- 100,000 were just to keep the generated values from being excessive.
 
 # Generate the integer portion of the coordinates
-int_lon = st.integers(min_value=-179, max_value=179)
-int_lat = st.integers(min_value=-89, max_value=89)
+int_lon = st.integers(min_value=-180, max_value=180)
+int_lat = st.integers(min_value=-90, max_value=90)
+# Z limits of +/- 100,000 were just to keep the generated values from being excessive.
 int_z = st.integers(min_value=-100000, max_value=100000)
 # Generate decimal places for the coordinates
 int_7_digit = st.integers(min_value=0, max_value=9999999)
 ind_3_digit = st.integers(min_value=0, max_value=999)
 # Generate values by combining the integer and decimal then mapping it to float
-longitude = st.tuples(int_lon, int_7_digit).map(make_float)
-latitude = st.tuples(int_lat, int_7_digit).map(make_float)
+lon = st.tuples(int_lon, int_7_digit).map(make_float).map(cap_lon)
+lat = st.tuples(int_lat, int_7_digit).map(make_float).map(cap_lat)
 z = st.tuples(int_z, ind_3_digit).map(make_float)
 
 # Coordinate Strategies
 
 # Coordinates
-coord_2d = st.tuples(longitude, latitude)
-coord_3d = st.tuples(longitude, latitude, z)
+coord_2d = st.tuples(lon, lat)
+coord_3d = st.tuples(lon, lat, z)
 coord = coord_2d | coord_3d
 # Coordinate Lists (MultiPoint & LineString)
 coord_list_2d = st.lists(coord_2d, min_size=2)
@@ -138,12 +154,14 @@ geometry_collection = geometry_collection_2d | geometry_collection_3d
 
 # Bounding Box
 
-# Strategies which produce two unique and sorted values for each coordinate type
+# Strategies which produce two sorted values for each coordinate type. No uniqueness
+# is enforced, as a degenerated bounding box could be allowed.
+
 # For some reason mypy does not like the `map(sorted)` but it is an example in the
 # hypothesis docs.
-two_lon = st.lists(longitude, min_size=2, max_size=2, unique=True).map(sorted)  # type: ignore[arg-type]
-two_lat = st.lists(latitude, min_size=2, max_size=2, unique=True).map(sorted)  # type: ignore[arg-type]
-two_z = st.lists(z, min_size=2, max_size=2, unique=True).map(sorted)  # type: ignore[arg-type]
+two_lon = st.lists(lon, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
+two_lat = st.lists(lat, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
+two_z = st.lists(z, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
 
 # Generate two lons and two lats and interleave them together
 bbox_2d = st.tuples(two_lon, two_lat).map(interleave)
@@ -166,6 +184,7 @@ properties_dict = st.dictionaries(
         max_leaves=3,
     ),
 )
+
 # This does not randomly generate a bbox since it would not correspond with the geometry.
 # A composite strategy could be used to compute the bbox from the geometry.
 feature_2d = st.builds(
