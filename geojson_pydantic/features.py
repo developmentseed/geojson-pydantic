@@ -5,6 +5,7 @@ from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVa
 from pydantic import BaseModel, Field, validator
 from pydantic.generics import GenericModel
 
+from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.geometries import Geometry, GeometryCollection
 from geojson_pydantic.types import BBox
 
@@ -12,7 +13,7 @@ Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
 
 
-class Feature(GenericModel, Generic[Geom, Props]):
+class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     """Feature Model"""
 
     type: Literal["Feature"]
@@ -34,30 +35,8 @@ class Feature(GenericModel, Generic[Geom, Props]):
 
         return geometry
 
-    @property
-    def __geo_interface__(self) -> Dict[str, Any]:
-        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
 
-        ref: https://gist.github.com/sgillies/2217756#__geo_interface
-        """
-        geo: Dict[str, Any] = {
-            "type": self.type,
-            "geometry": self.geometry.__geo_interface__
-            if self.geometry is not None
-            else None,
-            "properties": self.properties,
-        }
-
-        if self.bbox:
-            geo["bbox"] = self.bbox
-
-        if self.id:
-            geo["id"] = self.id
-
-        return geo
-
-
-class FeatureCollection(GenericModel, Generic[Geom, Props]):
+class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     """FeatureCollection Model"""
 
     type: Literal["FeatureCollection"]
@@ -75,19 +54,3 @@ class FeatureCollection(GenericModel, Generic[Geom, Props]):
     def __getitem__(self, index: int) -> Feature:
         """get feature at a given index"""
         return self.features[index]
-
-    @property
-    def __geo_interface__(self) -> Dict[str, Any]:
-        """GeoJSON-like protocol for geo-spatial (GIS) vector data.
-
-        ref: https://gist.github.com/sgillies/2217756#__geo_interface
-        """
-        features: List[Dict[str, Any]] = []
-        for feat in self.features:
-            features.append(feat.__geo_interface__)
-
-        geo: Dict[str, Any] = {"type": self.type, "features": features}
-        if self.bbox:
-            geo["bbox"] = self.bbox
-
-        return geo
