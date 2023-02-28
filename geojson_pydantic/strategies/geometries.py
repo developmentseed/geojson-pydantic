@@ -98,10 +98,12 @@ point = point_2d | point_3d
 # Multi Point
 multi_point_2d = st.builds(MultiPoint, coordinates=coord_list_2d)
 multi_point_3d = st.builds(MultiPoint, coordinates=coord_list_3d)
+multi_point_mixed = st.builds(MultiPoint, coordinates=coord_list)
 multi_point = multi_point_2d | multi_point_3d
 # Line
 line_string_2d = st.builds(LineString, coordinates=coord_list_2d)
 line_string_3d = st.builds(LineString, coordinates=coord_list_3d)
+line_string_mixed = st.builds(LineString, coordinates=coord_list)
 line_string = line_string_2d | line_string_3d
 # Multi Line
 multi_line_string_2d = st.builds(
@@ -110,14 +112,19 @@ multi_line_string_2d = st.builds(
 multi_line_string_3d = st.builds(
     MultiLineString, coordinates=multi_line_string_coords_3d
 )
+multi_line_string_mixed = st.builds(
+    MultiLineString, coordinates=multi_line_string_coords
+)
 multi_line_string = multi_line_string_2d | multi_line_string_2d
 # Polygon
 polygon_2d = st.builds(Polygon, coordinates=polygon_coords_2d)
 polygon_3d = st.builds(Polygon, coordinates=polygon_coords_3d)
+polygon_mixed = st.builds(Polygon, coordinates=polygon_coords)
 polygon = polygon_2d | polygon_3d
 # Multi Polygon
 multi_polygon_2d = st.builds(MultiPolygon, coordinates=multi_polygon_coords_2d)
 multi_polygon_3d = st.builds(MultiPolygon, coordinates=multi_polygon_coords_3d)
+multi_polygon_mixed = st.builds(MultiPolygon, multi_polygon_coords)
 multi_polygon = multi_polygon_2d | multi_polygon_3d
 # Geometry
 geometry_2d = (
@@ -138,10 +145,7 @@ geometry_3d = (
 )
 geometry = geometry_2d | geometry_3d
 # Geometry Collection
-geometry_collection_2d = st.builds(
-    GeometryCollection, geometries=st.lists(geometry_2d, min_size=1)
-)
-geometry_collection_3d = st.builds(
-    GeometryCollection, geometries=st.lists(geometry_3d, min_size=1)
-)
+geometry_collection_2d = st.builds(GeometryCollection, geometries=st.lists(geometry_2d))
+geometry_collection_3d = st.builds(GeometryCollection, geometries=st.lists(geometry_3d))
+geometry_collection_mixed = st.builds(GeometryCollection, geometries=st.lists(geometry))
 geometry_collection = geometry_collection_2d | geometry_collection_3d
