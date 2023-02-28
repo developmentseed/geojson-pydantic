@@ -275,12 +275,20 @@ class GeometryCollection(BaseModel):
     @property
     def wkt(self) -> str:
         """Return the Well Known Text representation."""
-        coordinates = (
+        # Each geometry will check its own coordinates for Z and include "Z" in the wkt
+        # if necessary. Rather than looking at the coordinates for each of the geometries
+        # again, we can just get the wkt from each of them and check if there is a Z
+        # anywhere in the text.
+
+        # Get the wkt from each of the geometries in the collection
+        geometries = (
             f'({", ".join(geom.wkt for geom in self.geometries)})'
             if self.geometries
             else "EMPTY"
         )
-        return f"{self.type.upper()} {coordinates}"
+        # If any of them contain `Z` add Z to the output wkt
+        z = " Z " if "Z" in geometries else " "
+        return f"{self.type.upper()}{z}{geometries}"
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:

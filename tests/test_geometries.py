@@ -59,6 +59,8 @@ def test_point_invalid_coordinates(coordinates):
         [(1.0, 2.0), (1.0, 2.0)],
         # Has Z
         [(1.0, 2.0, 3.0), (1.0, 2.0, 3.0)],
+        # Mixed
+        [(1.0, 2.0), (1.0, 2.0, 3.0)],
     ],
 )
 def test_multi_point_valid_coordinates(coordinates):
@@ -93,6 +95,7 @@ def test_multi_point_invalid_coordinates(coordinates):
         [(1.0, 2.0), (3.0, 4.0), (5.0, 6.0)],
         # Two Points, has Z
         [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)],
+        # Shapely doesn't like mixed here
     ],
 )
 def test_line_string_valid_coordinates(coordinates):
@@ -130,6 +133,8 @@ def test_line_string_invalid_coordinates(coordinates):
         [[(1.0, 2.0), (3.0, 4.0)], [(0.0, 0.0), (1.0, 1.0)]],
         # Two lines, two points each, has Z
         [[(1.0, 2.0, 0.0), (3.0, 4.0, 1.0)], [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
+        # Mixed
+        [[(1.0, 2.0), (3.0, 4.0)], [(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]],
     ],
 )
 def test_multi_line_string_valid_coordinates(coordinates):
@@ -206,6 +211,17 @@ def test_polygon_valid_coordinates(coordinates):
                 (2.0, 2.0, 1.0),
             ],
         ],
+        # Mixed
+        [
+            [(0.0, 0.0), (0.0, 10.0), (10.0, 10.0), (10.0, 0.0), (0.0, 0.0)],
+            [
+                (2.0, 2.0, 2.0),
+                (2.0, 4.0, 0.0),
+                (4.0, 4.0, 0.0),
+                (4.0, 2.0, 0.0),
+                (2.0, 2.0, 2.0),
+            ],
+        ],
     ],
 )
 def test_polygon_with_holes(coordinates):
@@ -268,6 +284,19 @@ def test_polygon_invalid_coordinates(coordinates):
                     (2.2, 2.2, 4.0),
                     (2.1, 2.2, 4.0),
                     (2.1, 2.1, 4.0),
+                ],
+            ]
+        ],
+        # Mixed
+        [
+            [
+                [(0.0, 0.0), (1.0, 0.0), (1.0, 1.0), (0.0, 1.0), (0.0, 0.0)],
+                [
+                    (2.1, 2.1, 2.1),
+                    (2.2, 2.1, 2.0),
+                    (2.2, 2.2, 2.2),
+                    (2.1, 2.2, 2.3),
+                    (2.1, 2.1, 2.1),
                 ],
             ]
         ],
@@ -450,6 +479,18 @@ def test_getitem_geometry_collection(polygon):
     assert_wkt_equivalence(gc)
     item = gc[0]
     assert item == gc[0]
+
+
+def test_wkt_mixed_geometry_collection():
+    point = Point(type="Point", coordinates=(0.0, 0.0, 0.0))
+    line_string = LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)])
+    gc = GeometryCollection(type="GeometryCollection", geometries=[point, line_string])
+    assert_wkt_equivalence(gc)
+
+
+def test_wkt_empty_geometry_collection():
+    gc = GeometryCollection(type="GeometryCollection", geometries=[])
+    assert_wkt_equivalence(gc)
 
 
 def test_polygon_from_bounds():
