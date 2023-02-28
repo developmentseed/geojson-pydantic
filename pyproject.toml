@@ -22,6 +22,9 @@ classifiers = [
 dynamic = ["version"]
 dependencies = ["pydantic"]
 
+[project.entry-points]
+hypothesis = {_ = "geojson_pydantic.strategies:_hypothesis_setup_hook"}
+
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "shapely", "hypothesis"]
 dev = ["pre-commit"]

@@ -1,9 +1,8 @@
-import string
+"""Hypothesis strategies for generating geometries."""
 from typing import List, Tuple, TypeVar
 
 from hypothesis import strategies as st
 
-from geojson_pydantic.features import Feature, FeatureCollection
 from geojson_pydantic.geometries import (
     GeometryCollection,
     LineString,
@@ -45,11 +44,6 @@ def cap_lat(lat: float) -> float:
 def close_ring(values: List[T]) -> List[T]:
     """Close a linear ring by adding the first coordinate to the end."""
     return values + [values[0]]
-
-
-def interleave(values: Tuple[List[T], ...]) -> Tuple[T, ...]:
-    """Interleave tuple of tuples together."""
-    return tuple(v for t in zip(*values) for v in t)
 
 
 # Custom Strategies for floats that make sense as WGS-84 Coordinates.
@@ -151,86 +145,3 @@ geometry_collection_3d = st.builds(
     GeometryCollection, geometries=st.lists(geometry_3d, min_size=1)
 )
 geometry_collection = geometry_collection_2d | geometry_collection_3d
-
-# Bounding Box
-
-# Strategies which produce two sorted values for each coordinate type. No uniqueness
-# is enforced, as a degenerated bounding box could be allowed.
-
-# For some reason mypy does not like the `map(sorted)` but it is an example in the
-# hypothesis docs.
-two_lon = st.lists(lon, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
-two_lat = st.lists(lat, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
-two_z = st.lists(z, min_size=2, max_size=2).map(sorted)  # type: ignore[arg-type]
-
-# Generate two lons and two lats and interleave them together
-bbox_2d = st.tuples(two_lon, two_lat).map(interleave)
-bbox_3d = st.tuples(two_lon, two_lat, two_z).map(interleave)
-bbox = bbox_2d | bbox_3d
-
-
-# Feature
-
-# Just using positive integers and uuids for for IDs for simplicity
-feature_id = st.integers(min_value=0) | st.uuids().map(str)
-# Keep the strings easy to print and read without special characters for the time being
-alpha_numeric = st.text(string.ascii_letters + string.digits, min_size=1)
-# Starting as a dict use alpha numeric keys and then use recursive values with limited leaves
-properties_dict = st.dictionaries(
-    alpha_numeric,
-    st.recursive(
-        st.none() | st.booleans() | z | int_z | alpha_numeric,
-        lambda children: st.lists(children) | st.dictionaries(alpha_numeric, children),
-        max_leaves=3,
-    ),
-)
-
-# This does not randomly generate a bbox since it would not correspond with the geometry.
-# A composite strategy could be used to compute the bbox from the geometry.
-feature_2d = st.builds(
-    Feature,
-    geometry=geometry_2d,
-    properties=st.none() | properties_dict,
-    id=st.none() | feature_id,
-    bbox=st.none(),
-)
-feature_3d = st.builds(
-    Feature,
-    geometry=geometry_3d,
-    properties=st.none() | properties_dict,
-    id=st.none() | feature_id,
-    bbox=st.none(),
-)
-feature = feature_2d | feature_3d
-
-# Feature Collection
-
-feature_collection_2d = st.builds(
-    FeatureCollection, features=st.lists(feature_2d), bbox=st.none()
-)
-feature_collection_3d = st.builds(
-    FeatureCollection, features=st.lists(feature_2d), bbox=st.none()
-)
-feature_collection = feature_collection_2d | feature_collection_3d
-
-
-# We may not want to automatically register the default strategies on import, so we can
-# hold them in an function and call that function.
-
-
-def _hypothesis_setup_hook() -> None:
-    """Setup hypothesis default strategies."""
-    # These are the strategies for geometries which will not mix dimensionality.
-    # Each geometry will be either all 2d or all 3d.
-    st.register_type_strategy(Point, point)
-    st.register_type_strategy(MultiPoint, multi_point)
-    st.register_type_strategy(LineString, line_string)
-    st.register_type_strategy(MultiLineString, multi_line_string)
-    st.register_type_strategy(Polygon, polygon)
-    st.register_type_strategy(MultiPolygon, multi_polygon)
-    # The entire geometry collection will be either 2d or 3d geometries
-    st.register_type_strategy(GeometryCollection, geometry_collection)
-    # Each feature is generated with the above strategies
-    st.register_type_strategy(Feature, feature)
-    # The feature collection will have only 2d or 3d geometries in it
-    st.register_type_strategy(FeatureCollection, feature_collection)

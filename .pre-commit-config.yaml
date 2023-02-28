@@ -38,3 +38,4 @@ repos:
         pass_filenames: false
         additional_dependencies:
           - pydantic
+          - hypothesis
