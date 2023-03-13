@@ -39,6 +39,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 - Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
 - Add Geometry discriminator when parsing geometry objects (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/101)
 - Mixed Dimensionality WKTs (make sure the coordinates are either all 2D or 3D) (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/107)
+- allow Feature's **id** to be either a String or a Number
 
 ### Removed
 

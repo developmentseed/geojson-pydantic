@@ -190,6 +190,20 @@ def test_feature_collection_geo_interface_with_null_geometry():
     assert "bbox" in fc.__geo_interface__["features"][1]
 
 
+@pytest.mark.parametrize("id", ["a", 1, "1"])
+def test_feature_id(id):
+    """Test if a string stays a string and if an int stays an int."""
+    feature = Feature(**test_feature, id=id)
+    assert feature.id == id
+
+
+@pytest.mark.parametrize("id", [True, 1.0])
+def test_bad_feature_id(id):
+    """make sure it raises error."""
+    with pytest.raises(ValidationError):
+        Feature(**test_feature, id=id)
+
+
 def test_feature_validation():
     """Test default."""
     assert Feature(type="Feature", properties=None, geometry=None)

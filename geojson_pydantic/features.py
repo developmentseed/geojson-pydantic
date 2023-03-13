@@ -2,7 +2,7 @@
 
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, validator
+from pydantic import BaseModel, Field, StrictInt, StrictStr, validator
 from pydantic.generics import GenericModel
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
@@ -19,7 +19,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     type: Literal["Feature"]
     geometry: Union[Geom, None] = Field(...)
     properties: Union[Props, None] = Field(...)
-    id: Optional[str] = None
+    id: Optional[Union[StrictInt, StrictStr]] = None
     bbox: Optional[BBox] = None
 
     class Config:
