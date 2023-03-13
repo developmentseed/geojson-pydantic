@@ -25,7 +25,6 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     class Config:
         """Model configuration."""
 
-        smart_union = True
         use_enum_values = True
 
     @validator("geometry", pre=True, always=True)
