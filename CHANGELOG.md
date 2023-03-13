@@ -5,9 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
-## [unreleased]
+## [0.6.0] - TBD
 
+### Added
+
+- Enforce required keys and avoid defaults. This aim to follow the geojson specification to the letter.
+
+    ```python
+    # Before
+    Feature(geometry=Point(coordinates=(0,0)))
+
+    # Now
+    Feature(
+        type="Feature",
+        geometry=Point(
+            type="Point",
+            coordinates=(0,0)
+        ),
+        properties=None,
+    )
+    ```
+
+- Add has_z function to Geometries (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/103)
+- Add optional bbox to geometries.
+
+### Changed
+
+- Refactor and simplify WKT construction (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/97)
+- Support empty geometry coordinates (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/100)
+
+### Fixed
+
+- Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
+- Add Geometry discriminator when parsing geometry objects (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/101)
+- Mixed Dimensionality WKTs (make sure the coordinates are either all 2D or 3D) (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/107)
 - allow Feature's **id** to be either a String or a Number
+
+### Removed
+
+- python 3.7 support
 
 ## [0.5.0] - 2022-12-16
 
