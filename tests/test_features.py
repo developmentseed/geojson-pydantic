@@ -26,22 +26,29 @@ properties: Dict[str, Any] = {
     "size": randint(0, 1000),
 }
 
+coordinates = [
+    [
+        [13.38272, 52.46385],
+        [13.42786, 52.46385],
+        [13.42786, 52.48445],
+        [13.38272, 52.48445],
+        [13.38272, 52.46385],
+    ]
+]
+
 polygon: Dict[str, Any] = {
     "type": "Polygon",
-    "coordinates": [
-        [
-            [13.38272, 52.46385],
-            [13.42786, 52.46385],
-            [13.42786, 52.48445],
-            [13.38272, 52.48445],
-            [13.38272, 52.46385],
-        ]
-    ],
+    "coordinates": coordinates,
+}
+
+multipolygon: Dict[str, Any] = {
+    "type": "MultiPolygon",
+    "coordinates": [coordinates],
 }
 
 geom_collection: Dict[str, Any] = {
     "type": "GeometryCollection",
-    "geometries": [polygon, polygon],
+    "geometries": [polygon, multipolygon],
 }
 
 test_feature: Dict[str, Any] = {
@@ -131,7 +138,6 @@ def test_generic_geometry_collection():
     assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
     assert type(feature.geometry) == GeometryCollection
     assert feature.geometry.wkt.startswith("GEOMETRYCOLLECTION (POLYGON ")
-    assert feature.geometry.geometries[0].wkt == feature.geometry.geometries[1].wkt
     assert type(feature.properties) == GenericProperties
     assert hasattr(feature.properties, "id")
 

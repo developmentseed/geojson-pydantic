@@ -452,33 +452,42 @@ def test_parse_geometry_obj_invalid_point():
 def test_geometry_collection_iteration(coordinates):
     """test if geometry collection is iterable"""
     polygon = Polygon(type="Polygon", coordinates=coordinates)
-    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
+    multipolygon = MultiPolygon(type="MultiPolygon", coordinates=[coordinates])
+    gc = GeometryCollection(
+        type="GeometryCollection", geometries=[polygon, multipolygon]
+    )
     assert hasattr(gc, "__geo_interface__")
     assert_wkt_equivalence(gc)
     iter(gc)
 
 
 @pytest.mark.parametrize(
-    "polygon", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
+    "coordinates", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
 )
-def test_len_geometry_collection(polygon):
+def test_len_geometry_collection(coordinates):
     """test if GeometryCollection return self leng"""
-    polygon = Polygon(type="Polygon", coordinates=polygon)
-    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
+    polygon = Polygon(type="Polygon", coordinates=coordinates)
+    multipolygon = MultiPolygon(type="MultiPolygon", coordinates=[coordinates])
+    gc = GeometryCollection(
+        type="GeometryCollection", geometries=[polygon, multipolygon]
+    )
     assert_wkt_equivalence(gc)
     assert len(gc) == 2
 
 
 @pytest.mark.parametrize(
-    "polygon", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
+    "coordinates", [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]
 )
-def test_getitem_geometry_collection(polygon):
-    """test if GeometryCollection return self leng"""
-    polygon = Polygon(type="Polygon", coordinates=polygon)
-    gc = GeometryCollection(type="GeometryCollection", geometries=[polygon, polygon])
+def test_getitem_geometry_collection(coordinates):
+    """test if GeometryCollection is subscriptable"""
+    polygon = Polygon(type="Polygon", coordinates=coordinates)
+    multipolygon = MultiPolygon(type="MultiPolygon", coordinates=[coordinates])
+    gc = GeometryCollection(
+        type="GeometryCollection", geometries=[polygon, multipolygon]
+    )
     assert_wkt_equivalence(gc)
-    item = gc[0]
-    assert item == gc[0]
+    assert polygon == gc[0]
+    assert multipolygon == gc[1]
 
 
 def test_wkt_mixed_geometry_collection():
