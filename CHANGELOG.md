@@ -27,23 +27,27 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
     ```
 
 - Add has_z function to Geometries (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/103)
-- Add optional bbox to geometries.
+- Add optional bbox to geometries. (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/108)
+- Add support for nested GeometryCollection and a corresponding warning. (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/111) 
 
 ### Changed
 
 - Refactor and simplify WKT construction (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/97)
 - Support empty geometry coordinates (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/100)
+- Refactored `__geo_interface__` to be a Mixin which returns `self.dict` (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/105)
+- GeometryCollection containing a single geometry or geometries of only one type will now produce a warning. (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/111) 
 
 ### Fixed
 
-- Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (https://github.com/developmentseed/geojson-pydantic/pull/94)
+- Do not validates arbitrary dictionaries. Make `Type` a mandatory key for objects (author @vincentsarago, https://github.com/developmentseed/geojson-pydantic/pull/94)
 - Add Geometry discriminator when parsing geometry objects (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/101)
 - Mixed Dimensionality WKTs (make sure the coordinates are either all 2D or 3D) (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/107)
-- allow Feature's **id** to be either a String or a Number
+- Allow Feature's **id** to be either a String or a Number (author @vincentsarago, https://github.com/developmentseed/geojson-pydantic/pull/91)
 
 ### Removed
 
-- python 3.7 support
+- Python 3.7 support (author @vincentsarago, https://github.com/developmentseed/geojson-pydantic/pull/94)
+- Unused `LinearRing` Model (author @eseglem, https://github.com/developmentseed/geojson-pydantic/pull/106)
 
 ## [0.5.0] - 2022-12-16
 

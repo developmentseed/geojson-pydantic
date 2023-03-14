@@ -1,5 +1,8 @@
 """pydantic models for GeoJSON Geometry objects."""
+from __future__ import annotations
+
 import abc
+import warnings
 from typing import Any, Iterator, List, Literal, Optional, Protocol, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
@@ -241,10 +244,10 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
-    geometries: List[Geometry]
+    geometries: List[Union[Geometry, GeometryCollection]]
     bbox: Optional[BBox] = None
 
-    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
+    def __iter__(self) -> Iterator[Union[Geometry, GeometryCollection]]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
@@ -252,7 +255,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index: int) -> Geometry:
+    def __getitem__(self, index: int) -> Union[Geometry, GeometryCollection]:
         """get geometry at a given index"""
         return self.geometries[index]
 
@@ -273,6 +276,23 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         # If any of them contain `Z` add Z to the output wkt
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
+
+    @validator("geometries")
+    def check_geometries(cls, geometries: List) -> List:
+        """Add warnings for conditions the spec does not explicitly forbid."""
+        if len(geometries) == 1:
+            warnings.warn(
+                "GeometryCollection should not be used for single geometries."
+            )
+        if any(geom.type == "GeometryCollection" for geom in geometries):
+            warnings.warn(
+                "GeometryCollection should not be used for nested GeometryCollections."
+            )
+        if len(set(geom.type for geom in geometries)) == 1:
+            warnings.warn(
+                "GeometryCollection should not be used for homogeneous collections."
+            )
+        return geometries
 
 
 def parse_geometry_obj(obj: Any) -> Geometry:
