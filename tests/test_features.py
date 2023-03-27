@@ -229,3 +229,11 @@ def test_feature_validation():
     with pytest.raises(ValidationError):
         # missing geometry
         Feature(type="Feature", properties=None)
+
+    with pytest.raises(ValidationError):
+        # bad bbox2d
+        Feature(type="Feature", properties=None, bbox=[100, 100, 0, 0])
+
+    with pytest.raises(ValidationError):
+        # bad bbox3d
+        Feature(type="Feature", properties=None, bbox=[100, 100, 100, 0, 0, 0])
