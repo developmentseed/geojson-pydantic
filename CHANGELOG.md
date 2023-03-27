@@ -9,6 +9,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/).
 
 ### Added
 
+- Validate order of bounding box values. (author @moradology, https://github.com/developmentseed/geojson-pydantic/pull/114)
 - Enforce required keys and avoid defaults. This aim to follow the geojson specification to the letter.
 
     ```python
