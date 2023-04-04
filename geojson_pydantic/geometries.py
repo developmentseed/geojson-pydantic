@@ -116,7 +116,7 @@ class Point(_GeometryBase):
     type: Literal["Point"]
     coordinates: Position
 
-    __wkt_coordinates__ = staticmethod(_position_wkt_coordinates)
+    __wkt_coordinates__ = staticmethod(_position_wkt_coordinates)  # type: ignore
 
     @property
     def has_z(self) -> bool:
@@ -130,7 +130,7 @@ class MultiPoint(_GeometryBase):
     type: Literal["MultiPoint"]
     coordinates: MultiPointCoords
 
-    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)  # type: ignore
 
     @property
     def has_z(self) -> bool:
@@ -144,7 +144,7 @@ class LineString(_GeometryBase):
     type: Literal["LineString"]
     coordinates: LineStringCoords
 
-    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)  # type: ignore
 
     @property
     def has_z(self) -> bool:
@@ -158,7 +158,7 @@ class MultiLineString(_GeometryBase):
     type: Literal["MultiLineString"]
     coordinates: MultiLineStringCoords
 
-    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
+    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)  # type: ignore
 
     @property
     def has_z(self) -> bool:
@@ -172,7 +172,7 @@ class Polygon(_GeometryBase):
     type: Literal["Polygon"]
     coordinates: PolygonCoords
 
-    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
+    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)  # type: ignore
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -218,7 +218,7 @@ class MultiPolygon(_GeometryBase):
     type: Literal["MultiPolygon"]
     coordinates: MultiPolygonCoords
 
-    __wkt_coordinates__ = staticmethod(_polygons_wkt_coordinates)
+    __wkt_coordinates__ = staticmethod(_polygons_wkt_coordinates)  # type: ignore
 
     @property
     def has_z(self) -> bool:
