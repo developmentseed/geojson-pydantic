@@ -3,7 +3,7 @@ from __future__ import annotations
 
 import abc
 import warnings
-from typing import Any, Iterator, List, Literal, Optional, Protocol, Union
+from typing import Any, Iterator, List, Literal, Optional, Union
 
 from pydantic import BaseModel, Field, ValidationError, validator
 from pydantic.error_wrappers import ErrorWrapper
@@ -72,11 +72,6 @@ def _polygons_wkt_coordinates(
     )
 
 
-class _WktCallable(Protocol):
-    def __call__(self, coordinates: Any, force_z: bool) -> str:
-        ...
-
-
 class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
     """Base class for geometry models"""
 
@@ -84,7 +79,10 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
     coordinates: Any
     bbox: Optional[BBox] = None
 
-    __wkt_coordinates__: _WktCallable
+    @abc.abstractmethod
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        ...
 
     @property
     @abc.abstractmethod
@@ -116,7 +114,9 @@ class Point(_GeometryBase):
     type: Literal["Point"]
     coordinates: Position
 
-    __wkt_coordinates__ = staticmethod(_position_wkt_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _position_wkt_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
@@ -130,7 +130,9 @@ class MultiPoint(_GeometryBase):
     type: Literal["MultiPoint"]
     coordinates: MultiPointCoords
 
-    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _position_list_wkt_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
@@ -144,7 +146,9 @@ class LineString(_GeometryBase):
     type: Literal["LineString"]
     coordinates: LineStringCoords
 
-    __wkt_coordinates__ = staticmethod(_position_list_wkt_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _position_list_wkt_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
@@ -158,7 +162,9 @@ class MultiLineString(_GeometryBase):
     type: Literal["MultiLineString"]
     coordinates: MultiLineStringCoords
 
-    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _lines_wtk_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
@@ -172,7 +178,9 @@ class Polygon(_GeometryBase):
     type: Literal["Polygon"]
     coordinates: PolygonCoords
 
-    __wkt_coordinates__ = staticmethod(_lines_wtk_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _lines_wtk_coordinates(coordinates, force_z)
 
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
@@ -218,7 +226,9 @@ class MultiPolygon(_GeometryBase):
     type: Literal["MultiPolygon"]
     coordinates: MultiPolygonCoords
 
-    __wkt_coordinates__ = staticmethod(_polygons_wkt_coordinates)
+    def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
+        """return WKT coordinates."""
+        return _polygons_wkt_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
