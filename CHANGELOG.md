@@ -5,6 +5,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [0.6.0] - 2023-05-09
+
+No change since 0.6.0a0
+
 ## [0.6.0a0] - 2023-04-04
 
 ### Added
@@ -268,7 +272,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0a...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0...HEAD
+[0.6.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0a...0.6.0
 [0.6.0a]: https://github.com/developmentseed/geojson-pydantic/compare/0.5.0...0.6.0a
 [0.5.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.3...0.5.0
 [0.4.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.4.2...0.4.3
