@@ -1,4 +1,9 @@
 repos:
+  - repo: https://github.com/abravalheri/validate-pyproject
+    rev: v0.12.1
+    hooks:
+      - id: validate-pyproject
+
   - repo: https://github.com/psf/black
     rev: 22.12.0
     hooks:
@@ -11,19 +16,11 @@ repos:
       - id: isort
         language_version: python
 
-  - repo: https://github.com/PyCQA/flake8
-    rev: 6.0.0
+  - repo: https://github.com/charliermarsh/ruff-pre-commit
+    rev: v0.0.238
     hooks:
-      - id: flake8
-        language_version: python
-
-  - repo: https://github.com/PyCQA/pydocstyle
-    rev: 6.1.1
-    hooks:
-      - id: pydocstyle
-        language_version: python
-        additional_dependencies:
-          - toml
+      - id: ruff
+        args: ["--fix"]
 
   - repo: https://github.com/pre-commit/mirrors-mypy
     rev: v0.991
@@ -32,9 +29,5 @@ repos:
         language_version: python
         # No reason to run if only tests have changed. They intentionally break typing.
         exclude: tests/.*
-        # Pass mypy the entire folder because a change in one file can break others. 
-        args: [--config-file=pyproject.toml, geojson_pydantic/]
-        # Don't pass it the individual filenames because it is already doing the whole folder.
-        pass_filenames: false
         additional_dependencies:
-          - pydantic
+        - pydantic

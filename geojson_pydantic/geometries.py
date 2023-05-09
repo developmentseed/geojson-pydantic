@@ -298,7 +298,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
             warnings.warn(
                 "GeometryCollection should not be used for nested GeometryCollections."
             )
-        if len(set(geom.type for geom in geometries)) == 1:
+        if len({geom.type for geom in geometries}) == 1:
             warnings.warn(
                 "GeometryCollection should not be used for homogeneous collections."
             )

@@ -45,6 +45,17 @@ exclude = [
     "CONTRIBUTING.md",
 ]
 
+[tool.coverage.run]
+branch = true
+parallel = true
+
+[tool.coverage.report]
+exclude_lines = [
+  "no cov",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+
 [tool.isort]
 profile = "black"
 known_first_party = ["geojson_pydantic"]
@@ -52,20 +63,32 @@ known_third_party = ["pydantic"]
 default_section = "THIRDPARTY"
 
 [tool.mypy]
-plugins = [
-  "pydantic.mypy"
-]
+plugins = ["pydantic.mypy"]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
+warn_untyped_fields = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 no_implicit_optional = true
 show_error_codes = true
 
-[tool.pydantic-mypy]
-warn_untyped_fields = true
+[tool.ruff]
+select = [
+    "D1",  # pydocstyle errors
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # flake8
+    "C",  # flake8-comprehensions
+    "B",  # flake8-bugbear
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "B905",  # ignore zip() without an explicit strict= parameter, only support with python >3.10
+]
 
-[tool.pydocstyle]
-select = "D1"
-match = "(?!test).*.py"
+[tool.ruff.per-file-ignores]
+"tests/test_geometries.py" = ["D1"]
+"tests/test_features.py" = ["D1"]
+"tests/test_package.py" = ["D1"]
