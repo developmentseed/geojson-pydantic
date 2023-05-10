@@ -31,7 +31,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     def check_bbox(cls, bbox: BBox) -> BBox:
         """Check that bbox is valid."""
         if bbox is None:
-            return bbox        
+            return bbox
         if len(bbox) == 6:
             if bbox[0] > bbox[3] or bbox[1] > bbox[4] or bbox[2] > bbox[5]:  # type: ignore
                 raise ValueError(
