@@ -232,6 +232,7 @@ def test_feature_validation():
         Feature(type="Feature", properties=None)
 
     assert Feature(type="Feature", properties=None, bbox=[0, 0, 100, 100], geometry=None)
+    assert Feature(type="Feature", properties=None, bbox=[0, 0, 0, 100, 100, 100], geometry=None)
 
     with pytest.raises(ValidationError):
         # bad bbox2d
