@@ -20,7 +20,7 @@
       <img src="https://img.shields.io/github/license/developmentseed/geojson-pydantic.svg" alt="License">
   </a>
   <a href="https://anaconda.org/conda-forge/geojson-pydantic" target="_blank">
-      <img src="https://anaconda.org/conda-forge/geojson-pydantic/badges/installer/conda.svg" alt="Conda">
+      <img src="https://anaconda.org/conda-forge/geojson-pydantic/badges/version.svg" alt="Conda">
   </a>
 </p>
 
