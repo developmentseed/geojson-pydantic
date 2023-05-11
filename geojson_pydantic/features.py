@@ -32,18 +32,22 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         """Check that bbox is valid."""
         if bbox is None:
             return bbox
+
         if len(bbox) == 6:
             if bbox[0] > bbox[3] or bbox[1] > bbox[4] or bbox[2] > bbox[5]:  # type: ignore
                 raise ValueError(
                     "BBox must be in the form [west, south, bottom, east, north, top]"
                 )
+
         elif len(bbox) == 4:
             if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
                 raise ValueError("BBox must be in the form [west, south, east, north]")
+
         else:
             raise ValueError(
                 "BBox must be in the form [west, south, east, north] or [west, south, bottom, east, north, top]"
             )
+
         return bbox
 
     @validator("geometry", pre=True, always=True)
