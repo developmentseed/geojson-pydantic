@@ -213,6 +213,7 @@ def test_bad_feature_id(id):
 def test_feature_validation():
     """Test default."""
     assert Feature(type="Feature", properties=None, geometry=None)
+    assert Feature(type="Feature", properties=None, geometry=None, bbox=None)
 
     with pytest.raises(ValidationError):
         # should be type=Feature
@@ -230,10 +231,22 @@ def test_feature_validation():
         # missing geometry
         Feature(type="Feature", properties=None)
 
+    assert Feature(
+        type="Feature", properties=None, bbox=[0, 0, 100, 100], geometry=None
+    )
+    assert Feature(
+        type="Feature", properties=None, bbox=[0, 0, 0, 100, 100, 100], geometry=None
+    )
+
     with pytest.raises(ValidationError):
         # bad bbox2d
-        Feature(type="Feature", properties=None, bbox=[100, 100, 0, 0])
+        Feature(type="Feature", properties=None, bbox=[100, 100, 0, 0], geometry=None)
 
     with pytest.raises(ValidationError):
         # bad bbox3d
-        Feature(type="Feature", properties=None, bbox=[100, 100, 100, 0, 0, 0])
+        Feature(
+            type="Feature",
+            properties=None,
+            bbox=[100, 100, 100, 0, 0, 0],
+            geometry=None,
+        )

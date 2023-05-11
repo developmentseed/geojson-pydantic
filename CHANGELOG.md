@@ -5,6 +5,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/)
 and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [NEXT] - TBD
+
+### Fixed
+
+* Fix issue with null bbox validation (author @bmschmidt, https://github.com/developmentseed/geojson-pydantic/pull/119)
+
 ## [0.6.0] - 2023-05-09
 
 No change since 0.6.0a0
