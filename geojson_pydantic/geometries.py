@@ -183,7 +183,7 @@ class Polygon(_GeometryBase):
         return _lines_wtk_coordinates(coordinates, force_z)
 
     @validator("coordinates")
-    def check_closure(cls, coordinates: List) -> List:
+    def check_closure_poly(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any(ring[-1] != ring[0] for ring in coordinates):
             raise ValueError("All linear rings have the same start and end coordinates")
@@ -236,7 +236,7 @@ class MultiPolygon(_GeometryBase):
         return any(_lines_has_z(polygon) for polygon in self.coordinates)
 
     @validator("coordinates")
-    def check_closure(cls, coordinates: List) -> List:
+    def check_closure_multipoly(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any(ring[-1] != ring[0] for polygon in coordinates for ring in polygon):
             raise ValueError("All linear rings have the same start and end coordinates")
