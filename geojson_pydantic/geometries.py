@@ -19,6 +19,7 @@ from geojson_pydantic.types import (
     MultiPolygonCoords,
     PolygonCoords,
     Position,
+    validate_bbox,
 )
 
 
@@ -106,6 +107,8 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
             wkt += " EMPTY"
 
         return wkt
+
+    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
 
 
 class Point(_GeometryBase):
@@ -286,6 +289,8 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         # If any of them contain `Z` add Z to the output wkt
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
+
+    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
 
     @validator("geometries")
     def check_geometries(cls, geometries: List) -> List:

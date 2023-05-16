@@ -7,7 +7,7 @@ from pydantic.generics import GenericModel
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.geometries import Geometry, GeometryCollection
-from geojson_pydantic.types import BBox
+from geojson_pydantic.types import BBox, validate_bbox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
@@ -22,33 +22,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     id: Optional[Union[StrictInt, StrictStr]] = None
     bbox: Optional[BBox] = None
 
-    class Config:
-        """Model configuration."""
-
-        use_enum_values = True
-
-    @validator("bbox", pre=True)
-    def check_bbox(cls, bbox: BBox) -> BBox:
-        """Check that bbox is valid."""
-        if bbox is None:
-            return bbox
-
-        if len(bbox) == 6:
-            if bbox[0] > bbox[3] or bbox[1] > bbox[4] or bbox[2] > bbox[5]:  # type: ignore
-                raise ValueError(
-                    "BBox must be in the form [west, south, bottom, east, north, top]"
-                )
-
-        elif len(bbox) == 4:
-            if bbox[0] > bbox[2] or bbox[1] > bbox[3]:
-                raise ValueError("BBox must be in the form [west, south, east, north]")
-
-        else:
-            raise ValueError(
-                "BBox must be in the form [west, south, east, north] or [west, south, bottom, east, north, top]"
-            )
-
-        return bbox
+    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
 
     @validator("geometry", pre=True, always=True)
     def set_geometry(cls, geometry: Any) -> Any:
@@ -77,3 +51,5 @@ class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     def __getitem__(self, index: int) -> Feature:
         """get feature at a given index"""
         return self.features[index]
+
+    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
