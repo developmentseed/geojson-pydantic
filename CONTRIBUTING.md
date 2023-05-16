@@ -5,7 +5,7 @@ To run the tests, first install the package in a virtual environment:
 ```sh
 virtualenv venv
 source venv/bin/activate
-pip install -e '.[test]'
+python -m pip install -e '.[test]'
 ```
 
 You can then run the tests with the following command:

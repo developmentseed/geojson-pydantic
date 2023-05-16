@@ -188,7 +188,7 @@ class Polygon(_GeometryBase):
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
-        if any([ring[-1] != ring[0] for ring in coordinates]):
+        if any(ring[-1] != ring[0] for ring in coordinates):
             raise ValueError("All linear rings have the same start and end coordinates")
 
         return coordinates
@@ -241,7 +241,7 @@ class MultiPolygon(_GeometryBase):
     @validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
-        if any([ring[-1] != ring[0] for polygon in coordinates for ring in polygon]):
+        if any(ring[-1] != ring[0] for polygon in coordinates for ring in polygon):
             raise ValueError("All linear rings have the same start and end coordinates")
 
         return coordinates
@@ -303,7 +303,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
             warnings.warn(
                 "GeometryCollection should not be used for nested GeometryCollections."
             )
-        if len(set(geom.type for geom in geometries)) == 1:
+        if len({geom.type for geom in geometries}) == 1:
             warnings.warn(
                 "GeometryCollection should not be used for homogeneous collections."
             )

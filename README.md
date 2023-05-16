@@ -20,7 +20,7 @@
       <img src="https://img.shields.io/github/license/developmentseed/geojson-pydantic.svg" alt="License">
   </a>
   <a href="https://anaconda.org/conda-forge/geojson-pydantic" target="_blank">
-      <img src="https://anaconda.org/conda-forge/geojson-pydantic/badges/installer/conda.svg" alt="Conda">
+      <img src="https://anaconda.org/conda-forge/geojson-pydantic/badges/version.svg" alt="Conda">
   </a>
 </p>
 
@@ -31,15 +31,15 @@
 ## Install
 
 ```bash
-$ pip install -U pip
-$ pip install geojson-pydantic
+$ python -m pip install -U pip
+$ python -m pip install geojson-pydantic
 ```
 
 Or install from source:
 
 ```bash
-$ pip install -U pip
-$ pip install git+https://github.com/developmentseed/geojson-pydantic.git
+$ python -m pip install -U pip
+$ python -m pip install git+https://github.com/developmentseed/geojson-pydantic.git
 ```
 
 Install with conda from [`conda-forge`](https://anaconda.org/conda-forge/geojson-pydantic):
