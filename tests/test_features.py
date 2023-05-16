@@ -232,8 +232,26 @@ def test_feature_validation():
 
     with pytest.raises(ValidationError):
         # bad bbox2d
-        Feature(type="Feature", properties=None, bbox=[100, 100, 0, 0])
+        Feature(type="Feature", properties=None, bbox=(100, 100, 0, 0), geometry=None)
 
     with pytest.raises(ValidationError):
         # bad bbox3d
-        Feature(type="Feature", properties=None, bbox=[100, 100, 100, 0, 0, 0])
+        Feature(
+            type="Feature",
+            properties=None,
+            bbox=(100, 100, 100, 0, 0, 0),
+            geometry=None,
+        )
+
+
+def test_bbox_validation():
+    # Some attempts at generic validation did not validate the types within
+    # bbox before passing them to the function and resulted in TypeErrors.
+    # This test exists to ensure that doesn't happen in the future.
+    with pytest.raises(ValidationError):
+        Feature(
+            type="Feature",
+            properties=None,
+            bbox=(0, "a", 0, 1, 1, 1),
+            geometry=None,
+        )
