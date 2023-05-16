@@ -7,7 +7,8 @@ from pydantic import conlist
 T = TypeVar("T")
 
 BBox = Union[
-    Tuple[float, float, float, float], Tuple[float, float, float, float, float, float]
+    Tuple[float, float, float, float],  # 2D bbox
+    Tuple[float, float, float, float, float, float],  # 3D bbox
 ]
 
 
