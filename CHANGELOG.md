@@ -2,8 +2,10 @@
 # Change Log
 All notable changes to this project will be documented in this file.
 
-The format is based on [Keep a Changelog](http://keepachangelog.com/)
-and this project adheres to [Semantic Versioning](http://semver.org/).
+The format is based on [Keep a Changelog](http://keepachangelog.com/).
+
+Note: Minor version `0.X.0` update might break the API, It's recommanded to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
+
 
 ## [0.6.2] - 2023-05-16
 
