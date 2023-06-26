@@ -26,7 +26,7 @@
 
 ## Description
 
-`geojson_pydantic` provides a suite of Pydantic models matching the GeoJSON specification [rfc7946](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.1). Those models can be used for creating or validating geojson data.
+`geojson_pydantic` provides a suite of Pydantic models matching the GeoJSON specification [rfc7946](https://datatracker.ietf.org/doc/html/rfc7946). Those models can be used for creating or validating geojson data.
 
 ## Install
 
@@ -70,7 +70,7 @@ assert feat.type == "Feature"
 assert type(feat.geometry) == Point
 assert feat.properties["name"] == "jeff"
 
-fc = FeatureCollection(features=[geojson_feature, geojson_feature])
+fc = FeatureCollection(type="FeatureCollection", features=[geojson_feature, geojson_feature])
 assert fc.type == "FeatureCollection"
 assert len(fc) == 2
 assert type(fc.features[0].geometry) == Point
@@ -181,6 +181,44 @@ geojson_feature["properties"]["name"] = "drew"
 feat = MyPointFeatureModel(**geojson_feature)
 assert feat.properties.name == "drew"
 ```
+
+## Enforced Keys
+
+Starting with version `0.6.0`, geojson-pydantic's classes will not define default keys such has `type`, `geometry` or `properties`.
+This is to make sure the library does well its first goal, which is `validating` GeoJSON object based on the [specification](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.1)
+
+    o A GeoJSON object has a member with the name "type".  The value of
+      the member MUST be one of the GeoJSON types.
+
+    o A Feature object HAS a "type" member with the value "Feature".
+
+    o A Feature object HAS a member with the name "geometry". The value
+    of the geometry member SHALL be either a Geometry object as
+    defined above or, in the case that the Feature is unlocated, a
+    JSON null value.
+
+    o A Feature object HAS a member with the name "properties". The
+    value of the properties member is an object (any JSON object or a
+    JSON null value).
+
+
+```python
+from geojson_pydantic import Point
+
+## Before 0.6
+Point(coordinates=(0,0))
+>> Point(type='Point', coordinates=(0.0, 0.0), bbox=None)
+
+## After 0.6
+Point(coordinates=(0,0))
+>> ValidationError: 1 validation error for Point
+   type
+      field required (type=value_error.missing)
+
+Point(type="Point", coordinates=(0,0))
+>> Point(type='Point', coordinates=(0.0, 0.0), bbox=None)
+```
+
 
 ## Contributing
 
