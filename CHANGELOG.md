@@ -6,6 +6,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommanded to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [0.6.3] - 2023-07-02
+
+* limit pydantic requirement to `~=1.0``
 
 ## [0.6.2] - 2023-05-16
 
@@ -286,7 +289,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.2...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...HEAD
+[0.6.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0...0.6.1
 [0.6.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0a0...0.6.0
