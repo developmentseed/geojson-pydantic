@@ -67,7 +67,6 @@ plugins = ["pydantic.mypy"]
 disallow_untyped_calls = true
 disallow_untyped_defs = true
 disallow_incomplete_defs = true
-warn_untyped_fields = true
 warn_redundant_casts = true
 warn_unused_ignores = true
 no_implicit_optional = true
