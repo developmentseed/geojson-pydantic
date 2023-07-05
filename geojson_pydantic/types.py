@@ -48,8 +48,8 @@ if TYPE_CHECKING:
     LineStringCoords = List[Position]
     LinearRing = List[Position]
 else:
-    LineStringCoords = conlist(Position, min_items=2)
-    LinearRing = conlist(Position, min_items=4)
+    LineStringCoords = conlist(Position, min_length=2)
+    LinearRing = conlist(Position, min_length=4)
 
 MultiPointCoords = List[Position]
 MultiLineStringCoords = List[LineStringCoords]

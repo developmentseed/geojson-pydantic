@@ -428,11 +428,13 @@ def test_parse_geometry_obj_multi_polygon():
 
 
 def test_parse_geometry_obj_invalid_type():
-    with pytest.raises(ValidationError):
+    with pytest.raises(ValueError):
         parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
-    with pytest.raises(ValidationError):
+
+    with pytest.raises(ValueError):
         parse_geometry_obj({"type": "", "obviously": "doesn't exist"})
-    with pytest.raises(ValidationError):
+
+    with pytest.raises(ValueError):
         parse_geometry_obj({})
 
 
@@ -500,6 +502,45 @@ def test_wkt_mixed_geometry_collection():
 def test_wkt_empty_geometry_collection():
     gc = GeometryCollection(type="GeometryCollection", geometries=[])
     assert_wkt_equivalence(gc)
+
+
+def test_geometry_collection_warnings():
+    point = Point(type="Point", coordinates=(0.0, 0.0, 0.0))
+    line_string = LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)])
+
+    # one geometry
+    with pytest.warns(
+        UserWarning,
+        match="GeometryCollection should not be used for single geometries.",
+    ):
+        GeometryCollection(
+            type="GeometryCollection",
+            geometries=[
+                point,
+            ],
+        )
+
+    # collections of collections
+    with pytest.warns(
+        UserWarning,
+        match="GeometryCollection should not be used for nested GeometryCollections.",
+    ):
+        GeometryCollection(
+            type="GeometryCollection",
+            geometries=[
+                GeometryCollection(
+                    type="GeometryCollection", geometries=[point, line_string]
+                ),
+                point,
+            ],
+        )
+
+    # homogeneous geometry
+    with pytest.warns(
+        UserWarning,
+        match="GeometryCollection should not be used for homogeneous collections.",
+    ):
+        GeometryCollection(type="GeometryCollection", geometries=[point, point])
 
 
 def test_polygon_from_bounds():

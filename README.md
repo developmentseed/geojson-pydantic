@@ -146,7 +146,7 @@ from typing import Optional
 MyPointFeatureModel = Feature[Optional[Point], Dict]
 
 assert MyPointFeatureModel(type="Feature", geometry=None, properties={}).geometry is None
-assert MyPointFeatureModel(type="Feature", geometry=Point(coordinates=(0,0)), properties={}).geometry is not None
+assert MyPointFeatureModel(type="Feature", geometry=Point(type="Point", coordinates=(0,0)), properties={}).geometry is not None
 ```
 
 And now with constrained properties
@@ -157,7 +157,7 @@ from pydantic import BaseModel, constr
 
 # Define a Feature model with Geometry as `Point` and Properties as a constrained Model
 class MyProps(BaseModel):
-    name: constr(regex=r'^(drew|vincent)$')
+    name: constr(pattern=r'^(drew|vincent)$')
 
 MyPointFeatureModel = Feature[Point, MyProps]
 
