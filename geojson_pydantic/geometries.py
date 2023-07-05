@@ -321,21 +321,21 @@ def parse_geometry_obj(obj: Any) -> Geometry:
         raise ValueError("Missing 'type' field in geometry")
 
     if obj["type"] == "Point":
-        return Point.parse_obj(obj)
+        return Point.model_validate(obj)
 
     elif obj["type"] == "MultiPoint":
-        return MultiPoint.parse_obj(obj)
+        return MultiPoint.model_validate(obj)
 
     elif obj["type"] == "LineString":
-        return LineString.parse_obj(obj)
+        return LineString.model_validate(obj)
 
     elif obj["type"] == "MultiLineString":
-        return MultiLineString.parse_obj(obj)
+        return MultiLineString.model_validate(obj)
 
     elif obj["type"] == "Polygon":
-        return Polygon.parse_obj(obj)
+        return Polygon.model_validate(obj)
 
     elif obj["type"] == "MultiPolygon":
-        return MultiPolygon.parse_obj(obj)
+        return MultiPolygon.model_validate(obj)
 
     raise ValueError(f"Unknown type: {obj['type']}")

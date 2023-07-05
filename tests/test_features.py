@@ -174,7 +174,7 @@ def test_geo_interface_protocol():
         __geo_interface__ = {"type": "Point", "coordinates": (0.0, 0.0)}
 
     feat = Feature(type="Feature", geometry=Pointy(), properties={})
-    assert feat.geometry.dict(exclude_unset=True) == Pointy.__geo_interface__
+    assert feat.geometry.model_dump(exclude_unset=True) == Pointy.__geo_interface__
 
 
 def test_feature_with_null_geometry():
