@@ -8,11 +8,15 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
 
 ## [unreleased]
 
+### Fixed
+
+* reduce validation error message verbosity when discriminating Geometry types
+
 ### Added
 
 * more tests for `GeometryCollection` warnings
 
-### changed
+### Changed
 
 * update pydantic requirement to `~=2.0`
 
