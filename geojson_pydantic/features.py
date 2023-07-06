@@ -5,11 +5,11 @@ from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVa
 from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
-from geojson_pydantic.geometries import Geometry, GeometryCollection
+from geojson_pydantic.geometries import Geometry
 from geojson_pydantic.types import BBox, validate_bbox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
-Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
+Geom = TypeVar("Geom", bound=Geometry)
 
 
 class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):

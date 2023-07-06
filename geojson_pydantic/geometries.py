@@ -246,20 +246,14 @@ class MultiPolygon(_GeometryBase):
         return coordinates
 
 
-Geometry = Annotated[
-    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
-    Field(discriminator="type"),
-]
-
-
 class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
-    geometries: List[Union[Geometry, GeometryCollection]]
+    geometries: List[Geometry]
     bbox: Optional[BBox] = None
 
-    def __iter__(self) -> Iterator[Union[Geometry, GeometryCollection]]:  # type: ignore [override]
+    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
@@ -267,7 +261,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index: int) -> Union[Geometry, GeometryCollection]:
+    def __getitem__(self, index: int) -> Geometry:
         """get geometry at a given index"""
         return self.geometries[index]
 
@@ -312,6 +306,20 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         return geometries
 
 
+Geometry = Annotated[
+    Union[
+        Point,
+        MultiPoint,
+        LineString,
+        MultiLineString,
+        Polygon,
+        MultiPolygon,
+        GeometryCollection,
+    ],
+    Field(discriminator="type"),
+]
+
+
 def parse_geometry_obj(obj: Any) -> Geometry:
     """
     `obj` is an object that is supposed to represent a GeoJSON geometry. This method returns the
@@ -337,5 +345,8 @@ def parse_geometry_obj(obj: Any) -> Geometry:
 
     elif obj["type"] == "MultiPolygon":
         return MultiPolygon.model_validate(obj)
+
+    elif obj["type"] == "GeometryCollection":
+        return GeometryCollection.model_validate(obj)
 
     raise ValueError(f"Unknown type: {obj['type']}")

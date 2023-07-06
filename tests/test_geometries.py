@@ -427,6 +427,24 @@ def test_parse_geometry_obj_multi_polygon():
     )
 
 
+def test_parse_geometry_obj_geometry_collection():
+    assert parse_geometry_obj(
+        {
+            "type": "GeometryCollection",
+            "geometries": [
+                {"type": "Point", "coordinates": [102.0, 0.5]},
+                {"type": "MultiPoint", "coordinates": [[100.0, 0.0], [101.0, 1.0]]},
+            ],
+        }
+    ) == GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=(102.0, 0.5)),
+            MultiPoint(type="MultiPoint", coordinates=[(100.0, 0.0), (101.0, 1.0)]),
+        ],
+    )
+
+
 def test_parse_geometry_obj_invalid_type():
     with pytest.raises(ValueError):
         parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})

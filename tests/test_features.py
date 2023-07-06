@@ -263,3 +263,30 @@ def test_bbox_validation():
             bbox=(0, "a", 0, 1, 1, 1),
             geometry=None,
         )
+
+
+def test_feature_validation_error_count():
+    # Tests that validation does not include irrelevant errors to make them
+    # easier to read. The input below used to raise 18 errors.
+    # See #93 for more details.
+    with pytest.raises(ValidationError):
+        try:
+            Feature(
+                type="Feature",
+                geometry=Polygon(
+                    type="Polygon",
+                    coordinates=[
+                        [
+                            (-55.9947406591177, -9.26104045526505),
+                            (-55.9976752102375, -9.266589696568962),
+                            (-56.00200328975916, -9.264041751931352),
+                            (-55.99899921566248, -9.257935213034594),
+                            (-55.99477406591177, -9.26103945526505),
+                        ]
+                    ],
+                ),
+                properties={},
+            )
+        except ValidationError as e:
+            assert e.error_count() == 1
+            raise

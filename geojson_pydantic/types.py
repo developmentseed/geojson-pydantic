@@ -1,8 +1,9 @@
 """Types for geojson_pydantic models"""
 
-from typing import TYPE_CHECKING, List, Optional, Tuple, TypeVar, Union
+from typing import List, Optional, Tuple, TypeVar, Union
 
-from pydantic import conlist
+from pydantic import Field
+from typing_extensions import Annotated
 
 T = TypeVar("T")
 
@@ -44,13 +45,8 @@ def validate_bbox(bbox: Optional[BBox]) -> Optional[BBox]:
 Position = Union[Tuple[float, float], Tuple[float, float, float]]
 
 # Coordinate arrays
-if TYPE_CHECKING:
-    LineStringCoords = List[Position]
-    LinearRing = List[Position]
-else:
-    LineStringCoords = conlist(Position, min_length=2)
-    LinearRing = conlist(Position, min_length=4)
-
+LineStringCoords = Annotated[List[Position], Field(min_length=2)]
+LinearRing = Annotated[List[Position], Field(min_length=4)]
 MultiPointCoords = List[Position]
 MultiLineStringCoords = List[LineStringCoords]
 PolygonCoords = List[LinearRing]
