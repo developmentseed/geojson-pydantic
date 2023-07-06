@@ -6,9 +6,31 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommanded to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [unreleased]
+
+### Added
+
+* more tests for `GeometryCollection` warnings
+
+### changed
+
+* update pydantic requirement to `~=2.0`
+
+* raise `ValueError` in `geomtries.parse_geometry_obj` instead of `ValidationError`
+
+    ```python
+    # before
+    parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
+    >> ValidationError
+
+    # now
+    parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
+    >> ValueError("Unknown type: This type")
+    ```
+
 ## [0.6.3] - 2023-07-02
 
-* limit pydantic requirement to `~=1.0``
+* limit pydantic requirement to `~=1.0`
 
 ## [0.6.2] - 2023-05-16
 

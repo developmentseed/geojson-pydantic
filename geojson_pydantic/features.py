@@ -2,18 +2,17 @@
 
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, StrictInt, StrictStr, validator
-from pydantic.generics import GenericModel
+from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
-from geojson_pydantic.geometries import Geometry, GeometryCollection
+from geojson_pydantic.geometries import Geometry
 from geojson_pydantic.types import BBox, validate_bbox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
-Geom = TypeVar("Geom", bound=Union[Geometry, GeometryCollection])
+Geom = TypeVar("Geom", bound=Geometry)
 
 
-class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
     """Feature Model"""
 
     type: Literal["Feature"]
@@ -22,9 +21,9 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
     id: Optional[Union[StrictInt, StrictStr]] = None
     bbox: Optional[BBox] = None
 
-    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
+    _validate_bbox = field_validator("bbox")(validate_bbox)
 
-    @validator("geometry", pre=True, always=True)
+    @field_validator("geometry", mode="before")
     def set_geometry(cls, geometry: Any) -> Any:
         """set geometry from geo interface or input"""
         if hasattr(geometry, "__geo_interface__"):
@@ -33,7 +32,7 @@ class Feature(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         return geometry
 
 
-class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
+class FeatureCollection(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
     """FeatureCollection Model"""
 
     type: Literal["FeatureCollection"]
@@ -52,4 +51,4 @@ class FeatureCollection(GenericModel, Generic[Geom, Props], GeoInterfaceMixin):
         """get feature at a given index"""
         return self.features[index]
 
-    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
+    _validate_bbox = field_validator("bbox")(validate_bbox)

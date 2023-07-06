@@ -5,8 +5,7 @@ import abc
 import warnings
 from typing import Any, Iterator, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
-from pydantic.error_wrappers import ErrorWrapper
+from pydantic import BaseModel, Field, field_validator
 from typing_extensions import Annotated
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
@@ -108,7 +107,7 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
 
         return wkt
 
-    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
+    _validate_bbox = field_validator("bbox")(validate_bbox)
 
 
 class Point(_GeometryBase):
@@ -185,7 +184,7 @@ class Polygon(_GeometryBase):
         """return WKT coordinates."""
         return _lines_wtk_coordinates(coordinates, force_z)
 
-    @validator("coordinates")
+    @field_validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any(ring[-1] != ring[0] for ring in coordinates):
@@ -238,7 +237,7 @@ class MultiPolygon(_GeometryBase):
         """Checks if any coordinates have a Z value."""
         return any(_lines_has_z(polygon) for polygon in self.coordinates)
 
-    @validator("coordinates")
+    @field_validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
         """Validate that Polygon is closed (first and last coordinate are the same)."""
         if any(ring[-1] != ring[0] for polygon in coordinates for ring in polygon):
@@ -247,20 +246,14 @@ class MultiPolygon(_GeometryBase):
         return coordinates
 
 
-Geometry = Annotated[
-    Union[Point, MultiPoint, LineString, MultiLineString, Polygon, MultiPolygon],
-    Field(discriminator="type"),
-]
-
-
 class GeometryCollection(BaseModel, GeoInterfaceMixin):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
-    geometries: List[Union[Geometry, GeometryCollection]]
+    geometries: List[Geometry]
     bbox: Optional[BBox] = None
 
-    def __iter__(self) -> Iterator[Union[Geometry, GeometryCollection]]:  # type: ignore [override]
+    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
         return iter(self.geometries)
 
@@ -268,7 +261,7 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         """return geometries length"""
         return len(self.geometries)
 
-    def __getitem__(self, index: int) -> Union[Geometry, GeometryCollection]:
+    def __getitem__(self, index: int) -> Geometry:
         """get geometry at a given index"""
         return self.geometries[index]
 
@@ -290,24 +283,41 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
 
-    _validate_bbox = validator("bbox", allow_reuse=True)(validate_bbox)
+    _validate_bbox = field_validator("bbox")(validate_bbox)
 
-    @validator("geometries")
+    @field_validator("geometries")
     def check_geometries(cls, geometries: List) -> List:
         """Add warnings for conditions the spec does not explicitly forbid."""
         if len(geometries) == 1:
             warnings.warn(
                 "GeometryCollection should not be used for single geometries."
             )
+
         if any(geom.type == "GeometryCollection" for geom in geometries):
             warnings.warn(
                 "GeometryCollection should not be used for nested GeometryCollections."
             )
+
         if len({geom.type for geom in geometries}) == 1:
             warnings.warn(
                 "GeometryCollection should not be used for homogeneous collections."
             )
+
         return geometries
+
+
+Geometry = Annotated[
+    Union[
+        Point,
+        MultiPoint,
+        LineString,
+        MultiLineString,
+        Polygon,
+        MultiPolygon,
+        GeometryCollection,
+    ],
+    Field(discriminator="type"),
+]
 
 
 def parse_geometry_obj(obj: Any) -> Geometry:
@@ -316,25 +326,27 @@ def parse_geometry_obj(obj: Any) -> Geometry:
     reads the `"type"` field and returns the correct pydantic Geometry model.
     """
     if "type" not in obj:
-        raise ValidationError(
-            errors=[
-                ErrorWrapper(ValueError("Missing 'type' field in geometry"), loc="type")
-            ],
-            model=_GeometryBase,
-        )
+        raise ValueError("Missing 'type' field in geometry")
+
     if obj["type"] == "Point":
-        return Point.parse_obj(obj)
+        return Point.model_validate(obj)
+
     elif obj["type"] == "MultiPoint":
-        return MultiPoint.parse_obj(obj)
+        return MultiPoint.model_validate(obj)
+
     elif obj["type"] == "LineString":
-        return LineString.parse_obj(obj)
+        return LineString.model_validate(obj)
+
     elif obj["type"] == "MultiLineString":
-        return MultiLineString.parse_obj(obj)
+        return MultiLineString.model_validate(obj)
+
     elif obj["type"] == "Polygon":
-        return Polygon.parse_obj(obj)
+        return Polygon.model_validate(obj)
+
     elif obj["type"] == "MultiPolygon":
-        return MultiPolygon.parse_obj(obj)
-    raise ValidationError(
-        errors=[ErrorWrapper(ValueError("Unknown type"), loc="type")],
-        model=_GeometryBase,
-    )
+        return MultiPolygon.model_validate(obj)
+
+    elif obj["type"] == "GeometryCollection":
+        return GeometryCollection.model_validate(obj)
+
+    raise ValueError(f"Unknown type: {obj['type']}")
