@@ -319,6 +319,8 @@ Geometry = Annotated[
     Field(discriminator="type"),
 ]
 
+GeometryCollection.update_forward_refs()
+
 
 def parse_geometry_obj(obj: Any) -> Geometry:
     """
