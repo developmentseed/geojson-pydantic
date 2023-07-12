@@ -18,6 +18,23 @@ from geojson_pydantic.geometries import (
 )
 
 
+@pytest.mark.parametrize(
+    "obj",
+    [
+        GeometryCollection,
+        LineString,
+        MultiLineString,
+        MultiPoint,
+        MultiPolygon,
+        Point,
+        Polygon,
+    ],
+)
+def test_pydantic_schema(obj):
+    """Test schema for Pydantic Object."""
+    assert obj.model_json_schema()
+
+
 def assert_wkt_equivalence(geom: Union[Geometry, GeometryCollection]):
     """Assert WKT equivalence with Shapely."""
     # Remove any trailing `.0` to match Shapely format
