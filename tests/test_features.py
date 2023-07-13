@@ -73,14 +73,18 @@ test_feature_geometry_collection: Dict[str, Any] = {
 
 def test_feature_collection_iteration():
     """test if feature collection is iterable"""
-    gc = FeatureCollection(type="FeatureCollection", features=[test_feature, test_feature])
+    gc = FeatureCollection(
+        type="FeatureCollection", features=[test_feature, test_feature]
+    )
     assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
 
 def test_geometry_collection_iteration():
     """test if feature collection is iterable"""
-    gc = FeatureCollection(type="FeatureCollection", features=[test_feature_geometry_collection])
+    gc = FeatureCollection(
+        type="FeatureCollection", features=[test_feature_geometry_collection]
+    )
     assert hasattr(gc, "__geo_interface__")
     iter(gc)
 
@@ -96,7 +100,9 @@ def test_generic_properties_is_dict():
 def test_generic_properties_is_dict_collection():
     feature = Feature(**test_feature_geometry_collection)
     assert hasattr(feature, "__geo_interface__")
-    assert feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    assert (
+        feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    )
     assert type(feature.properties) == dict
     assert not hasattr(feature.properties, "id")
 
@@ -126,7 +132,9 @@ def test_generic_geometry():
 
 
 def test_generic_geometry_collection():
-    feature = Feature[GeometryCollection, GenericProperties](**test_feature_geometry_collection)
+    feature = Feature[GeometryCollection, GenericProperties](
+        **test_feature_geometry_collection
+    )
     assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
     assert type(feature.geometry) == GeometryCollection
     assert feature.geometry.wkt.startswith("GEOMETRYCOLLECTION (POLYGON ")
@@ -135,7 +143,9 @@ def test_generic_geometry_collection():
 
     feature = Feature[GeometryCollection, Dict](**test_feature_geometry_collection)
     assert type(feature.geometry) == GeometryCollection
-    assert feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    assert (
+        feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
+    )
     assert type(feature.properties) == dict
     assert not hasattr(feature.properties, "id")
 
@@ -145,7 +155,9 @@ def test_generic_geometry_collection():
 
 def test_generic_properties_should_raise_for_string():
     with pytest.raises(ValidationError):
-        Feature(**({"type": "Feature", "geometry": polygon, "properties": "should raise"}))
+        Feature(
+            **({"type": "Feature", "geometry": polygon, "properties": "should raise"})
+        )
 
 
 def test_feature_collection_generic():
@@ -219,8 +231,12 @@ def test_feature_validation():
         # missing geometry
         Feature(type="Feature", properties=None)
 
-    assert Feature(type="Feature", properties=None, bbox=(0, 0, 100, 100), geometry=None)
-    assert Feature(type="Feature", properties=None, bbox=(0, 0, 0, 100, 100, 100), geometry=None)
+    assert Feature(
+        type="Feature", properties=None, bbox=(0, 0, 100, 100), geometry=None
+    )
+    assert Feature(
+        type="Feature", properties=None, bbox=(0, 0, 0, 100, 100, 100), geometry=None
+    )
 
     with pytest.raises(ValidationError):
         # bad bbox2d
