@@ -32,14 +32,17 @@ class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
         return geometry
 
 
-class FeatureCollection(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
+Feat = TypeVar("Feat", bound=Feature)
+
+
+class FeatureCollection(BaseModel, Generic[Feat], GeoInterfaceMixin):
     """FeatureCollection Model"""
 
     type: Literal["FeatureCollection"]
-    features: List[Feature[Geom, Props]]
+    features: List[Feat]
     bbox: Optional[BBox] = None
 
-    def __iter__(self) -> Iterator[Feature]:  # type: ignore [override]
+    def __iter__(self) -> Iterator[Feat]:  # type: ignore [override]
         """iterate over features"""
         return iter(self.features)
 
@@ -47,7 +50,7 @@ class FeatureCollection(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
         """return features length"""
         return len(self.features)
 
-    def __getitem__(self, index: int) -> Feature:
+    def __getitem__(self, index: int) -> Feat:
         """get feature at a given index"""
         return self.features[index]
 
