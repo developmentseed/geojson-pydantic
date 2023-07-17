@@ -71,6 +71,18 @@ test_feature_geometry_collection: Dict[str, Any] = {
 }
 
 
+@pytest.mark.parametrize(
+    "obj",
+    [
+        FeatureCollection,
+        Feature,
+    ],
+)
+def test_pydantic_schema(obj):
+    """Test schema for Pydantic Object."""
+    assert obj.model_json_schema()
+
+
 def test_feature_collection_iteration():
     """test if feature collection is iterable"""
     gc = FeatureCollection(
