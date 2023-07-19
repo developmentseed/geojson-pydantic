@@ -18,6 +18,16 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
 
 ### Changed
 
+* update pydantic `FeatureCollection` generic model to allow named features in the generated schemas.
+
+    ```python
+    # before
+    FeatureCollection[Geometry, Properties]
+
+    # now
+    FeatureCollection[Feature[Geometry, Properties]]
+    ```
+
 * update pydantic requirement to `~=2.0`
 
 * raise `ValueError` in `geomtries.parse_geometry_obj` instead of `ValidationError`

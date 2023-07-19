@@ -173,7 +173,7 @@ def test_generic_properties_should_raise_for_string():
 
 
 def test_feature_collection_generic():
-    fc = FeatureCollection[Polygon, GenericProperties](
+    fc = FeatureCollection[Feature[Polygon, GenericProperties]](
         type="FeatureCollection", features=[test_feature, test_feature]
     )
     assert len(fc) == 2
