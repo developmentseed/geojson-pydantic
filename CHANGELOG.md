@@ -11,6 +11,7 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
 ### Fixed
 
 * reduce validation error message verbosity when discriminating Geometry types
+* MultiPoint WKT now includes parentheses around each Point
 
 ### Added
 

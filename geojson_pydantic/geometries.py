@@ -67,7 +67,7 @@ def _lines_has_z(lines: List[LineStringCoords]) -> bool:
 def _polygons_wkt_coordinates(
     coordinates: List[PolygonCoords], force_z: bool = False
 ) -> str:
-    return ",".join(
+    return ", ".join(
         f"({_lines_wtk_coordinates(polygon, force_z)})" for polygon in coordinates
     )
 
@@ -134,7 +134,10 @@ class MultiPoint(_GeometryBase):
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
         """return WKT coordinates."""
-        return _position_list_wkt_coordinates(coordinates, force_z)
+        return ", ".join(
+            f"({_position_wkt_coordinates(position, force_z)})"
+            for position in coordinates
+        )
 
     @property
     def has_z(self) -> bool:
@@ -319,7 +322,7 @@ Geometry = Annotated[
     Field(discriminator="type"),
 ]
 
-GeometryCollection.update_forward_refs()
+GeometryCollection.model_rebuild()
 
 
 def parse_geometry_obj(obj: Any) -> Geometry:
