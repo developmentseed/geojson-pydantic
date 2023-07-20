@@ -134,7 +134,6 @@ class MultiPoint(_GeometryBase):
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
         """return WKT coordinates."""
-        # return _position_list_wkt_coordinates(coordinates, force_z)
         return ", ".join(
             f"({_position_wkt_coordinates(position, force_z)})"
             for position in coordinates
