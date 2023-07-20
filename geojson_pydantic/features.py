@@ -2,7 +2,14 @@
 
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    StrictInt,
+    StrictStr,
+    field_validator,
+    model_serializer,
+)
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.geometries import Geometry
@@ -23,6 +30,21 @@ class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
 
     _validate_bbox = field_validator("bbox")(validate_bbox)
 
+    @model_serializer(when_used="json")
+    def ser_model(self) -> Dict[str, Any]:
+        """Custom Model serializer to match the GeoJSON specification."""
+        model: Dict[str, Any] = {
+            "type": self.type,
+            "geometry": self.geometry,
+            "properties": self.properties,
+        }
+        if self.id is not None:
+            model["id"] = self.id
+        if self.bbox:
+            model["bbox"] = self.bbox
+
+        return model
+
     @field_validator("geometry", mode="before")
     def set_geometry(cls, geometry: Any) -> Any:
         """set geometry from geo interface or input"""
@@ -41,6 +63,18 @@ class FeatureCollection(BaseModel, Generic[Feat], GeoInterfaceMixin):
     type: Literal["FeatureCollection"]
     features: List[Feat]
     bbox: Optional[BBox] = None
+
+    @model_serializer(when_used="json")
+    def ser_model(self) -> Dict[str, Any]:
+        """Custom Model serializer to match the GeoJSON specification."""
+        model: Dict[str, Any] = {
+            "type": self.type,
+            "features": self.features,
+        }
+        if self.bbox:
+            model["bbox"] = self.bbox
+
+        return model
 
     def __iter__(self) -> Iterator[Feat]:  # type: ignore [override]
         """iterate over features"""

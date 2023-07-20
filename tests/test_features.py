@@ -1,3 +1,4 @@
+import json
 from random import randint
 from typing import Any, Dict
 from uuid import uuid4
@@ -302,3 +303,107 @@ def test_feature_validation_error_count():
         except ValidationError as e:
             assert e.error_count() == 1
             raise
+
+
+def test_feature_serializer():
+    f = Feature(
+        **{
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": coordinates,
+            },
+            "properties": {},
+            "id": "Yo",
+            "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
+        }
+    )
+    assert "bbox" in f.model_dump()
+    assert "id" in f.model_dump()
+
+    feat_ser = json.loads(f.model_dump_json())
+    assert "bbox" in feat_ser
+    assert "id" in feat_ser
+    assert "bbox" not in feat_ser["geometry"]
+
+    f = Feature(
+        **{
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": coordinates,
+            },
+            "properties": {},
+        }
+    )
+    assert "bbox" in f.model_dump()
+
+    feat_ser = json.loads(f.model_dump_json())
+    assert "bbox" not in feat_ser
+    assert "id" not in feat_ser
+    assert "bbox" not in feat_ser["geometry"]
+
+    f = Feature(
+        **{
+            "type": "Feature",
+            "geometry": {
+                "type": "Polygon",
+                "coordinates": coordinates,
+                "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
+            },
+            "properties": {},
+        }
+    )
+    feat_ser = json.loads(f.model_dump_json())
+    assert "bbox" not in feat_ser
+    assert "id" not in feat_ser
+    assert "bbox" in feat_ser["geometry"]
+
+
+def test_feature_collection_serializer():
+    fc = FeatureCollection(
+        **{
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": coordinates,
+                        "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
+                    },
+                    "properties": {},
+                    "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
+                }
+            ],
+            "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
+        }
+    )
+    assert "bbox" in fc.model_dump()
+
+    featcoll_ser = json.loads(fc.model_dump_json())
+    assert "bbox" in featcoll_ser
+    assert "bbox" in featcoll_ser["features"][0]
+    assert "bbox" in featcoll_ser["features"][0]["geometry"]
+
+    fc = FeatureCollection(
+        **{
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": coordinates,
+                    },
+                    "properties": {},
+                }
+            ],
+        }
+    )
+    assert "bbox" in fc.model_dump()
+
+    featcoll_ser = json.loads(fc.model_dump_json())
+    assert "bbox" not in featcoll_ser
+    assert "bbox" not in featcoll_ser["features"][0]
+    assert "bbox" not in featcoll_ser["features"][0]["geometry"]

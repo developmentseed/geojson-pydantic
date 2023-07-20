@@ -3,9 +3,9 @@ from __future__ import annotations
 
 import abc
 import warnings
-from typing import Any, Iterator, List, Literal, Optional, Union
+from typing import Any, Dict, Iterator, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, Field, field_validator, model_serializer
 from typing_extensions import Annotated
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
@@ -78,6 +78,18 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
     type: str
     coordinates: Any
     bbox: Optional[BBox] = None
+
+    @model_serializer(when_used="json")
+    def ser_model(self) -> Dict[str, Any]:
+        """Custom Model serializer to match the GeoJSON specification."""
+        model: Dict[str, Any] = {
+            "type": self.type,
+            "coordinates": self.coordinates,
+        }
+        if self.bbox:
+            model["bbox"] = self.bbox
+
+        return model
 
     @abc.abstractmethod
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -255,6 +267,18 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
     type: Literal["GeometryCollection"]
     geometries: List[Geometry]
     bbox: Optional[BBox] = None
+
+    @model_serializer(when_used="json")
+    def ser_model(self) -> Dict[str, Any]:
+        """Custom Model serializer to match the GeoJSON specification."""
+        model: Dict[str, Any] = {
+            "type": self.type,
+            "geometries": self.geometries,
+        }
+        if self.bbox:
+            model["bbox"] = self.bbox
+
+        return model
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""

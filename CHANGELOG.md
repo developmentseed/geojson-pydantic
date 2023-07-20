@@ -19,6 +19,8 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
 
 ### Changed
 
+* update pydantic requirement to `~=2.0`
+
 * update pydantic `FeatureCollection` generic model to allow named features in the generated schemas.
 
     ```python
@@ -28,8 +30,6 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
     # now
     FeatureCollection[Feature[Geometry, Properties]]
     ```
-
-* update pydantic requirement to `~=2.0`
 
 * raise `ValueError` in `geomtries.parse_geometry_obj` instead of `ValidationError`
 
@@ -42,6 +42,19 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
     parse_geometry_obj({"type": "This type", "obviously": "doesn't exist"})
     >> ValueError("Unknown type: This type")
     ```
+
+* update JSON serializer to exclude null `bbox` and `id`
+
+    ```python
+    # before
+    Point(type="Point", coordinates=[0, 0]).json()
+    >> '{"type":"Point","coordinates":[0.0,0.0],"bbox":null}'
+
+    # now
+    Point(type="Point", coordinates=[0, 0]).model_dump_json()
+    >> '{"type":"Point","coordinates":[0.0,0.0]}'
+    ```
+
 
 ## [0.6.3] - 2023-07-02
 
