@@ -55,6 +55,9 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
     >> '{"type":"Point","coordinates":[0.0,0.0]}'
     ```
 
+* delete `geojson_pydantic.geo_interface.GeoInterfaceMixin` and replaced by `geojson_pydantic.base._GeoJsonBase` class
+
+* delete `geojson_pydantic.types.validate_bbox`
 
 ## [0.6.3] - 2023-07-02
 
