@@ -3,14 +3,13 @@ from __future__ import annotations
 
 import abc
 import warnings
-from typing import Any, Dict, Iterator, List, Literal, Optional, Union
+from typing import Any, Iterator, List, Literal, Union
 
-from pydantic import BaseModel, Field, field_validator, model_serializer
+from pydantic import Field, field_validator
 from typing_extensions import Annotated
 
-from geojson_pydantic.geo_interface import GeoInterfaceMixin
+from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.types import (
-    BBox,
     LinearRing,
     LineStringCoords,
     MultiLineStringCoords,
@@ -18,7 +17,6 @@ from geojson_pydantic.types import (
     MultiPolygonCoords,
     PolygonCoords,
     Position,
-    validate_bbox,
 )
 
 
@@ -72,24 +70,11 @@ def _polygons_wkt_coordinates(
     )
 
 
-class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
+class _GeometryBase(_GeoJsonBase, abc.ABC):
     """Base class for geometry models"""
 
     type: str
     coordinates: Any
-    bbox: Optional[BBox] = None
-
-    @model_serializer(when_used="json")
-    def ser_model(self) -> Dict[str, Any]:
-        """Custom Model serializer to match the GeoJSON specification."""
-        model: Dict[str, Any] = {
-            "type": self.type,
-            "coordinates": self.coordinates,
-        }
-        if self.bbox:
-            model["bbox"] = self.bbox
-
-        return model
 
     @abc.abstractmethod
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -118,8 +103,6 @@ class _GeometryBase(BaseModel, abc.ABC, GeoInterfaceMixin):
             wkt += " EMPTY"
 
         return wkt
-
-    _validate_bbox = field_validator("bbox")(validate_bbox)
 
 
 class Point(_GeometryBase):
@@ -261,24 +244,11 @@ class MultiPolygon(_GeometryBase):
         return coordinates
 
 
-class GeometryCollection(BaseModel, GeoInterfaceMixin):
+class GeometryCollection(_GeoJsonBase):
     """GeometryCollection Model"""
 
     type: Literal["GeometryCollection"]
     geometries: List[Geometry]
-    bbox: Optional[BBox] = None
-
-    @model_serializer(when_used="json")
-    def ser_model(self) -> Dict[str, Any]:
-        """Custom Model serializer to match the GeoJSON specification."""
-        model: Dict[str, Any] = {
-            "type": self.type,
-            "geometries": self.geometries,
-        }
-        if self.bbox:
-            model["bbox"] = self.bbox
-
-        return model
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
         """iterate over geometries"""
@@ -309,8 +279,6 @@ class GeometryCollection(BaseModel, GeoInterfaceMixin):
         # If any of them contain `Z` add Z to the output wkt
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
-
-    _validate_bbox = field_validator("bbox")(validate_bbox)
 
     @field_validator("geometries")
     def check_geometries(cls, geometries: List) -> List:
