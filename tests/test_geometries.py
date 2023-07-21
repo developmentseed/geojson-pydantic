@@ -1,8 +1,11 @@
+import json
+
 import pytest
 import shapely
 from pydantic import ValidationError
 
 from geojson_pydantic.geometries import (
+    Geometry,
     GeometryCollection,
     LineString,
     MultiLineString,
@@ -761,3 +764,111 @@ def test_wkt(wkt: str):
     # Use Shapely to parse the input WKT so we know it is parsable by other tools.
     # Then load it into a Geometry and ensure the output WKT is the same as the input.
     assert parse_geometry_obj(shapely.from_wkt(wkt).__geo_interface__).wkt == wkt
+
+
+@pytest.mark.parametrize(
+    "geom",
+    (
+        Point(type="Point", coordinates=[0, 0], bbox=[0, 0, 0, 0]),
+        Point(type="Point", coordinates=[0, 0]),
+        MultiPoint(type="MultiPoint", coordinates=[(0.0, 0.0)], bbox=[0, 0, 0, 0]),
+        MultiPoint(type="MultiPoint", coordinates=[(0.0, 0.0)]),
+        LineString(
+            type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)], bbox=[0, 0, 1, 1]
+        ),
+        LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)]),
+        MultiLineString(
+            type="MultiLineString",
+            coordinates=[[(0.0, 0.0), (1.0, 1.0)]],
+            bbox=[0, 0, 1, 1],
+        ),
+        MultiLineString(type="MultiLineString", coordinates=[[(0.0, 0.0), (1.0, 1.0)]]),
+        Polygon(
+            type="Polygon",
+            coordinates=[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+            bbox=[1.0, 2.0, 5.0, 6.0],
+        ),
+        Polygon(
+            type="Polygon",
+            coordinates=[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+        ),
+        MultiPolygon(
+            type="MultiPolygon",
+            coordinates=[[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]],
+            bbox=[1.0, 2.0, 5.0, 6.0],
+        ),
+        MultiPolygon(
+            type="MultiPolygon",
+            coordinates=[[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]],
+        ),
+    ),
+)
+def test_geometry_serializer(geom: Geometry):
+    # bbox should always be in the dictionary version of the model
+    # but should only be in the JSON version if not None
+    assert "bbox" in geom.model_dump()
+    if geom.bbox is not None:
+        assert "bbox" in geom.model_dump_json()
+    else:
+        assert "bbox" not in geom.model_dump_json()
+
+
+def test_geometry_collection_serializer():
+    geom = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),
+            LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)]),
+        ],
+    )
+    # bbox will be in the Dict
+    assert "bbox" in geom.model_dump()
+    assert "bbox" in geom.model_dump()["geometries"][0]
+
+    # bbox should not be in any Geometry nor at the top level
+    geom_ser = json.loads(geom.model_dump_json())
+    assert "bbox" not in geom_ser
+    assert "bbox" not in geom_ser["geometries"][0]
+    assert "bbox" not in geom_ser["geometries"][0]
+
+    geom = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0], bbox=[0, 0, 0, 0]),
+            LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)]),
+        ],
+    )
+    # bbox not in the top level but in the first geometry (point)
+    geom_ser = json.loads(geom.model_dump_json())
+    assert "bbox" not in geom_ser
+    assert "bbox" in geom_ser["geometries"][0]
+    assert "bbox" not in geom_ser["geometries"][1]
+
+    geom = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0], bbox=[0, 0, 0, 0]),
+            LineString(
+                type="LineString",
+                coordinates=[(0.0, 0.0), (1.0, 1.0)],
+                bbox=[0, 0, 1, 1],
+            ),
+        ],
+    )
+    geom_ser = json.loads(geom.model_dump_json())
+    assert "bbox" not in geom_ser
+    assert "bbox" in geom_ser["geometries"][0]
+    assert "bbox" in geom_ser["geometries"][1]
+
+    geom = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),
+            LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)]),
+        ],
+        bbox=[0, 0, 1, 1],
+    )
+    geom_ser = json.loads(geom.model_dump_json())
+    assert "bbox" in geom_ser
+    assert "bbox" not in geom_ser["geometries"][0]
+    assert "bbox" not in geom_ser["geometries"][1]

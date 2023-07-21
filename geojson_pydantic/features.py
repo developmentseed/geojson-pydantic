@@ -4,24 +4,22 @@ from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVa
 
 from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
 
-from geojson_pydantic.geo_interface import GeoInterfaceMixin
+from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.geometries import Geometry
-from geojson_pydantic.types import BBox, validate_bbox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Geometry)
 
 
-class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
+class Feature(_GeoJsonBase, Generic[Geom, Props]):
     """Feature Model"""
 
     type: Literal["Feature"]
     geometry: Union[Geom, None] = Field(...)
     properties: Union[Props, None] = Field(...)
     id: Optional[Union[StrictInt, StrictStr]] = None
-    bbox: Optional[BBox] = None
 
-    _validate_bbox = field_validator("bbox")(validate_bbox)
+    __geojson_exclude_if_none__ = {"bbox", "id"}
 
     @field_validator("geometry", mode="before")
     def set_geometry(cls, geometry: Any) -> Any:
@@ -35,12 +33,11 @@ class Feature(BaseModel, Generic[Geom, Props], GeoInterfaceMixin):
 Feat = TypeVar("Feat", bound=Feature)
 
 
-class FeatureCollection(BaseModel, Generic[Feat], GeoInterfaceMixin):
+class FeatureCollection(_GeoJsonBase, Generic[Feat]):
     """FeatureCollection Model"""
 
     type: Literal["FeatureCollection"]
     features: List[Feat]
-    bbox: Optional[BBox] = None
 
     def __iter__(self) -> Iterator[Feat]:  # type: ignore [override]
         """iterate over features"""
@@ -53,5 +50,3 @@ class FeatureCollection(BaseModel, Generic[Feat], GeoInterfaceMixin):
     def __getitem__(self, index: int) -> Feat:
         """get feature at a given index"""
         return self.features[index]
-
-    _validate_bbox = field_validator("bbox")(validate_bbox)
