@@ -5,19 +5,39 @@ from pydantic import Field, ValidationError
 
 from geojson_pydantic.base import _GeoJsonBase
 
-
-@pytest.mark.parametrize(
-    "values",
-    (
-        (100, 0, 0, 0),  # Incorrect Order
-        (0, 100, 0, 0),
-        (0, 0, 100, 0, 0, 0),
-        (0, "a", 0, 0),  # Invalid Type
-    ),
+BBOXES = (
+    (100, 0, 0, 0),  # Incorrect Order
+    (0, 100, 0, 0),
+    (0, 0, 100, 0, 0, 0),
+    (0, "a", 0, 0),  # Invalid Type
 )
+
+
+@pytest.mark.parametrize("values", BBOXES)
 def test_bbox_validation(values: Tuple) -> None:
+    # Ensure validation is happening correctly on the base model
     with pytest.raises(ValidationError):
         _GeoJsonBase(bbox=values)
+
+
+@pytest.mark.parametrize("values", BBOXES)
+def test_bbox_validation_subclass(values: Tuple) -> None:
+    # Ensure validation is happening correctly when subclassed
+    class TestClass(_GeoJsonBase):
+        test_field: str = None
+
+    with pytest.raises(ValidationError):
+        TestClass(bbox=values)
+
+
+@pytest.mark.parametrize("values", BBOXES)
+def test_bbox_validation_field(values: Tuple) -> None:
+    # Ensure validation is happening correctly when used as a field
+    class TestClass(_GeoJsonBase):
+        geo: _GeoJsonBase
+
+    with pytest.raises(ValidationError):
+        TestClass(geo={"bbox": values})
 
 
 def test_exclude_if_none() -> None:

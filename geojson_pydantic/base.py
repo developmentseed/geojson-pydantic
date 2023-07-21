@@ -13,7 +13,7 @@ class _GeoJsonBase(BaseModel):
 
     # These fields will not be included when serializing in json mode
     # `.model_dump_json()` or `.model_dump(mode="json")`
-    __exclude_if_none__: Set[str] = {"bbox"}
+    __geojson_exclude_if_none__: Set[str] = {"bbox"}
 
     @property
     def __geo_interface__(self) -> Dict[str, Any]:
@@ -62,7 +62,7 @@ class _GeoJsonBase(BaseModel):
         # We want to avoid forcing values in `exclude_none` or `exclude_unset` which could
         # cause issues or unexpected behavior for downstream users.
         data: Dict[str, Any] = serializer(self)
-        for field in self.__exclude_if_none__:
+        for field in self.__geojson_exclude_if_none__:
             if field in data and data[field] is None:
                 del data[field]
         return data

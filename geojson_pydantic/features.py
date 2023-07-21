@@ -19,7 +19,7 @@ class Feature(_GeoJsonBase, Generic[Geom, Props]):
     properties: Union[Props, None] = Field(...)
     id: Optional[Union[StrictInt, StrictStr]] = None
 
-    __exclude_if_none__ = {"bbox", "id"}
+    __geojson_exclude_if_none__ = {"bbox", "id"}
 
     @field_validator("geometry", mode="before")
     def set_geometry(cls, geometry: Any) -> Any:
