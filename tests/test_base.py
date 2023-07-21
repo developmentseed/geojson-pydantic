@@ -67,7 +67,7 @@ def test_exclude_if_none_subclass() -> None:
     # Create a subclass that adds a field, and ensure it works.
     class TestClass(_GeoJsonBase):
         test_field: str = None
-        __exclude_if_none__: Set[str] = {"bbox", "test_field"}
+        __geojson_exclude_if_none__: Set[str] = {"bbox", "test_field"}
 
     assert TestClass().model_dump_json() == "{}"
     assert TestClass(test_field="a").model_dump_json() == '{"test_field":"a"}'
