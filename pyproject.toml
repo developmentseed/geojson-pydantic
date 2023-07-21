@@ -25,6 +25,11 @@ dependencies = ["pydantic~=2.0"]
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "shapely"]
 dev = ["pre-commit"]
+docs = [
+    "mkdocs",
+    "mkdocs-material",
+    "pygments",
+]
 
 [project.urls]
 Source = "https://github.com/developmentseed/geojson-pydantic"
