@@ -4,9 +4,9 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
-Note: Minor version `0.X.0` update might break the API, It's recommanded to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
+Note: Minor version `0.X.0` update might break the API, It's recommended to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
-## [unreleased]
+## [1.0.0] - 2023-07-24
 
 ### Fixed
 
@@ -31,7 +31,7 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
     FeatureCollection[Feature[Geometry, Properties]]
     ```
 
-* raise `ValueError` in `geomtries.parse_geometry_obj` instead of `ValidationError`
+* raise `ValueError` in `geometries.parse_geometry_obj` instead of `ValidationError`
 
     ```python
     # before
@@ -342,7 +342,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.0...HEAD
+[1.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...1.0.0
 [0.6.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0...0.6.1
