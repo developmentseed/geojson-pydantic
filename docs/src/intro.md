@@ -121,7 +121,7 @@ assert MyPointFeatureModel(type="Feature", geometry=Point(type="Point", coordina
 And now with constrained properties
 
 ```python
-from typing import Annotated
+from typing_extensions import Annotated
 from geojson_pydantic import Feature, Point
 from pydantic import BaseModel
 
