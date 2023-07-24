@@ -22,7 +22,9 @@ extra:
 # Layout
 nav:
   - Home: 'index.md'
-  - Usage: 'usage.md'
+  - Intro: 'intro.md'
+  - Migration guides:
+    - v0.6 -> v1.0: migrations/v1.0_migration.md
   - Development - Contributing: 'contributing.md'
   - Release: 'release-notes.md'
 

@@ -34,7 +34,7 @@
 
 ## Description
 
-`geojson_pydantic` provides a suite of Pydantic models matching the GeoJSON specification [rfc7946](https://datatracker.ietf.org/doc/html/rfc7946). Those models can be used for creating or validating geojson data.
+`geojson_pydantic` provides a suite of Pydantic models matching the [GeoJSON specification rfc7946](https://datatracker.ietf.org/doc/html/rfc7946). Those models can be used for creating or validating geojson data.
 
 ## Install
 

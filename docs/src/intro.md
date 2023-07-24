@@ -28,7 +28,25 @@ assert type(fc.features[0].geometry) == Point
 assert fc.features[0].properties["name"] == "jeff"
 ```
 
-### Advanced usage
+## Geometry Model methods and properties
+
+- `__geo_interface__`: GeoJSON-like protocol for geo-spatial (GIS) vector data ([spec](https://gist.github.com/sgillies/2217756#__geo_interface)).
+- `has_z`: returns true if any coordinate has a Z value.
+- `wkt`: returns the Well Known Text representation of the geometry.
+
+##### For Polygon geometry
+
+- `exterior`: returns the exterior Linear Ring of the polygon.
+- `interiors`: returns the interiors (Holes) of the polygon.
+- `Polygon.from_bounds(xmin, ymin, xmax, ymax)`: creates a Polygon geometry from a bounding box.
+
+##### For GeometryCollection and FeatureCollection
+
+- `__iter__`: iterates over geometries or features
+- `__len__`: returns geometries or features count
+- `__getitem__(index)`: gets geometry or feature at a given index
+
+## Advanced usage
 
 In `geojson_pydantic` we've implemented pydantic's [Generic Models](https://pydantic-docs.helpmanual.io/usage/models/#generic-models) which allow the creation of more advanced models to validate either the geometry type or the properties.
 
@@ -103,12 +121,13 @@ assert MyPointFeatureModel(type="Feature", geometry=Point(type="Point", coordina
 And now with constrained properties
 
 ```python
+from typing import Annotated
 from geojson_pydantic import Feature, Point
-from pydantic import BaseModel, constr
+from pydantic import BaseModel
 
 # Define a Feature model with Geometry as `Point` and Properties as a constrained Model
 class MyProps(BaseModel):
-    name: constr(pattern=r'^(drew|vincent)$')
+    name: Annotated[str, Field(pattern=r"^(drew|vincent)$")]
 
 MyPointFeatureModel = Feature[Point, MyProps]
 
