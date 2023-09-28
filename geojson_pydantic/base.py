@@ -52,8 +52,8 @@ class _GeoJsonBase(BaseModel):
 
         return bbox
 
-    @model_serializer(when_used="json", mode="wrap")
-    def clean_model(self, serializer: Any, _info: SerializationInfo) -> Dict[str, Any]:
+    @model_serializer(when_used="always", mode="wrap")
+    def clean_model(self, serializer: Any, info: SerializationInfo) -> Dict[str, Any]:
         """Custom Model serializer to match the GeoJSON specification.
 
         Used to remove fields which are optional but cannot be null values.
@@ -62,7 +62,11 @@ class _GeoJsonBase(BaseModel):
         # We want to avoid forcing values in `exclude_none` or `exclude_unset` which could
         # cause issues or unexpected behavior for downstream users.
         data: Dict[str, Any] = serializer(self)
-        for field in self.__geojson_exclude_if_none__:
-            if field in data and data[field] is None:
-                del data[field]
+
+        # Only remove fields when in JSON mode.
+        if info.mode_is_json():
+            for field in self.__geojson_exclude_if_none__:
+                if field in data and data[field] is None:
+                    del data[field]
+
         return data
