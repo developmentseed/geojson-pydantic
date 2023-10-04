@@ -61,6 +61,7 @@ class _GeoJsonBase(BaseModel):
         # This seems like the best way to have the least amount of unexpected consequences.
         # We want to avoid forcing values in `exclude_none` or `exclude_unset` which could
         # cause issues or unexpected behavior for downstream users.
+        # ref: https://github.com/pydantic/pydantic/issues/6575
         data: Dict[str, Any] = serializer(self)
 
         # Only remove fields when in JSON mode.

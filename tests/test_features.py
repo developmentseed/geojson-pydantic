@@ -321,6 +321,14 @@ def test_feature_serializer():
     assert "bbox" in f.model_dump()
     assert "id" in f.model_dump()
 
+    # Exclude
+    assert "bbox" not in f.model_dump(exclude={"bbox"})
+    assert "bbox" not in list(json.loads(f.model_dump_json(exclude={"bbox"})).keys())
+
+    # Include
+    assert ["bbox"] == list(f.model_dump(include={"bbox"}).keys())
+    assert ["bbox"] == list(json.loads(f.model_dump_json(include={"bbox"})).keys())
+
     feat_ser = json.loads(f.model_dump_json())
     assert "bbox" in feat_ser
     assert "id" in feat_ser
@@ -336,6 +344,8 @@ def test_feature_serializer():
             "properties": {},
         }
     )
+    # BBOX Should'nt be present if `None`
+    # https://github.com/developmentseed/geojson-pydantic/issues/125
     assert "bbox" in f.model_dump()
 
     feat_ser = json.loads(f.model_dump_json())
@@ -380,6 +390,14 @@ def test_feature_collection_serializer():
         }
     )
     assert "bbox" in fc.model_dump()
+
+    # Exclude
+    assert "bbox" not in fc.model_dump(exclude={"bbox"})
+    assert "bbox" not in list(json.loads(fc.model_dump_json(exclude={"bbox"})).keys())
+
+    # Include
+    assert ["bbox"] == list(fc.model_dump(include={"bbox"}).keys())
+    assert ["bbox"] == list(json.loads(fc.model_dump_json(include={"bbox"})).keys())
 
     featcoll_ser = json.loads(fc.model_dump_json())
     assert "bbox" in featcoll_ser
