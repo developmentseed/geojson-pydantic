@@ -103,7 +103,7 @@ geojson_feature = {
 }
 
 feat = MyPolygonFeatureModel(**geojson_feature)
-assert type(feature.geometry) == Polygon
+assert type(feat.geometry) == Polygon
 ```
 
 Or with optional geometry
