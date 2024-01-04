@@ -53,7 +53,7 @@ class _GeoJsonBase(BaseModel):
         return bbox
 
     @model_serializer(when_used="always", mode="wrap")
-    def clean_model(self, serializer: Any, info: SerializationInfo):
+    def clean_model(self, serializer: Any, info: SerializationInfo) -> Any:
         """Custom Model serializer to match the GeoJSON specification.
 
         Used to remove fields which are optional but cannot be null values.
