@@ -52,6 +52,8 @@ class _GeoJsonBase(BaseModel):
 
         return bbox
 
+    # This return is untyped due to a workaround until this issue is resolved:
+    # https://github.com/tiangolo/fastapi/discussions/10661
     @model_serializer(when_used="always", mode="wrap")
     def clean_model(self, serializer: Any, info: SerializationInfo):  # type: ignore [no-untyped-def]
         """Custom Model serializer to match the GeoJSON specification.
