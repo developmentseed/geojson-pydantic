@@ -339,6 +339,13 @@ def test_parse_geometry_obj_point():
     )
 
 
+def test_schema():
+    """Test to check that the schema is the same for validation and serialization"""
+    assert Point.model_json_schema(mode="validation") == Point.model_json_schema(
+        mode="serialization"
+    )
+
+
 def test_parse_geometry_obj_multi_point():
     assert parse_geometry_obj(
         {"type": "MultiPoint", "coordinates": [[100.0, 0.0], [101.0, 1.0]]}
