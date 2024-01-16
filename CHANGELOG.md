@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommended to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [1.0.2] - 2024-01-16
+
+### Fixed
+
+* Temporary workaround for surfacing model attributes in FastAPI application (author @markus-work, https://github.com/developmentseed/geojson-pydantic/pull/153)
+
 ## [1.0.1] - 2023-10-04
 
 ### Fixed
@@ -348,7 +354,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.1...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.2...HEAD
+[1.0.2]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...1.0.0
 [0.6.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.2...0.6.3
