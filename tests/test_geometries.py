@@ -339,11 +339,23 @@ def test_parse_geometry_obj_point():
     )
 
 
-def test_schema():
+@pytest.mark.parametrize(
+    "geojson_pydantic_model",
+    (
+        GeometryCollection,
+        LineString,
+        MultiLineString,
+        MultiPoint,
+        MultiPolygon,
+        Point,
+        Polygon,
+    ),
+)
+def test_schema_consistency(geojson_pydantic_model):
     """Test to check that the schema is the same for validation and serialization"""
-    assert Point.model_json_schema(mode="validation") == Point.model_json_schema(
-        mode="serialization"
-    )
+    assert geojson_pydantic_model.model_json_schema(
+        mode="validation"
+    ) == geojson_pydantic_model.model_json_schema(mode="serialization")
 
 
 def test_parse_geometry_obj_multi_point():
