@@ -108,7 +108,7 @@ class _GeometryBase(_GeoJsonBase, abc.ABC):
 class Point(_GeometryBase):
     """Point Model"""
 
-    type: Literal["Point"]
+    type: Literal["Point"] = "Point"
     coordinates: Position
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -124,7 +124,7 @@ class Point(_GeometryBase):
 class MultiPoint(_GeometryBase):
     """MultiPoint Model"""
 
-    type: Literal["MultiPoint"]
+    type: Literal["MultiPoint"] = "MultiPoint"
     coordinates: MultiPointCoords
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -143,7 +143,7 @@ class MultiPoint(_GeometryBase):
 class LineString(_GeometryBase):
     """LineString Model"""
 
-    type: Literal["LineString"]
+    type: Literal["LineString"] = "LineString"
     coordinates: LineStringCoords
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -159,7 +159,7 @@ class LineString(_GeometryBase):
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
 
-    type: Literal["MultiLineString"]
+    type: Literal["MultiLineString"] = "MultiLineString"
     coordinates: MultiLineStringCoords
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -175,7 +175,7 @@ class MultiLineString(_GeometryBase):
 class Polygon(_GeometryBase):
     """Polygon Model"""
 
-    type: Literal["Polygon"]
+    type: Literal["Polygon"] = "Polygon"
     coordinates: PolygonCoords
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -223,7 +223,7 @@ class Polygon(_GeometryBase):
 class MultiPolygon(_GeometryBase):
     """MultiPolygon Model"""
 
-    type: Literal["MultiPolygon"]
+    type: Literal["MultiPolygon"] = "MultiPolygon"
     coordinates: MultiPolygonCoords
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
@@ -247,7 +247,7 @@ class MultiPolygon(_GeometryBase):
 class GeometryCollection(_GeoJsonBase):
     """GeometryCollection Model"""
 
-    type: Literal["GeometryCollection"]
+    type: Literal["GeometryCollection"] = "GeometryCollection"
     geometries: List[Geometry]
 
     def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]

@@ -891,3 +891,26 @@ def test_geometry_collection_serializer():
     assert "bbox" in geom_ser
     assert "bbox" not in geom_ser["geometries"][0]
     assert "bbox" not in geom_ser["geometries"][1]
+
+
+def test_defaults():
+    geometry_collection = GeometryCollection(geometries=[])
+    assert geometry_collection.type == "GeometryCollection"
+
+    line_string = LineString(coordinates=[(0.0, 0.0), (1.0, 1.0)])
+    assert line_string.type == "LineString"
+
+    multiline_string = MultiLineString(coordinates=[])
+    assert multiline_string.type == "MultiLineString"
+
+    multi_point = MultiPoint(coordinates=[])
+    assert multi_point.type == "MultiPoint"
+
+    multi_polygon = MultiPolygon(coordinates=[])
+    assert multi_polygon.type == "MultiPolygon"
+
+    point = Point(coordinates=[0, 0])
+    assert point.type == "Point"
+
+    polygon = Polygon(coordinates=[])
+    assert polygon.type == "Polygon"

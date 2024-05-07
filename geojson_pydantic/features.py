@@ -14,7 +14,7 @@ Geom = TypeVar("Geom", bound=Geometry)
 class Feature(_GeoJsonBase, Generic[Geom, Props]):
     """Feature Model"""
 
-    type: Literal["Feature"]
+    type: Literal["Feature"] = "Feature"
     geometry: Union[Geom, None] = Field(...)
     properties: Union[Props, None] = Field(...)
     id: Optional[Union[StrictInt, StrictStr]] = None
@@ -36,7 +36,7 @@ Feat = TypeVar("Feat", bound=Feature)
 class FeatureCollection(_GeoJsonBase, Generic[Feat]):
     """FeatureCollection Model"""
 
-    type: Literal["FeatureCollection"]
+    type: Literal["FeatureCollection"] = "FeatureCollection"
     features: List[Feat]
 
     def __iter__(self) -> Iterator[Feat]:  # type: ignore [override]

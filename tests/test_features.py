@@ -233,10 +233,6 @@ def test_feature_validation():
         Feature(type="feature", properties=None, geometry=None)
 
     with pytest.raises(ValidationError):
-        # missing type
-        Feature(properties=None, geometry=None)
-
-    with pytest.raises(ValidationError):
         # missing properties
         Feature(type="Feature", geometry=None)
 
@@ -425,3 +421,11 @@ def test_feature_collection_serializer():
     assert "bbox" not in featcoll_ser
     assert "bbox" not in featcoll_ser["features"][0]
     assert "bbox" not in featcoll_ser["features"][0]["geometry"]
+
+
+def test_feature_defauls():
+    feature = Feature(properties=None, geometry=None)
+    assert feature.type == "Feature"
+
+    feature_collection = FeatureCollection(features=[])
+    assert feature_collection.type == "FeatureCollection"
