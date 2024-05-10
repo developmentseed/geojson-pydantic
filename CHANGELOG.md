@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommended to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [1.1.0] - 2024-05-10
+
+### Added
+
+* Add Position2D and Position3D of type NamedTuple (author @impocode, https://github.com/developmentseed/geojson-pydantic/pull/161)
+
 ## [1.0.2] - 2024-01-16
 
 ### Fixed
