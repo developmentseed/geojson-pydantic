@@ -16,6 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: GIS",
     "Typing :: Typed",
 ]
@@ -35,7 +36,7 @@ docs = [
 Source = "https://github.com/developmentseed/geojson-pydantic"
 
 [build-system]
-requires = ["flit>=3.2,<4"]
+requires = ["flit_core>=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
