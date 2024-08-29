@@ -16,6 +16,7 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: GIS",
     "Typing :: Typed",
 ]
@@ -24,7 +25,10 @@ dependencies = ["pydantic~=2.0"]
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "shapely"]
-dev = ["pre-commit"]
+dev = [
+    "pre-commit",
+    "bump-my-version",
+]
 docs = [
     "mkdocs",
     "mkdocs-material",
@@ -35,7 +39,7 @@ docs = [
 Source = "https://github.com/developmentseed/geojson-pydantic"
 
 [build-system]
-requires = ["flit>=3.2,<4"]
+requires = ["flit_core>=3.2,<4"]
 build-backend = "flit_core.buildapi"
 
 [tool.flit.module]
@@ -94,3 +98,18 @@ ignore = [
 
 [tool.ruff.per-file-ignores]
 "tests/*.py" = ["D1"]
+
+[tool.bumpversion]
+current_version = "1.1.0"
+
+search = "{current_version}"
+replace = "{new_version}"
+regex = false
+tag = true
+commit = true
+tag_name = "{new_version}"
+
+[[tool.bumpversion.files]]
+filename = "geojson_pydantic/__init__.py"
+search = '__version__ = "{current_version}"'
+replace = '__version__ = "{new_version}"'
