@@ -2,8 +2,8 @@
 
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, StrictInt, StrictStr, validator
-from pydantic.generics import GenericModel
+from pydantic.v1 import BaseModel, Field, StrictInt, StrictStr, validator
+from pydantic.v1.generics import GenericModel
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
 from geojson_pydantic.geometries import Geometry, GeometryCollection
