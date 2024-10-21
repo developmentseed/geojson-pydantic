@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommanded to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## unrelease
+
+* add python 3.12 support
+* switch to `flit-core` for packaging build backend
+
 ## [0.6.3] - 2023-07-02
 
 * limit pydantic requirement to `~=1.0``
