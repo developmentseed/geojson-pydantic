@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommended to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [1.1.2] - 2024-10-22
+
+* relax `bbox` validation and allow antimeridian crossing bboxes
+
 ## [1.1.1] - 2024-08-29
 
 * add python 3.12 support
@@ -365,7 +369,10 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.2...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.2...HEAD
+[1.1.2]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.1...1.1.2
+[1.1.1]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.0...1.1.1
+[1.1.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.2...1.1.0
 [1.0.2]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.1...1.0.2
 [1.0.1]: https://github.com/developmentseed/geojson-pydantic/compare/1.0.0...1.0.1
 [1.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...1.0.0

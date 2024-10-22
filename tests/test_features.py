@@ -253,14 +253,26 @@ def test_feature_validation():
 
     with pytest.raises(ValidationError):
         # bad bbox2d
-        Feature(type="Feature", properties=None, bbox=(100, 100, 0, 0), geometry=None)
+        Feature(type="Feature", properties=None, bbox=(0, 100, 100, 0), geometry=None)
 
     with pytest.raises(ValidationError):
         # bad bbox3d
         Feature(
             type="Feature",
             properties=None,
-            bbox=(100, 100, 100, 0, 0, 0),
+            bbox=(0, 100, 100, 100, 0, 0),
+            geometry=None,
+        )
+
+    # Antimeridian
+    with pytest.warns(UserWarning):
+        Feature(type="Feature", properties=None, bbox=(100, 0, 0, 100), geometry=None)
+
+    with pytest.warns(UserWarning):
+        Feature(
+            type="Feature",
+            properties=None,
+            bbox=(100, 0, 0, 0, 100, 100),
             geometry=None,
         )
 

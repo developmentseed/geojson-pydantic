@@ -6,7 +6,6 @@ from pydantic import Field, ValidationError
 from geojson_pydantic.base import _GeoJsonBase
 
 BBOXES = (
-    (100, 0, 0, 0),  # Incorrect Order
     (0, 100, 0, 0),
     (0, 0, 100, 0, 0, 0),
     (0, "a", 0, 0),  # Invalid Type
@@ -18,6 +17,11 @@ def test_bbox_validation(values: Tuple) -> None:
     # Ensure validation is happening correctly on the base model
     with pytest.raises(ValidationError):
         _GeoJsonBase(bbox=values)
+
+
+def test_bbox_antimeridian() -> None:
+    with pytest.warns(UserWarning):
+        _GeoJsonBase(bbox=(100, 0, 0, 0))
 
 
 @pytest.mark.parametrize("values", BBOXES)
