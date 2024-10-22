@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/).
 
 Note: Minor version `0.X.0` update might break the API, It's recommended to pin geojson-pydantic to minor version: `geojson-pydantic>=0.6,<0.7`
 
+## [1.1.2] - 2024-10-22
+
+* relax `bbox` validation and allow antimeridian crossing bboxes
+
 ## [1.1.1] - 2024-08-29
 
 * add python 3.12 support

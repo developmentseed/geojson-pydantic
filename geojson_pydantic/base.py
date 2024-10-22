@@ -1,6 +1,7 @@
 """pydantic BaseModel for GeoJSON objects."""
 from __future__ import annotations
 
+import warnings
 from typing import Any, Dict, List, Optional, Set
 
 from pydantic import BaseModel, SerializationInfo, field_validator, model_serializer
@@ -38,10 +39,15 @@ class _GeoJsonBase(BaseModel):
 
         # Check X
         if bbox[0] > bbox[offset]:
-            errors.append(f"Min X ({bbox[0]}) must be <= Max X ({bbox[offset]}).")
+            warnings.warn(
+                f"BBOX crossing the Antimeridian line, Min X ({bbox[0]}) > Max X ({bbox[offset]}).",
+                UserWarning,
+            )
+
         # Check Y
         if bbox[1] > bbox[1 + offset]:
             errors.append(f"Min Y ({bbox[1]}) must be <= Max Y ({bbox[1 + offset]}).")
+
         # If 3D, check Z values.
         if offset > 2 and bbox[2] > bbox[2 + offset]:
             errors.append(f"Min Z ({bbox[2]}) must be <= Max Z ({bbox[2 + offset]}).")
