@@ -21,7 +21,7 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = ["version"]
-dependencies = ["pydantic~=1.0"]
+dependencies = ["pydantic>1.10.18,<3"]
 
 [project.optional-dependencies]
 test = ["pytest", "pytest-cov", "shapely"]

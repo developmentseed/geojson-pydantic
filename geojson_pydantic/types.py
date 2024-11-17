@@ -2,7 +2,7 @@
 
 from typing import TYPE_CHECKING, List, Optional, Tuple, TypeVar, Union
 
-from pydantic import conlist
+from pydantic.v1 import conlist
 
 T = TypeVar("T")
 

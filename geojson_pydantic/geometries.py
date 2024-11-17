@@ -5,8 +5,8 @@ import abc
 import warnings
 from typing import Any, Iterator, List, Literal, Optional, Union
 
-from pydantic import BaseModel, Field, ValidationError, validator
-from pydantic.error_wrappers import ErrorWrapper
+from pydantic.v1 import BaseModel, Field, ValidationError, validator
+from pydantic.v1.error_wrappers import ErrorWrapper
 from typing_extensions import Annotated
 
 from geojson_pydantic.geo_interface import GeoInterfaceMixin
