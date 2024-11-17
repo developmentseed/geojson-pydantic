@@ -8,8 +8,11 @@ Note: Minor version `0.X.0` update might break the API, It's recommanded to pin 
 
 ## unrelease
 
+## [0.7.0] - 2024-11-17
+
 * add python 3.12 support
 * switch to `flit-core` for packaging build backend
+* switch to Pydantic v1 namespace and allow Pydantic v1 or v2 (author @josephgruber-umbra, https://github.com/developmentseed/geojson-pydantic/pull/168)
 
 ## [0.6.3] - 2023-07-02
 
@@ -294,7 +297,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/0.7.0...HEAD
+[0.7.0]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.3...0.7.0
 [0.6.3]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.2...0.6.3
 [0.6.2]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.1...0.6.2
 [0.6.1]: https://github.com/developmentseed/geojson-pydantic/compare/0.6.0...0.6.1
