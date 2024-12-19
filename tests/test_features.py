@@ -106,7 +106,7 @@ def test_generic_properties_is_dict():
     feature = Feature(**test_feature)
     assert hasattr(feature, "__geo_interface__")
     assert feature.properties["id"] == test_feature["properties"]["id"]
-    assert type(feature.properties) == dict
+    assert isinstance(feature.properties, dict)
     assert not hasattr(feature.properties, "id")
 
 
@@ -116,7 +116,7 @@ def test_generic_properties_is_dict_collection():
     assert (
         feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
     )
-    assert type(feature.properties) == dict
+    assert isinstance(feature.properties, dict)
     assert not hasattr(feature.properties, "id")
 
 
@@ -137,7 +137,7 @@ def test_generic_geometry():
     feature = Feature[Polygon, Dict](**test_feature)
     assert type(feature.geometry) == Polygon
     assert feature.properties["id"] == test_feature["properties"]["id"]
-    assert type(feature.properties) == dict
+    assert isinstance(feature.properties, dict)
     assert not hasattr(feature.properties, "id")
 
     with pytest.raises(ValidationError):
@@ -159,7 +159,7 @@ def test_generic_geometry_collection():
     assert (
         feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
     )
-    assert type(feature.properties) == dict
+    assert isinstance(feature.properties, dict)
     assert not hasattr(feature.properties, "id")
 
     with pytest.raises(ValidationError):

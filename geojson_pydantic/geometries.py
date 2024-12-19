@@ -1,4 +1,5 @@
 """pydantic models for GeoJSON Geometry objects."""
+
 from __future__ import annotations
 
 import abc
@@ -285,17 +286,20 @@ class GeometryCollection(_GeoJsonBase):
         """Add warnings for conditions the spec does not explicitly forbid."""
         if len(geometries) == 1:
             warnings.warn(
-                "GeometryCollection should not be used for single geometries."
+                "GeometryCollection should not be used for single geometries.",
+                stacklevel=1,
             )
 
         if any(geom.type == "GeometryCollection" for geom in geometries):
             warnings.warn(
-                "GeometryCollection should not be used for nested GeometryCollections."
+                "GeometryCollection should not be used for nested GeometryCollections.",
+                stacklevel=1,
             )
 
         if len({geom.type for geom in geometries}) == 1:
             warnings.warn(
-                "GeometryCollection should not be used for homogeneous collections."
+                "GeometryCollection should not be used for homogeneous collections.",
+                stacklevel=1,
             )
 
         return geometries

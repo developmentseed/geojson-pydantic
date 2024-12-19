@@ -1,4 +1,5 @@
 """pydantic BaseModel for GeoJSON objects."""
+
 from __future__ import annotations
 
 import warnings
@@ -42,6 +43,7 @@ class _GeoJsonBase(BaseModel):
             warnings.warn(
                 f"BBOX crossing the Antimeridian line, Min X ({bbox[0]}) > Max X ({bbox[offset]}).",
                 UserWarning,
+                stacklevel=1,
             )
 
         # Check Y

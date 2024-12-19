@@ -12,11 +12,11 @@ classifiers = [
     "Intended Audience :: Information Technology",
     "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "Topic :: Scientific/Engineering :: GIS",
     "Typing :: Typed",
 ]
@@ -81,7 +81,7 @@ warn_unused_ignores = true
 no_implicit_optional = true
 show_error_codes = true
 
-[tool.ruff]
+[tool.ruff.lint]
 select = [
     "D1",  # pydocstyle errors
     "E",  # pycodestyle errors
@@ -96,7 +96,7 @@ ignore = [
     "B905",  # ignore zip() without an explicit strict= parameter, only support with python >3.10
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
 "tests/*.py" = ["D1"]
 
 [tool.bumpversion]
