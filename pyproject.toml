@@ -2,7 +2,7 @@
 name = "geojson-pydantic"
 description = "Pydantic data models for the GeoJSON spec."
 readme = "README.md"
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 license = {file = "LICENSE"}
 authors = [
     {name = "Drew Bollinger", email = "drew@developmentseed.org"},
@@ -100,7 +100,7 @@ ignore = [
 "tests/*.py" = ["D1"]
 
 [tool.bumpversion]
-current_version = "1.1.2"
+current_version = "1.2.0"
 
 search = "{current_version}"
 replace = "{new_version}"

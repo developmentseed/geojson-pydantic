@@ -82,7 +82,7 @@ jobs:
           echo version=$(python -c'import geojson_pydantic; print(geojson_pydantic.__version__)') >> $GITHUB_OUTPUT
 
       - name: Build and publish
-        if: steps.tag.outputs.tag == steps.module.outputs.version
+        if: ${{ steps.tag.outputs.version }} == ${{ steps.module.outputs.version}}
         env:
           FLIT_USERNAME: ${{ secrets.PYPI_USERNAME }}
           FLIT_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
