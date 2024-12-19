@@ -596,8 +596,7 @@ def test_polygon_from_bounds():
 def test_wkt_name():
     """Make sure WKT name is derived from geometry Type."""
 
-    class PointType(Point):
-        ...
+    class PointType(Point): ...
 
     assert (
         PointType(type="Point", coordinates=(1.01, 2.01)).wkt
