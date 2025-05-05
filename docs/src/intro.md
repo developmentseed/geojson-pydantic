@@ -23,7 +23,7 @@ assert feat.properties["name"] == "jeff"
 
 fc = FeatureCollection(type="FeatureCollection", features=[geojson_feature, geojson_feature])
 assert fc.type == "FeatureCollection"
-assert len(fc) == 2
+assert len(fc.features) == 2
 assert type(fc.features[0].geometry) == Point
 assert fc.features[0].properties["name"] == "jeff"
 ```
@@ -42,9 +42,8 @@ assert fc.features[0].properties["name"] == "jeff"
 
 ##### For GeometryCollection and FeatureCollection
 
-- `__iter__`: iterates over geometries or features
-- `__len__`: returns geometries or features count
-- `__getitem__(index)`: gets geometry or feature at a given index
+- `iter()`: iterates over geometries or features
+- `length`: returns geometries or features count
 
 ## Advanced usage
 

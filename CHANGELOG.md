@@ -8,7 +8,7 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
-## [2.0.0] - TBD
+## [2.0.0] - 2025-05-05
 
 * remove custom `__iter__`, `__getitem__` and `__len__` methods from `GeometryCollection` class  **breaking change**
 
