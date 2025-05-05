@@ -278,6 +278,11 @@ class GeometryCollection(_GeoJsonBase):
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
 
+    @property
+    def has_z(self) -> bool:
+        """Checks if any coordinates have a Z value."""
+        return any(geom.has_z for geom in self.geometries)
+
     @field_validator("geometries")
     def check_geometries(cls, geometries: List) -> List:
         """Add warnings for conditions the spec does not explicitly forbid."""
@@ -298,6 +303,9 @@ class GeometryCollection(_GeoJsonBase):
                 "GeometryCollection should not be used for homogeneous collections.",
                 stacklevel=1,
             )
+
+        if len({geom.has_z for geom in geometries}) == 2:
+            raise ValueError("GeometryCollection cannot have mixed Z dimensionality.")
 
         return geometries
 

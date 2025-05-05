@@ -534,12 +534,14 @@ def test_getitem_geometry_collection(coordinates):
 
 def test_wkt_mixed_geometry_collection():
     point = Point(type="Point", coordinates=(0.0, 0.0, 0.0))
-    line_string = LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)])
+    line_string = LineString(
+        type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    )
     assert (
         GeometryCollection(
             type="GeometryCollection", geometries=[point, line_string]
         ).wkt
-        == "GEOMETRYCOLLECTION Z (POINT Z (0.0 0.0 0.0), LINESTRING (0.0 0.0, 1.0 1.0))"
+        == "GEOMETRYCOLLECTION Z (POINT Z (0.0 0.0 0.0), LINESTRING Z (0.0 0.0 0.0, 1.0 1.0 1.0))"
     )
 
 
@@ -552,6 +554,9 @@ def test_wkt_empty_geometry_collection():
 
 def test_geometry_collection_warnings():
     point = Point(type="Point", coordinates=(0.0, 0.0, 0.0))
+    line_string_z = LineString(
+        type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+    )
     line_string = LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)])
 
     # one geometry
@@ -575,18 +580,15 @@ def test_geometry_collection_warnings():
             type="GeometryCollection",
             geometries=[
                 GeometryCollection(
-                    type="GeometryCollection", geometries=[point, line_string]
+                    type="GeometryCollection", geometries=[point, line_string_z]
                 ),
                 point,
             ],
         )
 
-    # homogeneous geometry
-    with pytest.warns(
-        UserWarning,
-        match="GeometryCollection should not be used for homogeneous collections.",
-    ):
-        GeometryCollection(type="GeometryCollection", geometries=[point, point])
+    # homogeneous (Z) geometry
+    with pytest.raises(ValidationError):
+        GeometryCollection(type="GeometryCollection", geometries=[point, line_string])
 
 
 def test_polygon_from_bounds():
@@ -776,9 +778,9 @@ def test_wkt_empty_geometrycollection():
         "MULTIPOLYGON Z (((0.0 0.0 0.0, 1.0 1.0 0.0, 2.0 2.0 0.0, 3.0 3.0 0.0, 0.0 0.0 0.0)), ((1.0 1.0 0.0, 2.0 2.0 0.0, 3.0 3.0 0.0, 4.0 4.0 0.0, 1.0 1.0 0.0)))",
         "MULTIPOLYGON EMPTY",
         "GEOMETRYCOLLECTION (POINT (0.0 0.0))",
+        "GEOMETRYCOLLECTION (POLYGON EMPTY, MULTIPOLYGON (((0.0 0.0, 1.0 1.0, 2.0 2.0, 3.0 3.0, 0.0 0.0))))",
         "GEOMETRYCOLLECTION (POINT (0.0 0.0), MULTIPOINT ((0.0 0.0), (1.0 1.0)))",
-        "GEOMETRYCOLLECTION Z (POLYGON EMPTY, MULTIPOLYGON Z (((0.0 0.0 0.0, 1.0 1.0 0.0, 2.0 2.0 0.0, 3.0 3.0 0.0, 0.0 0.0 0.0))))",
-        "GEOMETRYCOLLECTION Z (LINESTRING Z (0.0 0.0 0.0, 1.0 1.0 1.0, 2.0 2.0 2.0), MULTILINESTRING ((0.0 0.0, 1.0 1.0), (1.0 1.0, 2.0 2.0)))",
+        "GEOMETRYCOLLECTION Z (POLYGON Z ((0.0 0.0 0.0, 1.0 1.0 0.0, 2.0 2.0 0.0, 3.0 3.0 0.0, 0.0 0.0 0.0)), MULTIPOLYGON Z (((0.0 0.0 0.0, 1.0 1.0 0.0, 2.0 2.0 0.0, 3.0 3.0 0.0, 0.0 0.0 0.0))))",
         "GEOMETRYCOLLECTION EMPTY",
     ),
 )
@@ -843,9 +845,21 @@ def test_geometry_collection_serializer():
             LineString(type="LineString", coordinates=[(0.0, 0.0), (1.0, 1.0)]),
         ],
     )
+    assert not geom.has_z
     # bbox will be in the Dict
     assert "bbox" in geom.model_dump()
     assert "bbox" in geom.model_dump()["geometries"][0]
+
+    geom = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0, 0]),
+            LineString(
+                type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]
+            ),
+        ],
+    )
+    assert geom.has_z
 
     # bbox should not be in any Geometry nor at the top level
     geom_ser = json.loads(geom.model_dump_json())

@@ -73,6 +73,38 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
     _ = fe.features[0]     # __getitem__
     ```
 
+* make sure `GeometryCollection` are homogeneous for Z coordinates
+
+    ```python
+    from geojson_pydantic.geometries import Point, LineString, GeometryCollection
+    # Before
+    GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),  # 2D point
+            LineString(
+                type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]  # 3D LineString
+            ),
+        ],
+    )
+    >>> GeometryCollection(bbox=None, type='GeometryCollection', geometries=[Point(bbox=None, type='Point', coordinates=Position3D(longitude=0.0, latitude=0.0, altitude=0.0)), LineString(bbox=None, type='LineString', coordinates=[Position3D(longitude=0.0, latitude=0.0, altitude=0.0), Position3D(longitude=1.0, latitude=1.0, altitude=1.0)])])
+
+    # Now
+    GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),  # 2D point
+            LineString(
+                type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]  # 3D LineString
+            ),
+        ],
+    )
+    >>> ValidationError: 1 validation error for GeometryCollection
+    geometries
+    Value error, GeometryCollection cannot have mixed Z dimensionality. [type=value_error, input_value=[Point(bbox=None, type='P...de=1.0, altitude=1.0)])], input_type=list]
+        For further information visit https://errors.pydantic.dev/2.11/v/value_error
+    ```
+
 ## [1.2.0] - 2024-12-19
 
 * drop python 3.8 support
