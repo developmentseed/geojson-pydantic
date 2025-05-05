@@ -90,7 +90,9 @@ def test_feature_collection_iteration():
         type="FeatureCollection", features=[test_feature, test_feature]
     )
     assert hasattr(gc, "__geo_interface__")
-    iter(gc)
+    assert list(iter(gc))
+    assert len(list(gc.iter())) == 2
+    assert dict(gc)
 
 
 def test_geometry_collection_iteration():
@@ -99,7 +101,9 @@ def test_geometry_collection_iteration():
         type="FeatureCollection", features=[test_feature_geometry_collection]
     )
     assert hasattr(gc, "__geo_interface__")
-    iter(gc)
+    assert list(iter(gc))
+    assert len(list(gc.iter())) == 1
+    assert dict(gc)
 
 
 def test_generic_properties_is_dict():
@@ -177,9 +181,11 @@ def test_feature_collection_generic():
     fc = FeatureCollection[Feature[Polygon, GenericProperties]](
         type="FeatureCollection", features=[test_feature, test_feature]
     )
-    assert len(fc) == 2
-    assert type(fc[0].properties) == GenericProperties
-    assert type(fc[0].geometry) == Polygon
+    assert fc.length == 2
+    assert len(list(fc.iter())) == 2
+    assert type(fc.features[0].properties) == GenericProperties
+    assert type(fc.features[0].geometry) == Polygon
+    assert dict(fc)
 
 
 def test_geo_interface_protocol():

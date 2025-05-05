@@ -498,7 +498,8 @@ def test_geometry_collection_iteration(coordinates):
         type="GeometryCollection", geometries=[polygon, multipolygon]
     )
     assert hasattr(gc, "__geo_interface__")
-    iter(gc)
+    assert len(list(gc.iter())) == 2
+    assert list(iter(gc))
 
 
 @pytest.mark.parametrize(
@@ -511,7 +512,10 @@ def test_len_geometry_collection(coordinates):
     gc = GeometryCollection(
         type="GeometryCollection", geometries=[polygon, multipolygon]
     )
-    assert len(gc) == 2
+    assert gc.length == 2
+    assert len(list(gc.iter())) == 2
+    assert dict(gc)
+    assert list(iter(gc))
 
 
 @pytest.mark.parametrize(
@@ -524,8 +528,8 @@ def test_getitem_geometry_collection(coordinates):
     gc = GeometryCollection(
         type="GeometryCollection", geometries=[polygon, multipolygon]
     )
-    assert polygon == gc[0]
-    assert multipolygon == gc[1]
+    assert polygon == gc.geometries[0]
+    assert multipolygon == gc.geometries[1]
 
 
 def test_wkt_mixed_geometry_collection():

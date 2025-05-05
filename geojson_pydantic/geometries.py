@@ -251,17 +251,14 @@ class GeometryCollection(_GeoJsonBase):
     type: Literal["GeometryCollection"]
     geometries: List[Geometry]
 
-    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
+    def iter(self) -> Iterator[Geometry]:
         """iterate over geometries"""
         return iter(self.geometries)
 
-    def __len__(self) -> int:
+    @property
+    def length(self) -> int:
         """return geometries length"""
         return len(self.geometries)
-
-    def __getitem__(self, index: int) -> Geometry:
-        """get geometry at a given index"""
-        return self.geometries[index]
 
     @property
     def wkt(self) -> str:
