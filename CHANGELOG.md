@@ -8,6 +8,103 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
+## [2.0.0] - TBD
+
+* remove custom `__iter__`, `__getitem__` and `__len__` methods from `GeometryCollection` class  **breaking change**
+
+    ```python
+    from geojson_pydantic.geometries import GeometryCollection, Point, MultiPoint
+
+    geoms = GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=(102.0, 0.5)),
+            MultiPoint(type="MultiPoint", coordinates=[(100.0, 0.0), (101.0, 1.0)]),
+        ],
+    )
+
+    ########
+    # Before
+    for geom in geom:       # __iter__
+        pass
+
+    assert len(geoms) == 2  # __len__
+
+    _ = geoms[0]            # __getitem__
+
+    #####
+    # Now
+    for geom in geom.iter():   # __iter__
+        pass
+
+    assert geoms.length == 2  # __len__
+
+    _ = geoms.geometries[0]   # __getitem__
+    ```
+
+* remove custom `__iter__`, `__getitem__` and `__len__` methods from `FeatureCollection` class  **breaking change**
+
+    ```python
+    from geojson_pydantic import FeatureCollection, Feature, Point
+
+    fc = FeatureCollection(
+        type="FeatureCollection", features=[
+            Feature(type="Feature", geometry=Point(type="Point", coordinates=(102.0, 0.5)), properties={"name": "point1"}),
+            Feature(type="Feature", geometry=Point(type="Point", coordinates=(102.0, 1.5)), properties={"name": "point2"}),
+        ]
+    )
+
+    ########
+    # Before
+    for feat in fc:      # __iter__
+        pass
+
+    assert len(fc) == 2  # __len__
+
+    _ = fc[0]            # __getitem__
+
+    #####
+    # Now
+    for feat in fc.iter(): # __iter__
+        pass
+
+    assert fc.length == 2  # __len__
+
+    _ = fe.features[0]     # __getitem__
+    ```
+
+* make sure `GeometryCollection` are homogeneous for Z coordinates
+
+    ```python
+    from geojson_pydantic.geometries import Point, LineString, GeometryCollection
+    # Before
+    GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),  # 2D point
+            LineString(
+                type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]  # 3D LineString
+            ),
+        ],
+    )
+    >>> GeometryCollection(bbox=None, type='GeometryCollection', geometries=[Point(bbox=None, type='Point', coordinates=Position3D(longitude=0.0, latitude=0.0, altitude=0.0)), LineString(bbox=None, type='LineString', coordinates=[Position3D(longitude=0.0, latitude=0.0, altitude=0.0), Position3D(longitude=1.0, latitude=1.0, altitude=1.0)])])
+
+    # Now
+    GeometryCollection(
+        type="GeometryCollection",
+        geometries=[
+            Point(type="Point", coordinates=[0, 0]),  # 2D point
+            LineString(
+                type="LineString", coordinates=[(0.0, 0.0, 0.0), (1.0, 1.0, 1.0)]  # 3D LineString
+            ),
+        ],
+    )
+    >>> ValidationError: 1 validation error for GeometryCollection
+    geometries
+    Value error, GeometryCollection cannot have mixed Z dimensionality. [type=value_error, input_value=[Point(bbox=None, type='P...de=1.0, altitude=1.0)])], input_type=list]
+        For further information visit https://errors.pydantic.dev/2.11/v/value_error
+    ```
+
 ## [1.2.0] - 2024-12-19
 
 * drop python 3.8 support
@@ -376,7 +473,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/1.2.0...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/2.0.0...HEAD
+[2.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.2.0...2.0.0
 [1.2.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.1...1.1.2
 [1.1.1]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.0...1.1.1

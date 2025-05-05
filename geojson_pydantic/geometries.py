@@ -251,17 +251,14 @@ class GeometryCollection(_GeoJsonBase):
     type: Literal["GeometryCollection"]
     geometries: List[Geometry]
 
-    def __iter__(self) -> Iterator[Geometry]:  # type: ignore [override]
+    def iter(self) -> Iterator[Geometry]:
         """iterate over geometries"""
         return iter(self.geometries)
 
-    def __len__(self) -> int:
+    @property
+    def length(self) -> int:
         """return geometries length"""
         return len(self.geometries)
-
-    def __getitem__(self, index: int) -> Geometry:
-        """get geometry at a given index"""
-        return self.geometries[index]
 
     @property
     def wkt(self) -> str:
@@ -280,6 +277,11 @@ class GeometryCollection(_GeoJsonBase):
         # If any of them contain `Z` add Z to the output wkt
         z = " Z " if "Z" in geometries else " "
         return f"{self.type.upper()}{z}{geometries}"
+
+    @property
+    def has_z(self) -> bool:
+        """Checks if any coordinates have a Z value."""
+        return any(geom.has_z for geom in self.geometries)
 
     @field_validator("geometries")
     def check_geometries(cls, geometries: List) -> List:
@@ -301,6 +303,9 @@ class GeometryCollection(_GeoJsonBase):
                 "GeometryCollection should not be used for homogeneous collections.",
                 stacklevel=1,
             )
+
+        if len({geom.has_z for geom in geometries}) == 2:
+            raise ValueError("GeometryCollection cannot have mixed Z dimensionality.")
 
         return geometries
 

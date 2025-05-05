@@ -39,14 +39,11 @@ class FeatureCollection(_GeoJsonBase, Generic[Feat]):
     type: Literal["FeatureCollection"]
     features: List[Feat]
 
-    def __iter__(self) -> Iterator[Feat]:  # type: ignore [override]
+    def iter(self) -> Iterator[Feat]:
         """iterate over features"""
         return iter(self.features)
 
-    def __len__(self) -> int:
+    @property
+    def length(self) -> int:
         """return features length"""
         return len(self.features)
-
-    def __getitem__(self, index: int) -> Feat:
-        """get feature at a given index"""
-        return self.features[index]
