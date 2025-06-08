@@ -59,6 +59,9 @@ test_feature: Dict[str, Any] = {
     "bbox": [13.38272, 52.46385, 13.42786, 52.48445],
 }
 
+test_feature_no_type: Dict[str, Any] = test_feature.copy()
+test_feature_no_type.pop("type")
+
 test_feature_geom_null: Dict[str, Any] = {
     "type": "Feature",
     "geometry": None,
@@ -229,6 +232,17 @@ def test_bad_feature_id(id):
         Feature(**test_feature, id=id)
 
 
+def test_feature_make():
+    # Using make it is possible to create a valid Feature without specifying
+    # redundant information, e.g. `type="Feature"`:
+    feature = Feature.make()
+    assert feature.type == "Feature"
+    feature = Feature.make(properties={"foo": "bar"})
+    assert feature.type == "Feature"
+    assert feature.geometry is None
+    assert feature.properties == {"foo": "bar"}
+
+
 def test_feature_validation():
     """Test default."""
     assert Feature(type="Feature", properties=None, geometry=None)
@@ -281,6 +295,13 @@ def test_feature_validation():
             bbox=(100, 0, 0, 0, 100, 100),
             geometry=None,
         )
+
+
+def test_deserialization():
+    Feature.model_validate(test_feature)
+    # type missing
+    with pytest.raises(ValidationError):
+        Feature.model_validate(test_feature_no_type)
 
 
 def test_bbox_validation():

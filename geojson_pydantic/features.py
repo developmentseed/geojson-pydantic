@@ -1,11 +1,14 @@
 """pydantic models for GeoJSON Feature objects."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
 
 from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.geometries import Geometry
+from geojson_pydantic.types import BBox
 
 Props = TypeVar("Props", bound=Union[Dict[str, Any], BaseModel])
 Geom = TypeVar("Geom", bound=Geometry)
@@ -28,6 +31,26 @@ class Feature(_GeoJsonBase, Generic[Geom, Props]):
             return geometry.__geo_interface__
 
         return geometry
+
+    @staticmethod
+    def make(
+        *,
+        type: Literal["Feature"] = "Feature",
+        geometry: Optional[Geom] = None,
+        properties: Optional[Props] = None,
+        id: Optional[Union[StrictInt, StrictStr]] = None,
+        bbox: Optional[BBox] = None,
+    ) -> Feature:
+        """Allow to create a Feature without needint to specify all arguments.
+        In particular it is not necessary to specify the redundant `type="Feature"`.
+        """
+        return Feature(
+            type=type,
+            geometry=geometry,
+            properties=properties,
+            id=id,
+            bbox=bbox,
+        )
 
 
 Feat = TypeVar("Feat", bound=Feature)
