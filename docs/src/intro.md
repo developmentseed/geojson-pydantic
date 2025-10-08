@@ -195,5 +195,6 @@ Starting with `2.1.0`, users can use the `.create()` methods to create geometrie
 from geojson_pydantic import Point
 
 Point.create(coordinates=(0,0))
->> Point(bbox=None, type='Point', coordinates=Position2D(longitude=0.0, latitude=0.0))
+# is equivalent to
+Point(bbox=None, type='Point', coordinates=Position2D(longitude=0.0, latitude=0.0))
 ```
