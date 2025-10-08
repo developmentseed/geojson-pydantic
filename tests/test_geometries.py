@@ -908,3 +908,131 @@ def test_geometry_collection_serializer():
     assert "bbox" in geom_ser
     assert "bbox" not in geom_ser["geometries"][0]
     assert "bbox" not in geom_ser["geometries"][1]
+
+
+@pytest.mark.parametrize(
+    "obj,kwargs",
+    (
+        (Point, {"coordinates": [0, 0], "bbox": [0, 0, 0, 0]}),
+        (Point, {"coordinates": [0, 0]}),
+        (Point, {"type": "Point", "coordinates": [0, 0]}),
+        (MultiPoint, {"coordinates": [(0.0, 0.0)], "bbox": [0, 0, 0, 0]}),
+        (MultiPoint, {"coordinates": [(0.0, 0.0)]}),
+        (MultiPoint, {"type": "MultiPoint", "coordinates": [(0.0, 0.0)]}),
+        (LineString, {"coordinates": [(0.0, 0.0), (1.0, 1.0)], "bbox": [0, 0, 1, 1]}),
+        (LineString, {"coordinates": [(0.0, 0.0), (1.0, 1.0)]}),
+        (LineString, {"type": "LineString", "coordinates": [(0.0, 0.0), (1.0, 1.0)]}),
+        (MultiLineString, {"coordinates": [[(0.0, 0.0), (1.0, 1.0)]]}),
+        (
+            MultiLineString,
+            {"coordinates": [[(0.0, 0.0), (1.0, 1.0)]], "bbox": [0, 0, 1, 1]},
+        ),
+        (
+            MultiLineString,
+            {
+                "type": "MultiLineString",
+                "coordinates": [[(0.0, 0.0), (1.0, 1.0)]],
+            },
+        ),
+        (
+            Polygon,
+            {
+                "coordinates": [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+                "bbox": [1.0, 2.0, 5.0, 6.0],
+            },
+        ),
+        (Polygon, {"coordinates": [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]}),
+        (
+            Polygon,
+            {
+                "type": "Polygon",
+                "coordinates": [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+            },
+        ),
+        (
+            MultiPolygon,
+            {
+                "coordinates": [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]],
+                "bbox": [1.0, 2.0, 5.0, 6.0],
+            },
+        ),
+        (
+            MultiPolygon,
+            {"coordinates": [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]]},
+        ),
+        (
+            MultiPolygon,
+            {
+                "type": "MultiPolygon",
+                "coordinates": [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]],
+            },
+        ),
+        (
+            GeometryCollection,
+            {
+                "geometries": [
+                    {"type": "Point", "coordinates": [0, 0]},
+                    {"type": "MultiPoint", "coordinates": [[1, 1]]},
+                ]
+            },
+        ),
+        (
+            GeometryCollection,
+            {
+                "type": "GeometryCollection",
+                "geometries": [
+                    {"type": "Point", "coordinates": [0, 0]},
+                    {"type": "MultiPoint", "coordinates": [[1, 1]]},
+                ],
+            },
+        ),
+    ),
+)
+def test_geometry_create(obj, kwargs):
+    """Test Geometry object create with new."""
+    assert obj.create(**kwargs)
+
+
+@pytest.mark.parametrize(
+    "obj,kwargs",
+    (
+        (Point, {"type": "P", "coordinates": [0, 0]}),
+        (MultiPoint, {"type": "M", "coordinates": [(0.0, 0.0)]}),
+        (LineString, {"type": "L", "coordinates": [(0.0, 0.0), (1.0, 1.0)]}),
+        (
+            MultiLineString,
+            {
+                "type": "M",
+                "coordinates": [[(0.0, 0.0), (1.0, 1.0)]],
+            },
+        ),
+        (
+            Polygon,
+            {
+                "type": "P",
+                "coordinates": [[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]],
+            },
+        ),
+        (
+            MultiPolygon,
+            {
+                "type": "M",
+                "coordinates": [[[(1.0, 2.0), (3.0, 4.0), (5.0, 6.0), (1.0, 2.0)]]],
+            },
+        ),
+        (
+            GeometryCollection,
+            {
+                "type": "G",
+                "geometries": [
+                    {"type": "Point", "coordinates": [0, 0]},
+                    {"type": "MultiPoint", "coordinates": [[1, 1]]},
+                ],
+            },
+        ),
+    ),
+)
+def test_geometry_new_invalid(obj, kwargs):
+    """raise ValidationError with type is invalid."""
+    with pytest.raises(ValidationError):
+        obj.create(**kwargs)

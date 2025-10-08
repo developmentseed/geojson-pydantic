@@ -33,6 +33,7 @@ assert fc.features[0].properties["name"] == "jeff"
 - `__geo_interface__`: GeoJSON-like protocol for geo-spatial (GIS) vector data ([spec](https://gist.github.com/sgillies/2217756#__geo_interface)).
 - `has_z`: returns true if any coordinate has a Z value.
 - `wkt`: returns the Well Known Text representation of the geometry.
+- `create`: create a geometry object without providing the `type` information
 
 ##### For Polygon geometry
 
@@ -151,7 +152,7 @@ feat = MyPointFeatureModel(**geojson_feature)
 assert feat.properties.name == "drew"
 ```
 
-## Enforced Keys
+## Enforced `type` Keys
 
 Starting with version `0.6.0`, geojson-pydantic's classes will not define default keys such has `type`, `geometry` or `properties`.
 This is to make sure the library does well its first goal, which is `validating` GeoJSON object based on the [specification](https://datatracker.ietf.org/doc/html/rfc7946#section-3.1.1)
@@ -186,4 +187,14 @@ Point(coordinates=(0,0))
 
 Point(type="Point", coordinates=(0,0))
 >> Point(type='Point', coordinates=(0.0, 0.0), bbox=None)
+```
+
+Starting with `2.1.0`, users can use the `.create()` methods to create geometries without the `type` information
+
+```python
+from geojson_pydantic import Point
+
+Point.create(coordinates=(0,0))
+# is equivalent to
+Point(bbox=None, type='Point', coordinates=Position2D(longitude=0.0, latitude=0.0))
 ```

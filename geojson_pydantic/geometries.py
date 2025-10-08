@@ -7,7 +7,7 @@ import warnings
 from typing import Any, Iterator, List, Literal, Union
 
 from pydantic import Field, field_validator
-from typing_extensions import Annotated
+from typing_extensions import Annotated, Self
 
 from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.types import (
@@ -105,6 +105,12 @@ class _GeometryBase(_GeoJsonBase, abc.ABC):
 
         return wkt
 
+    @classmethod
+    @abc.abstractmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        ...
+
 
 class Point(_GeometryBase):
     """Point Model"""
@@ -120,6 +126,12 @@ class Point(_GeometryBase):
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _position_has_z(self.coordinates)
+
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "Point")
+        return cls(type=t, **kwargs)
 
 
 class MultiPoint(_GeometryBase):
@@ -140,6 +152,12 @@ class MultiPoint(_GeometryBase):
         """Checks if any coordinate has a Z value."""
         return _position_list_has_z(self.coordinates)
 
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "MultiPoint")
+        return cls(type=t, **kwargs)
+
 
 class LineString(_GeometryBase):
     """LineString Model"""
@@ -156,6 +174,12 @@ class LineString(_GeometryBase):
         """Checks if any coordinate has a Z value."""
         return _position_list_has_z(self.coordinates)
 
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "LineString")
+        return cls(type=t, **kwargs)
+
 
 class MultiLineString(_GeometryBase):
     """MultiLineString Model"""
@@ -171,6 +195,12 @@ class MultiLineString(_GeometryBase):
     def has_z(self) -> bool:
         """Checks if any coordinate has a Z value."""
         return _lines_has_z(self.coordinates)
+
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "MultiLineString")
+        return cls(type=t, **kwargs)
 
 
 class Polygon(_GeometryBase):
@@ -209,9 +239,7 @@ class Polygon(_GeometryBase):
         return _lines_has_z(self.coordinates)
 
     @classmethod
-    def from_bounds(
-        cls, xmin: float, ymin: float, xmax: float, ymax: float
-    ) -> "Polygon":
+    def from_bounds(cls, xmin: float, ymin: float, xmax: float, ymax: float) -> Self:
         """Create a Polygon geometry from a boundingbox."""
         return cls(
             type="Polygon",
@@ -219,6 +247,12 @@ class Polygon(_GeometryBase):
                 [(xmin, ymin), (xmax, ymin), (xmax, ymax), (xmin, ymax), (xmin, ymin)]
             ],
         )
+
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "Polygon")
+        return cls(type=t, **kwargs)
 
 
 class MultiPolygon(_GeometryBase):
@@ -243,6 +277,12 @@ class MultiPolygon(_GeometryBase):
             raise ValueError("All linear rings have the same start and end coordinates")
 
         return coordinates
+
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "MultiPolygon")
+        return cls(type=t, **kwargs)
 
 
 class GeometryCollection(_GeoJsonBase):
@@ -308,6 +348,12 @@ class GeometryCollection(_GeoJsonBase):
             raise ValueError("GeometryCollection cannot have mixed Z dimensionality.")
 
         return geometries
+
+    @classmethod
+    def create(cls, **kwargs: Any) -> Self:
+        """Create object from attributes."""
+        t = kwargs.pop("type", "GeometryCollection")
+        return cls(type=t, **kwargs)
 
 
 Geometry = Annotated[
