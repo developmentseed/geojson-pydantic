@@ -33,7 +33,7 @@ assert fc.features[0].properties["name"] == "jeff"
 - `__geo_interface__`: GeoJSON-like protocol for geo-spatial (GIS) vector data ([spec](https://gist.github.com/sgillies/2217756#__geo_interface)).
 - `has_z`: returns true if any coordinate has a Z value.
 - `wkt`: returns the Well Known Text representation of the geometry.
-- `new`: create a geometry object without providing the `type` information
+- `create`: create a geometry object without providing the `type` information
 
 ##### For Polygon geometry
 
