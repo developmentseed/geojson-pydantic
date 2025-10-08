@@ -443,16 +443,3 @@ def test_feature_collection_serializer():
     assert "bbox" not in featcoll_ser
     assert "bbox" not in featcoll_ser["features"][0]
     assert "bbox" not in featcoll_ser["features"][0]["geometry"]
-
-
-def test_class_method():
-    """test from_attrs method."""
-    Feature.from_attrs(properties=None, geometry=None)
-    Feature.from_attrs(type="Feature", properties=None, geometry=None)
-    with pytest.raises(ValidationError):
-        Feature.from_attrs(type="Feat", properties=None, geometry=None)
-
-    FeatureCollection.from_attrs(features=[test_feature])
-    FeatureCollection.from_attrs(type="FeatureCollection", features=[test_feature])
-    with pytest.raises(ValidationError):
-        FeatureCollection.from_attrs(type="Feat", features=[test_feature])

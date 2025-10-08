@@ -988,9 +988,9 @@ def test_geometry_collection_serializer():
         ),
     ),
 )
-def test_geometry_from_attrs(obj, kwargs):
-    """Test Geometry object create with from_attrs."""
-    assert obj.from_attrs(**kwargs)
+def test_geometry_create(obj, kwargs):
+    """Test Geometry object create with new."""
+    assert obj.create(**kwargs)
 
 
 @pytest.mark.parametrize(
@@ -1032,7 +1032,7 @@ def test_geometry_from_attrs(obj, kwargs):
         ),
     ),
 )
-def test_geometry_from_attrs_invalid(obj, kwargs):
+def test_geometry_new_invalid(obj, kwargs):
     """raise ValidationError with type is invalid."""
     with pytest.raises(ValidationError):
-        obj.from_attrs(**kwargs)
+        obj.create(**kwargs)

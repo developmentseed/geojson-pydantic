@@ -3,7 +3,6 @@
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
 from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
-from typing_extensions import Self
 
 from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.geometries import Geometry
@@ -30,12 +29,6 @@ class Feature(_GeoJsonBase, Generic[Geom, Props]):
 
         return geometry
 
-    @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
-        """Create object from attributes."""
-        t = kwargs.pop("type", "Feature")
-        return cls(type=t, **kwargs)
-
 
 Feat = TypeVar("Feat", bound=Feature)
 
@@ -54,9 +47,3 @@ class FeatureCollection(_GeoJsonBase, Generic[Feat]):
     def length(self) -> int:
         """return features length"""
         return len(self.features)
-
-    @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
-        """Create object from attributes."""
-        t = kwargs.pop("type", "FeatureCollection")
-        return cls(type=t, **kwargs)

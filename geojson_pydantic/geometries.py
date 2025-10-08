@@ -107,7 +107,7 @@ class _GeometryBase(_GeoJsonBase, abc.ABC):
 
     @classmethod
     @abc.abstractmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         ...
 
@@ -128,7 +128,7 @@ class Point(_GeometryBase):
         return _position_has_z(self.coordinates)
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "Point")
         return cls(type=t, **kwargs)
@@ -153,7 +153,7 @@ class MultiPoint(_GeometryBase):
         return _position_list_has_z(self.coordinates)
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "MultiPoint")
         return cls(type=t, **kwargs)
@@ -175,7 +175,7 @@ class LineString(_GeometryBase):
         return _position_list_has_z(self.coordinates)
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "LineString")
         return cls(type=t, **kwargs)
@@ -197,7 +197,7 @@ class MultiLineString(_GeometryBase):
         return _lines_has_z(self.coordinates)
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "MultiLineString")
         return cls(type=t, **kwargs)
@@ -249,7 +249,7 @@ class Polygon(_GeometryBase):
         )
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "Polygon")
         return cls(type=t, **kwargs)
@@ -279,7 +279,7 @@ class MultiPolygon(_GeometryBase):
         return coordinates
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "MultiPolygon")
         return cls(type=t, **kwargs)
@@ -350,7 +350,7 @@ class GeometryCollection(_GeoJsonBase):
         return geometries
 
     @classmethod
-    def from_attrs(cls, **kwargs: Any) -> Self:
+    def create(cls, **kwargs: Any) -> Self:
         """Create object from attributes."""
         t = kwargs.pop("type", "GeometryCollection")
         return cls(type=t, **kwargs)

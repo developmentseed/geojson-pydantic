@@ -8,6 +8,17 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
+## [2.1.0] - 2025-10-08
+
+* add `.create()` method to Geometry objects to create them without `type` key
+
+    ```python
+    from geojson_pydantic import Point
+
+    Point.create(coordinates=(0,0))
+    >> Point(bbox=None, type='Point', coordinates=Position2D(longitude=0.0, latitude=0.0))
+    ```
+
 ## [2.0.0] - 2025-05-05
 
 * remove custom `__iter__`, `__getitem__` and `__len__` methods from `GeometryCollection` class  **breaking change**
