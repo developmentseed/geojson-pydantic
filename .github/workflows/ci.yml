@@ -24,9 +24,9 @@ jobs:
         - '3.14'
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -46,7 +46,7 @@ jobs:
 
       - name: Upload Results
         if: ${{ matrix.python-version == env.LATEST_PY_VERSION }}
-        uses: codecov/codecov-action@v1
+        uses: codecov/codecov-action@29386c70ef20e286228c72b668a06fd0e8399192 # v1
         with:
           file: ./coverage.xml
           flags: unittests
@@ -58,9 +58,9 @@ jobs:
     runs-on: ubuntu-latest
     if: startsWith(github.event.ref, 'refs/tags') || github.event_name == 'release'
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@93cb6efe18208431cddfb8368fd83d5badbf9bfd # v5
       - name: Set up Python
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6
         with:
           python-version: ${{ env.LATEST_PY_VERSION }}
 
