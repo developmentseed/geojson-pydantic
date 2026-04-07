@@ -105,7 +105,7 @@ ignore = [
 "tests/*.py" = ["D1"]
 
 [tool.bumpversion]
-current_version = "2.1.0"
+current_version = "2.1.1"
 
 search = "{current_version}"
 replace = "{new_version}"
