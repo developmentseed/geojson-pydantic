@@ -24,36 +24,40 @@ classifiers = [
 dynamic = ["version"]
 dependencies = ["pydantic~=2.0"]
 
-[project.optional-dependencies]
-test = ["pytest", "pytest-cov", "shapely"]
+[dependency-groups]
 dev = [
+    "pytest",
+    "pytest-cov",
+    "shapely",
     "pre-commit",
-    "bump-my-version",
 ]
+
 docs = [
-    "mkdocs",
-    "mkdocs-material",
+    "mkdocs>=1.4.3,<2.0",
+    "mkdocs-material>=9.5",
     "pygments",
+]
+
+deploy = [
+    "hatch",
 ]
 
 [project.urls]
 Source = "https://github.com/developmentseed/geojson-pydantic"
 
+
 [build-system]
-requires = ["flit_core>=3.2,<4"]
-build-backend = "flit_core.buildapi"
+requires = ["hatchling"]
+build-backend = "hatchling.build"
 
-[tool.flit.module]
-name = "geojson_pydantic"
+[tool.hatch.version]
+path = "geojson_pydantic/__init__.py"
 
-[tool.flit.sdist]
-exclude = [
-    "tests/",
-    "docs/",
-    ".github/",
-    "CHANGELOG.md",
-    "CONTRIBUTING.md",
-]
+[tool.hatch.build.targets.sdist]
+only-include = ["geojson_pydantic/"]
+
+[tool.hatch.build.targets.wheel]
+only-include = ["geojson_pydantic/"]
 
 [tool.coverage.run]
 branch = true

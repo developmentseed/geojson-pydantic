@@ -127,19 +127,19 @@ def test_generic_properties_is_dict_collection():
 def test_generic_properties_is_object():
     feature = Feature[Geometry, GenericProperties](**test_feature)
     assert feature.properties.id == test_feature["properties"]["id"]
-    assert type(feature.properties) == GenericProperties
+    assert isinstance(feature.properties, GenericProperties)
     assert hasattr(feature.properties, "id")
 
 
 def test_generic_geometry():
     feature = Feature[Polygon, GenericProperties](**test_feature)
     assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
-    assert type(feature.geometry) == Polygon
-    assert type(feature.properties) == GenericProperties
+    assert isinstance(feature.geometry, Polygon)
+    assert isinstance(feature.properties, GenericProperties)
     assert hasattr(feature.properties, "id")
 
     feature = Feature[Polygon, Dict](**test_feature)
-    assert type(feature.geometry) == Polygon
+    assert isinstance(feature.geometry, Polygon)
     assert feature.properties["id"] == test_feature["properties"]["id"]
     assert isinstance(feature.properties, dict)
     assert not hasattr(feature.properties, "id")
@@ -153,13 +153,13 @@ def test_generic_geometry_collection():
         **test_feature_geometry_collection
     )
     assert feature.properties.id == test_feature_geometry_collection["properties"]["id"]
-    assert type(feature.geometry) == GeometryCollection
+    assert isinstance(feature.geometry, GeometryCollection)
     assert feature.geometry.wkt.startswith("GEOMETRYCOLLECTION (POLYGON ")
-    assert type(feature.properties) == GenericProperties
+    assert isinstance(feature.properties, GenericProperties)
     assert hasattr(feature.properties, "id")
 
     feature = Feature[GeometryCollection, Dict](**test_feature_geometry_collection)
-    assert type(feature.geometry) == GeometryCollection
+    assert isinstance(feature.geometry, GeometryCollection)
     assert (
         feature.properties["id"] == test_feature_geometry_collection["properties"]["id"]
     )
@@ -183,8 +183,8 @@ def test_feature_collection_generic():
     )
     assert fc.length == 2
     assert len(list(fc.iter())) == 2
-    assert type(fc.features[0].properties) == GenericProperties
-    assert type(fc.features[0].geometry) == Polygon
+    assert isinstance(fc.features[0].properties, GenericProperties)
+    assert isinstance(fc.features[0].geometry, Polygon)
     assert dict(fc)
 
 

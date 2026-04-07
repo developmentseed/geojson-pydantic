@@ -39,21 +39,27 @@
 ## Install
 
 ```bash
-$ python -m pip install -U pip
-$ python -m pip install geojson-pydantic
+python -m pip install -U pip
+python -m pip install geojson-pydantic
 ```
 
 Or install from source:
 
+We recommand using [`uv`](https://docs.astral.sh/uv) as project manager for development.
+
+See https://docs.astral.sh/uv/getting-started/installation/ for installation 
+
 ```bash
-$ python -m pip install -U pip
-$ python -m pip install git+https://github.com/developmentseed/geojson-pydantic.git
+git clone https://github.com/developmentseed/geojson-pydantic.git
+cd geojson-pydantic
+
+uv sync
 ```
 
 Install with conda from [`conda-forge`](https://anaconda.org/conda-forge/geojson-pydantic):
 
 ```bash
-$ conda install -c conda-forge geojson-pydantic
+conda install -c conda-forge geojson-pydantic
 ```
 
 ## Contributing
