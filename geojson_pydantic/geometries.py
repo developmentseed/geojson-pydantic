@@ -314,7 +314,7 @@ class GeometryCollection(_GeoJsonBase):
 
         # Get the wkt from each of the geometries in the collection
         geometries = (
-            f'({", ".join(geom.wkt for geom in self.geometries)})'
+            f"({', '.join(geom.wkt for geom in self.geometries)})"
             if self.geometries
             else "EMPTY"
         )
