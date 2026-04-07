@@ -8,6 +8,10 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
+## [2.1.1] - 2026-04-07
+
+* fix: Clarify polygon, multipolygon validation error messages (author @psobolewskiPhD, https://github.com/developmentseed/geojson-pydantic/pull/184)
+
 ## [2.1.0] - 2025-10-08
 
 * add `.create()` method to Geometry objects to create them without `type` key
@@ -486,7 +490,9 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/2.0.0...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.1...HEAD
+[2.1.1]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.0...2.1.1
+[2.1.0]: https://github.com/developmentseed/geojson-pydantic/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.2.0...2.0.0
 [1.2.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.2...1.2.0
 [1.1.2]: https://github.com/developmentseed/geojson-pydantic/compare/1.1.1...1.1.2
