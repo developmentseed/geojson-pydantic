@@ -494,7 +494,8 @@ Although the type file was added in `0.2.0` it wasn't included in the distribute
 ### Added
 - Initial Release
 
-[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.1...HEAD
+[unreleased]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.2...HEAD
+[2.1.2]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.1...2.1.2
 [2.1.1]: https://github.com/developmentseed/geojson-pydantic/compare/2.1.0...2.1.1
 [2.1.0]: https://github.com/developmentseed/geojson-pydantic/compare/2.0.0...2.1.0
 [2.0.0]: https://github.com/developmentseed/geojson-pydantic/compare/1.2.0...2.0.0
