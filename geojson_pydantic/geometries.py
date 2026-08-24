@@ -47,7 +47,7 @@ def _position_list_has_z(positions: List[Position]) -> bool:
     return any(_position_has_z(position) for position in positions)
 
 
-def _lines_wtk_coordinates(
+def _lines_wkt_coordinates(
     coordinates: List[LineStringCoords], force_z: bool = False
 ) -> str:
     """Converts lines to WKT Coordinates."""
@@ -67,7 +67,7 @@ def _polygons_wkt_coordinates(
     coordinates: List[PolygonCoords], force_z: bool = False
 ) -> str:
     return ", ".join(
-        f"({_lines_wtk_coordinates(polygon, force_z)})" for polygon in coordinates
+        f"({_lines_wkt_coordinates(polygon, force_z)})" for polygon in coordinates
     )
 
 
@@ -189,7 +189,7 @@ class MultiLineString(_GeometryBase):
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
         """return WKT coordinates."""
-        return _lines_wtk_coordinates(coordinates, force_z)
+        return _lines_wkt_coordinates(coordinates, force_z)
 
     @property
     def has_z(self) -> bool:
@@ -211,7 +211,7 @@ class Polygon(_GeometryBase):
 
     def __wkt_coordinates__(self, coordinates: Any, force_z: bool) -> str:
         """return WKT coordinates."""
-        return _lines_wtk_coordinates(coordinates, force_z)
+        return _lines_wkt_coordinates(coordinates, force_z)
 
     @field_validator("coordinates")
     def check_closure(cls, coordinates: List) -> List:
