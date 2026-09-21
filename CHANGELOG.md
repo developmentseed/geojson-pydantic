@@ -8,7 +8,9 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
-* Accept finite floating-point Feature IDs while preserving integer and string IDs.
+## [2.2.0] - 2026-09-21
+
+* Accept finite floating-point Feature IDs while preserving integer and string IDs. (author @bensynapse, https://github.com/developmentseed/geojson-pydantic/pull/205)
 
 ## [2.1.2] - 2026-08-24
 
