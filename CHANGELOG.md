@@ -48,21 +48,21 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
     ########
     # Before
-    for geom in geom:       # __iter__
+    for geom in geom:  # __iter__
         pass
 
     assert len(geoms) == 2  # __len__
 
-    _ = geoms[0]            # __getitem__
+    _ = geoms[0]  # __getitem__
 
     #####
     # Now
-    for geom in geom.iter():   # __iter__
+    for geom in geom.iter():  # __iter__
         pass
 
     assert geoms.length == 2  # __len__
 
-    _ = geoms.geometries[0]   # __getitem__
+    _ = geoms.geometries[0]  # __getitem__
     ```
 
 * remove custom `__iter__`, `__getitem__` and `__len__` methods from `FeatureCollection` class  **breaking change**
@@ -71,29 +71,38 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
     from geojson_pydantic import FeatureCollection, Feature, Point
 
     fc = FeatureCollection(
-        type="FeatureCollection", features=[
-            Feature(type="Feature", geometry=Point(type="Point", coordinates=(102.0, 0.5)), properties={"name": "point1"}),
-            Feature(type="Feature", geometry=Point(type="Point", coordinates=(102.0, 1.5)), properties={"name": "point2"}),
-        ]
+        type="FeatureCollection",
+        features=[
+            Feature(
+                type="Feature",
+                geometry=Point(type="Point", coordinates=(102.0, 0.5)),
+                properties={"name": "point1"},
+            ),
+            Feature(
+                type="Feature",
+                geometry=Point(type="Point", coordinates=(102.0, 1.5)),
+                properties={"name": "point2"},
+            ),
+        ],
     )
 
     ########
     # Before
-    for feat in fc:      # __iter__
+    for feat in fc:  # __iter__
         pass
 
     assert len(fc) == 2  # __len__
 
-    _ = fc[0]            # __getitem__
+    _ = fc[0]  # __getitem__
 
     #####
     # Now
-    for feat in fc.iter(): # __iter__
+    for feat in fc.iter():  # __iter__
         pass
 
     assert fc.length == 2  # __len__
 
-    _ = fe.features[0]     # __getitem__
+    _ = fe.features[0]  # __getitem__
     ```
 
 * make sure `GeometryCollection` are homogeneous for Z coordinates
@@ -242,15 +251,12 @@ No change since 0.6.0a0
 
     ```python
     # Before
-    Feature(geometry=Point(coordinates=(0,0)))
+    Feature(geometry=Point(coordinates=(0, 0)))
 
     # Now
     Feature(
         type="Feature",
-        geometry=Point(
-            type="Point",
-            coordinates=(0,0)
-        ),
+        geometry=Point(type="Point", coordinates=(0, 0)),
         properties=None,
     )
     ```
@@ -418,9 +424,11 @@ No change since 0.6.0a0
     from geojson_pydantic.features import Feature
     from geojson_pydantic.geometries import Polygon
 
+
     class MyFeatureProperties(BaseModel):
         name: str
         value: int
+
 
     feature = Feature[Polygon, MyFeatureProperties](
         **{
@@ -428,19 +436,16 @@ No change since 0.6.0a0
             "geometry": {
                 "type": "Polygon",
                 "coordinates": [
-                [
-                    [13.38272,52.46385],
-                    [13.42786,52.46385],
-                    [13.42786,52.48445],
-                    [13.38272,52.48445],
-                    [13.38272,52.46385]
-                ]
-                ]
+                    [
+                        [13.38272, 52.46385],
+                        [13.42786, 52.46385],
+                        [13.42786, 52.48445],
+                        [13.38272, 52.48445],
+                        [13.38272, 52.46385],
+                    ]
+                ],
             },
-            "properties": {
-                "name": "test",
-                "value": 1
-            }
+            "properties": {"name": "test", "value": 1},
         }
     )
     ```

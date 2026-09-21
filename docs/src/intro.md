@@ -21,7 +21,9 @@ assert feat.type == "Feature"
 assert type(feat.geometry) == Point
 assert feat.properties["name"] == "jeff"
 
-fc = FeatureCollection(type="FeatureCollection", features=[geojson_feature, geojson_feature])
+fc = FeatureCollection(
+    type="FeatureCollection", features=[geojson_feature, geojson_feature]
+)
 assert fc.type == "FeatureCollection"
 assert len(fc.features) == 2
 assert type(fc.features[0].geometry) == Point
@@ -114,8 +116,15 @@ from typing import Optional
 
 MyPointFeatureModel = Feature[Optional[Point], Dict]
 
-assert MyPointFeatureModel(type="Feature", geometry=None, properties={}).geometry is None
-assert MyPointFeatureModel(type="Feature", geometry=Point(type="Point", coordinates=(0,0)), properties={}).geometry is not None
+assert (
+    MyPointFeatureModel(type="Feature", geometry=None, properties={}).geometry is None
+)
+assert (
+    MyPointFeatureModel(
+        type="Feature", geometry=Point(type="Point", coordinates=(0, 0)), properties={}
+    ).geometry
+    is not None
+)
 ```
 
 And now with constrained properties
@@ -194,7 +203,7 @@ Starting with `2.1.0`, users can use the `.create()` methods to create geometrie
 ```python
 from geojson_pydantic import Point
 
-Point.create(coordinates=(0,0))
+Point.create(coordinates=(0, 0))
 # is equivalent to
-Point(bbox=None, type='Point', coordinates=Position2D(longitude=0.0, latitude=0.0))
+Point(bbox=None, type="Point", coordinates=Position2D(longitude=0.0, latitude=0.0))
 ```

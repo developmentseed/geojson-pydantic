@@ -30,6 +30,8 @@ dev = [
     "pytest-cov",
     "shapely",
     "pre-commit",
+    "IPython",
+    "jupyter",
 ]
 
 docs = [
