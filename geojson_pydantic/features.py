@@ -2,7 +2,15 @@
 
 from typing import Any, Dict, Generic, Iterator, List, Literal, Optional, TypeVar, Union
 
-from pydantic import BaseModel, Field, StrictInt, StrictStr, field_validator
+from pydantic import (
+    BaseModel,
+    Field,
+    StrictFloat,
+    StrictInt,
+    StrictStr,
+    field_validator,
+)
+from typing_extensions import Annotated
 
 from geojson_pydantic.base import _GeoJsonBase
 from geojson_pydantic.geometries import Geometry
@@ -17,7 +25,9 @@ class Feature(_GeoJsonBase, Generic[Geom, Props]):
     type: Literal["Feature"]
     geometry: Union[Geom, None] = Field(...)
     properties: Union[Props, None] = Field(...)
-    id: Optional[Union[StrictInt, StrictStr]] = None
+    id: Optional[
+        Union[StrictInt, Annotated[StrictFloat, Field(allow_inf_nan=False)], StrictStr]
+    ] = None
 
     __geojson_exclude_if_none__ = {"bbox", "id"}
 

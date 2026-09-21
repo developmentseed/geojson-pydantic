@@ -8,6 +8,8 @@ Note: Minor version `0.X.0` update might break the API, It's recommended to pin 
 
 ## [unreleased]
 
+* Accept finite floating-point Feature IDs while preserving integer and string IDs.
+
 ## [2.1.2] - 2026-08-24
 
 * fix: rename `_lines_wtk_coordinates` to `_lines_wkt_coordinates`

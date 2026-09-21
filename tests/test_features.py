@@ -215,18 +215,45 @@ def test_feature_collection_geo_interface_with_null_geometry():
     assert "bbox" in fc.__geo_interface__["features"][1]
 
 
-@pytest.mark.parametrize("id", ["a", 1, "1"])
-def test_feature_id(id):
-    """Test if a string stays a string and if an int stays an int."""
-    feature = Feature(**test_feature, id=id)
+@pytest.mark.parametrize("id", ["a", 1, "1", 9007199254740993, 1.0, 1.25, -1.25, 0.0])
+@pytest.mark.parametrize("from_json", [False, True])
+def test_feature_id(id, from_json):
+    """Identifiers retain their values and types during validation and serialization."""
+    data = dict(test_feature, id=id)
+    feature = (
+        Feature.model_validate_json(json.dumps(data)) if from_json else Feature(**data)
+    )
     assert feature.id == id
+    assert type(feature.id) is type(id)
+    serialized = json.loads(feature.model_dump_json())
+    assert serialized["id"] == id
+    assert type(serialized["id"]) is type(id)
+    assert feature.__geo_interface__["id"] == id
 
 
-@pytest.mark.parametrize("id", [True, 1.0])
-def test_bad_feature_id(id):
+@pytest.mark.parametrize(
+    "id", [True, False, [], {}, float("nan"), float("inf"), -float("inf")]
+)
+@pytest.mark.parametrize("from_json", [False, True])
+def test_bad_feature_id(id, from_json):
     """make sure it raises error."""
     with pytest.raises(ValidationError):
-        Feature(**test_feature, id=id)
+        data = dict(test_feature, id=id)
+        if from_json:
+            Feature.model_validate_json(json.dumps(data))
+        else:
+            Feature(**data)
+
+
+def test_feature_id_schema():
+    """The identifier schema accepts JSON numbers as well as strings."""
+    schema = Feature.model_json_schema()["properties"]["id"]
+    assert {choice["type"] for choice in schema["anyOf"]} == {
+        "integer",
+        "number",
+        "string",
+        "null",
+    }
 
 
 def test_feature_validation():
