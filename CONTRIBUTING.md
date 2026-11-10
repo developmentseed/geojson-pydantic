@@ -30,7 +30,9 @@ uv run pre-commit install
 
 ## Release
 
-we use https://github.com/callowayproject/bump-my-version to update the package version.
+Releases are automated with [release-please](https://github.com/googleapis/release-please): a `fix:` or `feat:` commit merged to `main` opens (or updates) a `chore(main): release X.Y.Z` PR. Update CHANGELOG.md in that PR just before merging it; merging it tags `X.Y.Z`, which publishes to PyPI.
+
+To release by hand instead, use https://github.com/callowayproject/bump-my-version (it also updates `.release-please-manifest.json`).
 
 ```
 # Update version (edit files, commit and create tag)

@@ -1,0 +1,19 @@
+{
+  "packages": {
+    ".": {
+      "release-type": "python",
+      "skip-changelog": true,
+      "package-name": "geojson-pydantic",
+      "include-v-in-tag": false,
+      "include-v-in-release-name": false,
+      "include-component-in-tag": false,
+      "extra-files": [
+        {
+          "type": "toml",
+          "path": "pyproject.toml",
+          "jsonpath": "$.tool.bumpversion.current_version"
+        }
+      ]
+    }
+  }
+}
