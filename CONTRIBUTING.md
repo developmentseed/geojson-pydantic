@@ -28,9 +28,17 @@ uv run pre-commit install
 ```
 
 
-## Release
+## Commit messages and releases
 
-Releases are automated with [release-please](https://github.com/googleapis/release-please): a `fix:` or `feat:` commit merged to `main` opens (or updates) a `chore(main): release X.Y.Z` PR. Update CHANGELOG.md in that PR just before merging it; merging it tags `X.Y.Z`, which publishes to PyPI.
+Releases are automated with [release-please](https://github.com/googleapis/release-please), which reads the [Conventional Commit](https://www.conventionalcommits.org/) messages merged to `main`. Use them for your commits and your PR title, e.g. `fix: handle empty collections` or `feat: add a filter option`:
+
+- `fix:`, `perf:`, `deps:`, `revert:` and `docs:` lead to a patch release, `feat:` to a minor one, and a breaking change (`feat!:` or a `BREAKING CHANGE:` footer) to a major one.
+- `chore:`, `ci:`, `test:`, `build:`, `refactor:` and `style:` don't trigger a release on their own.
+- release-please keeps a release PR open with the next version; merging it tags the release and publishes it.
+- CHANGELOG.md is written by hand: add your change under `## [unreleased]`. For a breaking change, also mark the commit with `!` (e.g. `feat!:`), otherwise the release gets a patch or minor version.
+- At release time, a maintainer adds the `## [X.Y.Z] - date` heading under `## [unreleased]` and updates the links at the bottom of CHANGELOG.md. If the version should differ from the one release-please proposes, that commit also ends with a `Release-As: X.Y.Z` line.
+
+## Release
 
 To release by hand instead, use https://github.com/callowayproject/bump-my-version (it also updates `.release-please-manifest.json`).
 
