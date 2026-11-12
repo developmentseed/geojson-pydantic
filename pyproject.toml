@@ -120,3 +120,8 @@ tag_name = "{new_version}"
 filename = "geojson_pydantic/__init__.py"
 search = '__version__ = "{current_version}"'
 replace = '__version__ = "{new_version}"'
+
+[[tool.bumpversion.files]]
+filename = ".release-please-manifest.json"
+search = '".": "{current_version}"'
+replace = '".": "{new_version}"'
